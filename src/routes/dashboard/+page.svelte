@@ -47,6 +47,28 @@
 		setTimeout(() => (animateIn = true), 50);
 	}
 
+	// Particle simulation for lobby
+	let particles = $state<{ id: number; top: number; left: number; delay: number; duration: number }[]>([]);
+
+	// Reactively generate particles based on participant count
+	$effect(() => {
+		const targetCount = Math.min(results.participantCount * 3, 50); // cap at 50 particles
+		
+		if (particles.length < targetCount) {
+			const newParticles = [];
+			for (let i = particles.length; i < targetCount; i++) {
+				newParticles.push({
+					id: i,
+					top: Math.random() * 100,
+					left: Math.random() * 100,
+					delay: Math.random() * 2,
+					duration: 3 + Math.random() * 4
+				});
+			}
+			particles = [...particles, ...newParticles];
+		}
+	});
+
 	async function handleReset() {
 		try {
 			const res = await fetch('/api/reset', { method: 'POST' });
@@ -54,6 +76,7 @@
 				showResults = false;
 				animateIn = false;
 				polledResults = null;
+				particles = []; // clear particles on reset
 			}
 		} catch {
 			// silently ignore reset errors
@@ -62,118 +85,153 @@
 </script>
 
 <div
-	class="min-h-screen px-4 py-10 md:px-8"
+	class="min-h-screen px-4 py-10 md:px-8 relative z-10"
 >
-	<div class="mx-auto max-w-6xl">
+	<div class="animated-grid-bg"></div>
+
+	<!-- Dashboard specific dynamic node background for lobby -->
+	{#if !showResults && results.participantCount > 0}
+		<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+			{#each particles as p (p.id)}
+				<div 
+					class="absolute rounded-full bg-(--teal) opacity-0 mix-blend-multiply"
+					style="
+						top: {p.top}%; 
+						left: {p.left}%; 
+						width: {10 + (p.id % 20)}px; 
+						height: {10 + (p.id % 20)}px;
+						animation: float-node {p.duration}s ease-in-out infinite {p.delay}s, node-appear 1s ease-out forwards {p.delay}s;
+					"
+				></div>
+				<!-- Connecting lines effect (simplified) -->
+				{#if p.id > 0 && p.id % 3 === 0}
+					<div 
+						class="absolute bg-(--accent) opacity-0 origin-left"
+						style="
+							top: {p.top}%; 
+							left: {p.left}%; 
+							width: {40 + Math.random() * 60}px; 
+							height: 1px;
+							transform: rotate({Math.random() * 360}deg);
+							animation: line-connect 2s ease-in-out infinite alternate {p.delay + 1}s, node-appear 1s ease-out forwards {p.delay + 1}s;
+						"
+					></div>
+				{/if}
+			{/each}
+		</div>
+	{/if}
+
+	<div class="mx-auto max-w-6xl relative z-10">
 		{#if !showResults}
 			<!-- ===== STATE 1: LOBBY ===== -->
-			<div class="flex min-h-[80vh] flex-col items-center justify-center text-center">
-				<!-- QR Code -->
-				{#if baseUrl}
-					<div class="mb-8 rounded-2xl border border-white/10 bg-white/5 p-6">
-						<QrCode url={baseUrl} size={220} />
-					</div>
-				{/if}
+			<div class="flex min-h-[90vh] flex-col items-center justify-center text-center">
+				<!-- AWA brand mark -->
+				<div class="mb-6 text-xs font-bold tracking-[0.25em] text-[var(--accent)] uppercase">
+					AWA &middot; Cognitive Workplace Design
+				</div>
 
-				<!-- Title -->
+				<!-- Hero title -->
 				<h1
-					class="font-display mb-4 text-4xl font-bold text-white md:text-5xl lg:text-6xl"
-					style="line-height: 1.12"
+					class="font-display mb-4 text-5xl font-bold text-[#1a2b3c] md:text-6xl lg:text-7xl"
+					style="line-height: 1.1"
 				>
 					{results.session.title}
 				</h1>
 
-				<!-- URL text -->
+				<p class="mb-10 max-w-lg text-lg text-[#1a2b3c]/60">
+					Scan the code below to join from your phone
+				</p>
+
+				<!-- QR Code block -->
 				{#if baseUrl}
-					<p class="mb-8 text-lg text-white/45">{baseUrl}</p>
+					<div class="lobby-qr mb-4 rounded-3xl border border-[#1a2b3c]/10 bg-white p-8 shadow-2xl">
+						<QrCode url={baseUrl} size={260} />
+					</div>
+					<p class="mb-10 font-mono text-base font-semibold tracking-wider text-[#1a2b3c]/50">{baseUrl}</p>
 				{/if}
 
 				<!-- Live counters -->
-				<div class="mb-10 flex items-center gap-3 text-lg text-white/45">
-					<span>
-						<span class="font-bold text-white" style="font-variant-numeric: tabular-nums">{results.participantCount}</span> joined
-					</span>
-					<span class="text-white/25">&middot;</span>
-					<span>
-						<span class="font-bold text-white" style="font-variant-numeric: tabular-nums">{results.voteCount}</span> voted
-					</span>
+				<div class="mb-12 flex items-center gap-8">
+					<div class="flex flex-col items-center">
+						<span class="text-5xl font-extrabold text-[#1a2b3c]" style="font-variant-numeric: tabular-nums">{results.participantCount}</span>
+						<span class="text-sm font-medium text-[#1a2b3c]/40 uppercase tracking-widest mt-1">joined</span>
+					</div>
+					<div class="h-10 w-px bg-[#1a2b3c]/10"></div>
+					<div class="flex flex-col items-center">
+						<span class="text-5xl font-extrabold text-(--teal) drop-shadow-md" style="font-variant-numeric: tabular-nums">{results.voteCount}</span>
+						<span class="text-sm font-medium text-[#1a2b3c]/40 uppercase tracking-widest mt-1">voted</span>
+					</div>
 				</div>
 
 				<!-- Show Results button -->
 				<button
 					type="button"
-					class="show-results-btn cursor-pointer rounded-2xl border px-10 py-4 text-lg font-bold transition-all duration-300"
+					class="show-results-btn cursor-pointer rounded-2xl border px-12 py-5 text-xl font-bold transition-all duration-300"
 					class:has-votes={results.voteCount > 0}
 					disabled={results.voteCount === 0}
 					onclick={handleShowResults}
 				>
-					Show Results
+					Reveal Results
 				</button>
 			</div>
 		{:else}
 			<!-- ===== STATE 2: ANALYTICS ===== -->
 			<div class="analytics-container" class:animate-in={animateIn}>
 				<!-- Header with Reset button -->
-				<header class="relative mb-10 text-center">
+				<header class="relative mb-12 text-center">
 					<!-- Reset button (top-right) -->
 					<div class="absolute right-0 top-0">
 						<ResetButton onreset={handleReset} />
 					</div>
 
-					<div
-						class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full text-4xl"
-						style="background: linear-gradient(135deg, var(--teal), var(--accent)); box-shadow: 0 8px 40px rgba(0,139,139,0.4)"
-					>
-						&#129504;
+					<!-- AWA brand mark -->
+					<div class="mb-5 text-xs font-bold tracking-[0.25em] text-(--accent) uppercase">
+						AWA &middot; Cognitive Workplace Design
 					</div>
 
 					<h1
-						class="font-display mb-3 text-4xl font-bold text-white md:text-5xl"
-						style="line-height: 1.12"
+						class="font-display mb-4 text-4xl font-bold text-[#1a2b3c] md:text-5xl lg:text-6xl"
+						style="line-height: 1.1"
 					>
 						{results.session.title}
 					</h1>
 
-					<!-- Live badge -->
-					<div
-						class="mb-5 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors duration-300"
-						style="border-color: rgba(0,191,165,0.3); color: var(--accent); background: rgba(0,191,165,{justUpdated ? 0.2 : 0.1})"
-					>
-						<span class="relative flex h-2.5 w-2.5">
-							<span
-								class="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
-								style="background: var(--accent)"
-							></span>
-							<span
-								class="relative inline-flex h-2.5 w-2.5 rounded-full"
-								style="background: var(--accent)"
-							></span>
+					<!-- Live badge + stats row -->
+					<div class="flex items-center justify-center gap-5">
+						<div
+							class="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors duration-300"
+							style="border-color: rgba(0,191,165,0.3); color: var(--accent); background: rgba(0,191,165,{justUpdated ? 0.2 : 0.1})"
+						>
+							<span class="relative flex h-2.5 w-2.5">
+								<span
+									class="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+									style="background: var(--accent)"
+								></span>
+								<span
+									class="relative inline-flex h-2.5 w-2.5 rounded-full"
+									style="background: var(--accent)"
+								></span>
+							</span>
+							Live
+						</div>
+						<span class="text-[#1a2b3c]/20">&middot;</span>
+						<span class="text-sm font-medium text-[#1a2b3c]/50">
+							<span class="font-bold text-[#1a2b3c]" style="font-variant-numeric: tabular-nums">{results.participantCount}</span> participants
 						</span>
-						Live Results
-					</div>
-
-					<!-- Stats -->
-					<div class="flex items-center justify-center gap-6 text-white/45">
-						<div class="flex items-center gap-2">
-							<span class="text-lg">&#128101;</span>
-							<span class="text-lg font-bold text-white" style="font-variant-numeric: tabular-nums">{results.participantCount}</span>
-							<span>joined</span>
-						</div>
-						<div class="flex items-center gap-2">
-							<span class="text-lg">&#9989;</span>
-							<span class="text-lg font-bold text-white" style="font-variant-numeric: tabular-nums">{results.voteCount}</span>
-							<span>voted</span>
-						</div>
+						<span class="text-[#1a2b3c]/20">&middot;</span>
+						<span class="text-sm font-medium text-[#1a2b3c]/50">
+							<span class="font-bold text-[#1a2b3c]" style="font-variant-numeric: tabular-nums">{results.voteCount}</span> voted
+						</span>
 					</div>
 				</header>
 
 				{#if results.voteCount === 0}
 					<div class="py-20 text-center">
 						<div class="mx-auto mb-6 text-6xl breathe-slow-anim">&#129504;</div>
-						<h2 class="font-display mb-2 text-2xl font-bold text-white">
+						<h2 class="font-display mb-2 text-2xl font-bold text-[#1a2b3c]">
 							Waiting for participants...
 						</h2>
-						<p class="text-white/45">Results will appear here as votes come in</p>
+						<p class="text-[#1a2b3c]/60">Results will appear here as votes come in</p>
 					</div>
 				{:else}
 					<!-- Score Strip -->
@@ -181,7 +239,7 @@
 						<ScoreStrip
 							individualScore={results.individual.score}
 							communalScore={results.communal.score}
-							totalCorrect={results.individual.score + results.communal.score}
+							overallScore={Math.round((results.individual.score + results.communal.score) / 2)}
 						/>
 					</div>
 
@@ -199,7 +257,7 @@
 							totalVotes={results.participantCount}
 						/>
 						<RankPanel
-							title="The Connected Brain"
+							title="The Collective Brain"
 							subtitle="Top 5 features for team cognitive performance"
 							icon="&#129309;"
 							type="communal"
@@ -210,30 +268,30 @@
 
 					<!-- Practical Next Steps -->
 					<div class="analytics-card mb-6 pb-6 md:px-8" style="animation-delay: 200ms">
-						<h3 class="font-display mb-5 text-center text-2xl font-bold text-white">
+						<h3 class="font-display mb-5 text-center text-2xl font-bold text-[#1a2b3c]">
 							Practical Next Steps
 						</h3>
 						<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-							<div class="rounded-2xl border border-white/6 bg-white/3 p-6">
+							<div class="rounded-2xl border border-(--teal)/20 bg-white/40 shadow-sm p-6">
 								<div class="mb-3 text-2xl">&#9889;</div>
-								<h4 class="mb-2 text-lg font-bold text-white">Quick Wins</h4>
-								<p class="text-sm leading-relaxed text-white/45">
+								<h4 class="mb-2 text-lg font-bold text-(--teal)">Quick Wins</h4>
+								<p class="text-sm leading-relaxed text-[#1a2b3c]/70">
 									Identify the top evidence-based features that scored highly. These represent areas
 									where staff intuition aligns with research — implement these first.
 								</p>
 							</div>
-							<div class="rounded-2xl border border-white/6 bg-white/3 p-6">
+							<div class="rounded-2xl border border-(--green)/20 bg-white/40 shadow-sm p-6">
 								<div class="mb-3 text-2xl">&#128269;</div>
-								<h4 class="mb-2 text-lg font-bold text-white">Awareness Gaps</h4>
-								<p class="text-sm leading-relaxed text-white/45">
+								<h4 class="mb-2 text-lg font-bold text-(--green-dim)">Awareness Gaps</h4>
+								<p class="text-sm leading-relaxed text-[#1a2b3c]/70">
 									Look for popular features that lack evidence. These are opportunities for staff
 									education about what really drives cognitive performance.
 								</p>
 							</div>
-							<div class="rounded-2xl border border-white/6 bg-white/3 p-6">
+							<div class="rounded-2xl border border-(--indigo-text)/20 bg-white/40 shadow-sm p-6">
 								<div class="mb-3 text-2xl">&#127970;</div>
-								<h4 class="mb-2 text-lg font-bold text-white">AWA Deep Dive</h4>
-								<p class="text-sm leading-relaxed text-white/45">
+								<h4 class="mb-2 text-lg font-bold text-(--indigo)">AWA Deep Dive</h4>
+								<p class="text-sm leading-relaxed text-[#1a2b3c]/70">
 									Use these results to commission a detailed AWA x CEBMa cognitive workplace
 									assessment tailored to your organisation.
 								</p>
@@ -246,10 +304,10 @@
 
 					<!-- Research Footer -->
 					<div class="analytics-card pb-6 md:px-8" style="animation-delay: 300ms">
-						<div class="rounded-2xl border border-white/6 bg-white/3 p-8 text-center">
+						<div class="rounded-2xl border border-(--dark2)/10 bg-white/40 shadow-sm p-8 text-center">
 							<div class="mb-3 text-3xl">&#128218;</div>
-							<h3 class="font-display mb-3 text-xl font-bold text-white">Research Foundation</h3>
-							<p class="mx-auto mb-5 max-w-2xl text-sm leading-relaxed text-white/45">
+							<h3 class="font-display mb-3 text-xl font-bold text-[#1a2b3c]">Research Foundation</h3>
+							<p class="mx-auto mb-5 max-w-2xl text-sm leading-relaxed text-[#1a2b3c]/70">
 								This exercise is based on the AWA x CEBMa research partnership, combining Andrew
 								Mawson's 40+ years of workplace strategy with the Centre for Evidence-Based
 								Management's systematic review methodology.
@@ -259,7 +317,7 @@
 									href="https://www.advanced-workplace.com"
 									target="_blank"
 									rel="noopener noreferrer"
-									class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/70 transition-colors hover:bg-white/10"
+									class="rounded-full border border-[#1a2b3c]/20 bg-white/80 shadow-xs px-4 py-2 text-xs font-semibold text-[#1a2b3c]/80 transition-colors hover:bg-(--teal)/10"
 								>
 									AWA — Advanced Workplace Associates
 								</a>
@@ -267,13 +325,13 @@
 									href="https://www.cebma.org"
 									target="_blank"
 									rel="noopener noreferrer"
-									class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/70 transition-colors hover:bg-white/10"
+									class="rounded-full border border-[#1a2b3c]/20 bg-white/80 shadow-xs px-4 py-2 text-xs font-semibold text-[#1a2b3c]/80 transition-colors hover:bg-(--teal)/10"
 								>
 									CEBMa — Centre for Evidence-Based Management
 								</a>
 								<span
-									class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold"
-									style="color: var(--accent)"
+									class="rounded-full border border-(--accent)/30 bg-(--accent)/10 px-4 py-2 text-xs font-semibold"
+									style="color: var(--teal)"
 								>
 									Cognitive Workplace Design Research
 								</span>
@@ -312,6 +370,10 @@
 	.show-results-btn:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 3px;
+	}
+
+	.lobby-qr {
+		box-shadow: 0 0 60px rgba(0, 191, 165, 0.08);
 	}
 
 	@keyframes gentle-pulse {
@@ -360,7 +422,29 @@
 		0%, 100% { opacity: 0.6; }
 		50% { opacity: 1; }
 	}
+	
+	@keyframes float-node {
+		0%, 100% { transform: translate(0, 0) scale(1); }
+		33% { transform: translate(5px, -10px) scale(1.1); }
+		66% { transform: translate(-5px, -5px) scale(0.9); }
+	}
+
+	@keyframes node-appear {
+		from { opacity: 0; transform: scale(0); }
+		to { opacity: 0.15; transform: scale(1); } /* kept low opacity for subtlety on light bg */
+	}
+
+	@keyframes line-connect {
+		from { opacity: 0.05; transform: scaleX(0.5); }
+		to { opacity: 0.15; transform: scaleX(1); }
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.breathe-slow-anim { animation: none; opacity: 0.8; }
+		.analytics-container.animate-in .analytics-card {
+			animation: none;
+			opacity: 1;
+			transform: none;
+		}
 	}
 </style>

@@ -8,18 +8,23 @@ import {
 	getVoteCount,
 	getComments
 } from './db/queries';
+import { CATEGORY_TO_GROUP } from '$lib/data/default-features';
 
 export interface RankedFeature {
 	name: string;
 	category: string;
+	group: string;
 	hasEvidence: boolean;
 	caption: string | null;
+	voteCount: number;
 	percentage: number;
 }
 
 export interface PhaseResult {
-	score: number;
-	features: RankedFeature[];
+	score: number; // evidence ratio 0-100
+	totalPicks: number; // total votes cast across all participants
+	evidencePicks: number; // votes that went to evidence-based features
+	features: RankedFeature[]; // ALL features sorted by vote count desc
 }
 
 export interface TallyResult {
@@ -36,29 +41,34 @@ function buildPhaseResult(
 	tallies: Array<{ featureId: number; phase: string; voteCount: number }>,
 	featuresMap: Map<
 		number,
-		{ name: string; category: string; hasEvidence: boolean; caption: string | null }
+		{ name: string; category: string; group: string; hasEvidence: boolean; caption: string | null }
 	>,
 	participantCount: number
 ): PhaseResult {
 	const phaseTallies = tallies
 		.filter((t) => t.phase === phase)
-		.sort((a, b) => b.voteCount - a.voteCount)
-		.slice(0, 5);
+		.sort((a, b) => b.voteCount - a.voteCount);
 
 	const features: RankedFeature[] = phaseTallies.map((t) => {
 		const feature = featuresMap.get(t.featureId);
 		return {
 			name: feature?.name ?? 'Unknown',
 			category: feature?.category ?? 'unknown',
+			group: feature?.group ?? 'unknown',
 			hasEvidence: feature?.hasEvidence ?? false,
 			caption: feature?.caption ?? null,
+			voteCount: t.voteCount,
 			percentage: participantCount > 0 ? Math.round((t.voteCount / participantCount) * 100) : 0
 		};
 	});
 
-	const score = features.filter((f) => f.hasEvidence).length;
+	const totalPicks = phaseTallies.reduce((sum, t) => sum + t.voteCount, 0);
+	const evidencePicks = phaseTallies
+		.filter((t) => featuresMap.get(t.featureId)?.hasEvidence)
+		.reduce((sum, t) => sum + t.voteCount, 0);
+	const score = totalPicks > 0 ? Math.round((evidencePicks / totalPicks) * 100) : 0;
 
-	return { score, features };
+	return { score, totalPicks, evidencePicks, features };
 }
 
 export async function buildTallyResultById(
@@ -82,6 +92,7 @@ export async function buildTallyResultById(
 			{
 				name: f.name,
 				category: f.category,
+				group: CATEGORY_TO_GROUP[f.category] ?? f.category,
 				hasEvidence: f.hasEvidence,
 				caption: f.caption
 			}
@@ -121,6 +132,7 @@ export async function buildTallyResult(db: DbClient, code: string): Promise<Tall
 			{
 				name: f.name,
 				category: f.category,
+				group: CATEGORY_TO_GROUP[f.category] ?? f.category,
 				hasEvidence: f.hasEvidence,
 				caption: f.caption
 			}
