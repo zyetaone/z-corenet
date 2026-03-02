@@ -5,6 +5,7 @@
 	import AiPrompt from '$lib/components/AiPrompt.svelte';
 	import QrCode from '$lib/components/QrCode.svelte';
 	import ResetButton from '$lib/components/ResetButton.svelte';
+	import ParticleField from '$lib/components/ParticleField.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -47,28 +48,6 @@
 		setTimeout(() => (animateIn = true), 50);
 	}
 
-	// Particle simulation for lobby
-	let particles = $state<{ id: number; top: number; left: number; delay: number; duration: number }[]>([]);
-
-	// Reactively generate particles based on participant count
-	$effect(() => {
-		const targetCount = Math.min(results.participantCount * 3, 50); // cap at 50 particles
-		
-		if (particles.length < targetCount) {
-			const newParticles = [];
-			for (let i = particles.length; i < targetCount; i++) {
-				newParticles.push({
-					id: i,
-					top: Math.random() * 100,
-					left: Math.random() * 100,
-					delay: Math.random() * 2,
-					duration: 3 + Math.random() * 4
-				});
-			}
-			particles = [...particles, ...newParticles];
-		}
-	});
-
 	async function handleReset() {
 		try {
 			const res = await fetch('/api/reset', { method: 'POST' });
@@ -76,7 +55,6 @@
 				showResults = false;
 				animateIn = false;
 				polledResults = null;
-				particles = []; // clear particles on reset
 			}
 		} catch {
 			// silently ignore reset errors
@@ -87,39 +65,11 @@
 <div
 	class="min-h-screen px-4 py-10 md:px-8 relative z-10"
 >
-	<div class="animated-grid-bg"></div>
-
-	<!-- Dashboard specific dynamic node background for lobby -->
-	{#if !showResults && results.participantCount > 0}
-		<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-			{#each particles as p (p.id)}
-				<div 
-					class="absolute rounded-full bg-(--teal) opacity-0 mix-blend-multiply"
-					style="
-						top: {p.top}%; 
-						left: {p.left}%; 
-						width: {10 + (p.id % 20)}px; 
-						height: {10 + (p.id % 20)}px;
-						animation: float-node {p.duration}s ease-in-out infinite {p.delay}s, node-appear 1s ease-out forwards {p.delay}s;
-					"
-				></div>
-				<!-- Connecting lines effect (simplified) -->
-				{#if p.id > 0 && p.id % 3 === 0}
-					<div 
-						class="absolute bg-(--accent) opacity-0 origin-left"
-						style="
-							top: {p.top}%; 
-							left: {p.left}%; 
-							width: {40 + Math.random() * 60}px; 
-							height: 1px;
-							transform: rotate({Math.random() * 360}deg);
-							animation: line-connect 2s ease-in-out infinite alternate {p.delay + 1}s, node-appear 1s ease-out forwards {p.delay + 1}s;
-						"
-					></div>
-				{/if}
-			{/each}
-		</div>
+	{#if !showResults}
+		<ParticleField participantCount={results.participantCount} phase="individual" />
 	{/if}
+
+	<div class="animated-grid-bg"></div>
 
 	<div class="mx-auto max-w-6xl relative z-10">
 		{#if !showResults}
@@ -423,22 +373,6 @@
 		50% { opacity: 1; }
 	}
 	
-	@keyframes float-node {
-		0%, 100% { transform: translate(0, 0) scale(1); }
-		33% { transform: translate(5px, -10px) scale(1.1); }
-		66% { transform: translate(-5px, -5px) scale(0.9); }
-	}
-
-	@keyframes node-appear {
-		from { opacity: 0; transform: scale(0); }
-		to { opacity: 0.15; transform: scale(1); } /* kept low opacity for subtlety on light bg */
-	}
-
-	@keyframes line-connect {
-		from { opacity: 0.05; transform: scaleX(0.5); }
-		to { opacity: 0.15; transform: scaleX(1); }
-	}
-
 	@media (prefers-reduced-motion: reduce) {
 		.breathe-slow-anim { animation: none; opacity: 0.8; }
 		.analytics-container.animate-in .analytics-card {
