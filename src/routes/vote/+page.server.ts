@@ -1,22 +1,18 @@
 import { redirect, error } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getDb } from '$lib/server/db';
-import {
-	getSessionByCode,
-	getSessionFeatures,
-	saveVotes,
-	saveComment
-} from '$lib/server/db/queries';
+import { getSessionById, getSessionFeatures, saveVotes, saveComment } from '$lib/server/db/queries';
 
-export const load: PageServerLoad = async ({ params, platform, cookies }) => {
+export const load: PageServerLoad = async ({ platform, cookies }) => {
 	const participantId = cookies.get('participant_id');
+	const sessionId = cookies.get('session_id');
 
-	if (!participantId) {
-		redirect(303, `/session/${params.code}`);
+	if (!participantId || !sessionId) {
+		redirect(303, '/');
 	}
 
 	const db = getDb(platform);
-	const session = await getSessionByCode(db, params.code);
+	const session = await getSessionById(db, sessionId);
 
 	if (!session) {
 		error(404, 'Session not found');
@@ -28,10 +24,11 @@ export const load: PageServerLoad = async ({ params, platform, cookies }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, params, platform, cookies }) => {
+	default: async ({ request, platform, cookies }) => {
 		const participantId = cookies.get('participant_id');
+		const sessionId = cookies.get('session_id');
 
-		if (!participantId) {
+		if (!participantId || !sessionId) {
 			return { error: 'Not registered' };
 		}
 
@@ -50,19 +47,14 @@ export const actions: Actions = {
 		const comment = (formData.get('comment') as string)?.trim() || '';
 
 		const db = getDb(platform);
-		const session = await getSessionByCode(db, params.code);
 
-		if (!session) {
-			return { error: 'Session not found' };
-		}
-
-		await saveVotes(db, participantId, session.id, 'individual', individualIds);
-		await saveVotes(db, participantId, session.id, 'communal', communalIds);
+		await saveVotes(db, participantId, sessionId, 'individual', individualIds);
+		await saveVotes(db, participantId, sessionId, 'communal', communalIds);
 
 		if (comment) {
-			await saveComment(db, participantId, session.id, comment);
+			await saveComment(db, participantId, sessionId, comment);
 		}
 
-		redirect(303, `/session/${params.code}/dashboard`);
+		redirect(303, '/dashboard');
 	}
 };

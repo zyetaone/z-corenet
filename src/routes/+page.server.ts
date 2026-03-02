@@ -1,36 +1,51 @@
 import { redirect } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+import type { Actions } from './$types';
 import { getDb } from '$lib/server/db';
-import { createSession, copyDefaultFeatures } from '$lib/server/db/queries';
-import { buildTallyResult } from '$lib/server/tally';
+import {
+	getLatestOpenSession,
+	createSession,
+	copyDefaultFeatures,
+	createParticipant
+} from '$lib/server/db/queries';
 import { DEFAULT_FEATURES } from '$lib/data/default-features';
 
 function generateCode(): string {
 	return crypto.randomUUID().slice(0, 6).toUpperCase();
 }
 
-export const load: PageServerLoad = async ({ url, platform }) => {
-	const code = url.searchParams.get('code');
-	if (code) {
-		const db = getDb(platform);
-		const tally = await buildTallyResult(db, code);
-		if (tally) {
-			return { mode: 'dashboard' as const, ...tally };
-		}
-	}
-	return { mode: 'create' as const };
-};
+async function getOrCreateSession(db: ReturnType<typeof getDb>) {
+	const existing = await getLatestOpenSession(db);
+	if (existing) return existing;
+
+	const code = generateCode();
+	const session = await createSession(db, code, 'Designing Workplaces That Think');
+	await copyDefaultFeatures(db, session.id, DEFAULT_FEATURES);
+	return session;
+}
 
 export const actions: Actions = {
-	create: async ({ request, platform }) => {
+	default: async ({ request, platform, cookies }) => {
 		const db = getDb(platform);
+		const session = await getOrCreateSession(db);
+
 		const formData = await request.formData();
-		const title = (formData.get('title') as string)?.trim() || 'Designing Workplaces That Think';
+		const name = (formData.get('name') as string)?.trim() || undefined;
 
-		const code = generateCode();
-		const session = await createSession(db, code, title);
-		await copyDefaultFeatures(db, session.id, DEFAULT_FEATURES);
+		const participant = await createParticipant(db, session.id, name);
 
-		return { code };
+		cookies.set('participant_id', participant.id, {
+			path: '/',
+			httpOnly: true,
+			sameSite: 'lax',
+			maxAge: 60 * 60 * 24
+		});
+		cookies.set('session_id', session.id, {
+			path: '/',
+			httpOnly: true,
+			sameSite: 'lax',
+			maxAge: 60 * 60 * 24
+		});
+
+		redirect(303, '/vote');
 	}
 };

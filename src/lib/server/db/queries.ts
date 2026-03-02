@@ -16,6 +16,21 @@ export async function getSessionByCode(db: DbClient, code: string): Promise<Sess
 	return session;
 }
 
+export async function getSessionById(db: DbClient, id: string): Promise<Session | undefined> {
+	const [session] = await db.select().from(sessions).where(eq(sessions.id, id));
+	return session;
+}
+
+export async function getLatestOpenSession(db: DbClient): Promise<Session | undefined> {
+	const [session] = await db
+		.select()
+		.from(sessions)
+		.where(eq(sessions.status, 'open'))
+		.orderBy(sql`${sessions.createdAt} desc`)
+		.limit(1);
+	return session;
+}
+
 export async function closeSession(db: DbClient, sessionId: string): Promise<void> {
 	await db.update(sessions).set({ status: 'closed' }).where(eq(sessions.id, sessionId));
 }
