@@ -1,3 +1,48 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+	--teal: #008b8b;
+	--accent: #00bfa5;
+	--dark: #0f1923;
+	--dark2: #1a2b3c;
+	--green: #00c853;
+	--green-dim: #1b5e20;
+	--red: #ff5252;
+	--red-dim: #b71c1c;
+	--orange: #ffb300;
+	--indigo: #5c6bc0;
+	--purple: #7e57c2;
+	--blue-l1: #29b6f6;
+	--blue-l2: #0288d1;
+	--gold: #ffd54f;
+}
+
+body {
+	font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+	background: var(--dark);
+	color: #fff;
+	-webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+	font-family: 'Playfair Display', Georgia, serif;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes barFill {
+	from {
+		width: 0%;
+	}
+}
