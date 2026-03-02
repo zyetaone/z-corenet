@@ -2,6 +2,7 @@
 	import type { SessionFeature } from '$lib/server/db/schema';
 	import { FEATURE_GROUPS, CATEGORY_TO_GROUP, type GroupKey } from '$lib/data/default-features';
 	import FeatureCard from './FeatureCard.svelte';
+	import CategoryIcon from './CategoryIcon.svelte';
 	import { fly } from 'svelte/transition';
 
 	let {
@@ -36,21 +37,21 @@
 	{#each grouped as group, i (group.key)}
 		<div
 			in:fly={{ y: 20, duration: 600, delay: i * 100 }}
-			class="rounded-3xl border border-white/5 bg-white/5 p-5 shadow-sm sm:p-6"
+			class="rounded-3xl border p-5 shadow-sm sm:p-6 transition-colors duration-700 {phase === 'individual' ? 'border-[#1a2b3c]/10 bg-white/40' : 'border-white/5 bg-white/5'}"
 		>
 			<div class="mb-5 flex items-center gap-3">
 				<div
-					class="flex h-10 w-10 items-center justify-center rounded-2xl text-xl shadow-inner backdrop-blur-md transition-colors duration-300 {completedGroups.has(group.key) ? (phase === 'individual' ? 'bg-[var(--green)]/15' : 'bg-[var(--indigo-text)]/15') : 'bg-white/10'}"
+					class="flex h-10 w-10 items-center justify-center rounded-2xl text-xl shadow-inner backdrop-blur-md transition-colors duration-300 {completedGroups.has(group.key) ? (phase === 'individual' ? 'bg-(--green)/15' : 'bg-(--indigo-text)/15') : (phase === 'individual' ? 'bg-white/80' : 'bg-white/10')}"
 				>
 					{#if completedGroups.has(group.key)}
-						<svg class="h-5 w-5 text-[var(--green)]" viewBox="0 0 20 20" fill="currentColor">
+						<svg class="h-5 w-5 {phase === 'individual' ? 'text-(--green)' : 'text-(--indigo-text)'}" viewBox="0 0 20 20" fill="currentColor">
 							<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
 						</svg>
 					{:else}
-						{group.icon}
+						<CategoryIcon group={group.key} size={22} />
 					{/if}
 				</div>
-				<h3 class="font-display text-base font-bold tracking-wide text-white/90 uppercase">
+				<h3 class="font-display text-base font-bold tracking-wide uppercase transition-colors duration-700 {phase === 'individual' ? 'text-[#1a2b3c]' : 'text-white/90'}">
 					{group.label}
 				</h3>
 			</div>
