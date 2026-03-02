@@ -8,7 +8,7 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<title>AWA · Designing Workplaces That Think</title>
+	<title>Designing Workplaces That Think · AWA x Zyeta</title>
 </svelte:head>
 
 {@render children()}

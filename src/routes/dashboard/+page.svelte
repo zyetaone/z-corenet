@@ -121,7 +121,7 @@
 			<!-- ===== LOBBY ===== -->
 			<div class="flex min-h-[90vh] flex-col items-center justify-center text-center">
 				<div class="mb-6 text-xs font-bold tracking-[0.25em] text-[var(--accent)] uppercase">
-					AWA &middot; Cognitive Workplace Design
+					Powered by AWA &times; Zyeta
 				</div>
 
 				<h1
@@ -174,7 +174,7 @@
 					</div>
 
 					<div class="mb-3 text-xs font-bold tracking-[0.25em] text-[var(--accent)] uppercase">
-						AWA &middot; Cognitive Workplace Design
+						Powered by AWA &times; Zyeta
 					</div>
 
 					<h1
