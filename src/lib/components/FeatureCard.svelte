@@ -56,22 +56,30 @@
 	.feature-card {
 		display: flex;
 		align-items: flex-start;
-		gap: 0.75rem;
+		gap: 0.875rem;
 		width: 100%;
 		min-height: 3rem;
-		padding: 0.875rem 1rem;
-		background: rgba(255, 255, 255, 0.05);
+		padding: 1rem 1.125rem;
+		background: rgba(255, 255, 255, 0.04);
 		border: 1px solid rgba(255, 255, 255, 0.08);
-		border-radius: 0.75rem;
+		border-radius: 1rem;
 		cursor: pointer;
 		user-select: none;
 		text-align: left;
 		font-family: 'DM Sans', sans-serif;
-		transition: all 0.18s;
+		transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); /* Springy easing */
 	}
 
 	.feature-card:hover:not(.disabled):not(.used) {
-		border-color: rgba(255, 255, 255, 0.2);
+		border-color: rgba(255, 255, 255, 0.25);
+		background: rgba(255, 255, 255, 0.07);
+		transform: translateY(-2px);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+	}
+
+	.feature-card:active:not(.disabled):not(.used) {
+		transform: scale(0.97) translateY(0);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
 	.feature-card.selected-a {

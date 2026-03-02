@@ -33,7 +33,7 @@
 <style>
 	.vote-topbar {
 		background: var(--dark);
-		padding: 0.875rem 1.75rem;
+		padding: 0.875rem 1rem;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -71,7 +71,7 @@
 	.topbar-phase {
 		display: flex;
 		align-items: center;
-		gap: 0.625rem;
+		gap: 0.5rem;
 	}
 
 	.topbar-phase-badge {
@@ -127,6 +127,12 @@
 	.counter-label {
 		color: rgba(255, 255, 255, 0.55);
 		font-size: 0.8125rem;
+	}
+
+	@media (min-width: 640px) {
+		.vote-topbar {
+			padding: 0.875rem 1.75rem;
+		}
 	}
 
 	@media (max-width: 640px) {

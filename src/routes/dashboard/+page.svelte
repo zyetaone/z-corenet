@@ -63,7 +63,6 @@
 
 <div
 	class="min-h-screen px-4 py-10 md:px-8"
-	style="background: linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%)"
 >
 	<div class="mx-auto max-w-6xl">
 		{#if !showResults}
@@ -107,11 +106,6 @@
 					class:has-votes={results.voteCount > 0}
 					disabled={results.voteCount === 0}
 					onclick={handleShowResults}
-					style="
-						border-color: {results.voteCount > 0 ? 'var(--accent)' : 'rgba(255,255,255,0.1)'};
-						background: {results.voteCount > 0 ? 'rgba(0,191,165,0.15)' : 'rgba(255,255,255,0.03)'};
-						color: {results.voteCount > 0 ? 'var(--accent)' : 'rgba(255,255,255,0.25)'};
-					"
 				>
 					Show Results
 				</button>
@@ -293,9 +287,31 @@
 </div>
 
 <style>
-	/* Gentle pulse animation for Show Results button when votes exist */
+	.show-results-btn {
+		border-color: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.03);
+		color: rgba(255, 255, 255, 0.25);
+	}
+
 	.show-results-btn.has-votes {
+		border-color: var(--accent);
+		background: rgba(0, 191, 165, 0.15);
+		color: var(--accent);
 		animation: gentle-pulse 2.5s ease-in-out infinite;
+	}
+
+	.show-results-btn.has-votes:hover {
+		background: rgba(0, 191, 165, 0.25);
+		transform: translateY(-1px);
+	}
+
+	.show-results-btn.has-votes:active {
+		transform: translateY(0);
+	}
+
+	.show-results-btn:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 3px;
 	}
 
 	@keyframes gentle-pulse {

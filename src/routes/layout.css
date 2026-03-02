@@ -25,7 +25,8 @@ body {
 		-apple-system,
 		BlinkMacSystemFont,
 		sans-serif;
-	background: var(--dark);
+	background: linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%);
+	min-height: 100vh;
 	color: #fff;
 	-webkit-font-smoothing: antialiased;
 }

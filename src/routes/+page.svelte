@@ -15,7 +15,6 @@
 
 <div
 	class="relative flex min-h-screen items-center justify-center overflow-hidden px-6"
-	style="background: linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%)"
 >
 	<!-- Subtle ambient glow instead of heavy SVG -->
 	<div class="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-30 mix-blend-screen transition-opacity duration-1000">
@@ -66,6 +65,7 @@
 						name="name"
 						type="text"
 						bind:value={name}
+						aria-label="Your name"
 						placeholder="What's your name? (optional)"
 						class="relative w-full rounded-2xl border border-white/10 bg-[#0f1923]/80 px-6 py-4.5 text-center text-lg font-medium tracking-wide text-white placeholder-white/30 shadow-inner backdrop-blur-xl outline-none transition-all duration-300 focus:border-white/20 focus:bg-white/5"
 					/>

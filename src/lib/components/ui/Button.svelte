@@ -45,10 +45,15 @@
 	}
 
 	.btn-primary:disabled {
-		background: #444;
+		background: rgba(0, 139, 139, 0.2);
 		box-shadow: none;
 		cursor: not-allowed;
 		opacity: 0.5;
+	}
+
+	.btn-primary:focus-visible {
+		outline: 2px solid #fff;
+		outline-offset: 3px;
 	}
 
 	.btn-primary.full-width {

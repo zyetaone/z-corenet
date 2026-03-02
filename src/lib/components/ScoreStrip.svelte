@@ -77,7 +77,7 @@
 <!-- Score message -->
 <div class="px-4 pb-7 md:px-8">
 	<div
-		class="rounded-[14px] p-[18px_28px] text-lg leading-relaxed text-white/80 italic"
+		class="rounded-[14px] p-[18px_28px] text-lg leading-relaxed text-white/90 font-medium"
 		style={messageBg}
 	>
 		{message}

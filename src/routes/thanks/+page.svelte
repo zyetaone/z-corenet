@@ -12,7 +12,6 @@
 
 <div
 	class="relative flex min-h-screen items-center justify-center overflow-hidden px-6"
-	style="background: linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%)"
 >
 	<!-- Ambient glow background -->
 	<div

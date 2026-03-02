@@ -32,7 +32,6 @@
 
 <div
 	class="flex min-h-screen flex-col"
-	style="background: linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%)"
 >
 	<VoteTopbar count={engine.count} phase={engine.phase} />
 
@@ -80,6 +79,7 @@
 						name="comment"
 						bind:value={engine.freeText}
 						placeholder="Any thoughts on workplace design? (optional)"
+						aria-label="Comments on workplace design"
 						rows="3"
 						class="w-full rounded-xl border border-white/12 bg-white/6 px-5 py-3.5 text-base text-white placeholder-white/30 transition-colors outline-none focus:border-[var(--accent)]"
 					></textarea>
