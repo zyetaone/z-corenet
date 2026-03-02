@@ -36,8 +36,17 @@ export const actions: Actions = {
 		}
 
 		const formData = await request.formData();
-		const individualIds: number[] = JSON.parse((formData.get('individualIds') as string) || '[]');
-		const communalIds: number[] = JSON.parse((formData.get('communalIds') as string) || '[]');
+		let individualIds: number[] = [];
+		let communalIds: number[] = [];
+		try {
+			individualIds = JSON.parse((formData.get('individualIds') as string) || '[]');
+			communalIds = JSON.parse((formData.get('communalIds') as string) || '[]');
+		} catch {
+			return { error: 'Invalid vote data' };
+		}
+		if (!Array.isArray(individualIds) || !Array.isArray(communalIds)) {
+			return { error: 'Invalid vote data' };
+		}
 		const comment = (formData.get('comment') as string)?.trim() || '';
 
 		const db = getDb(platform);

@@ -37,7 +37,11 @@ export async function copyDefaultFeatures(
 		level: f.level,
 		caption: f.caption
 	}));
-	await db.insert(sessionFeatures).values(rows);
+	// D1 limits ~100 bound params per query; batch to stay under limit
+	const BATCH = 10;
+	for (let i = 0; i < rows.length; i += BATCH) {
+		await db.insert(sessionFeatures).values(rows.slice(i, i + BATCH));
+	}
 }
 
 export async function getSessionFeatures(

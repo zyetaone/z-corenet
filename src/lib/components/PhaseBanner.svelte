@@ -56,16 +56,16 @@
 	}
 
 	.heading-a {
-		color: #1b5e20;
+		color: var(--green);
 	}
 
 	.heading-b {
-		color: #3949ab;
+		color: #8c9eff;
 	}
 
 	.banner-text {
 		font-size: 0.875rem;
-		color: #777;
+		color: rgba(255, 255, 255, 0.6);
 		line-height: 1.5;
 	}
 
@@ -73,9 +73,9 @@
 		display: inline-block;
 		margin-top: 0.5rem;
 		font-size: 0.75rem;
-		color: #999;
+		color: rgba(255, 255, 255, 0.35);
 		font-style: italic;
-		background: rgba(0, 0, 0, 0.03);
+		background: rgba(255, 255, 255, 0.04);
 		padding: 0.25rem 0.75rem;
 		border-radius: 0.375rem;
 	}
