@@ -1,768 +1,1456 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AWA · Designing Workplaces That Think</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>AWA · Designing Workplaces That Think</title>
+		<style>
+			@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap');
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
 
-  :root {
-    --teal: #008B8B;
-    --accent: #00BFA5;
-    --dark: #0f1923;
-    --dark2: #1a2b3c;
-    --green: #00C853;
-    --green-dim: #1B5E20;
-    --red: #FF5252;
-    --red-dim: #B71C1C;
-    --orange: #FFB300;
-    --indigo: #5C6BC0;
-    --purple: #7E57C2;
-    --blue-l1: #29B6F6;
-    --blue-l2: #0288D1;
-    --gold: #FFD54F;
-  }
+			:root {
+				--teal: #008b8b;
+				--accent: #00bfa5;
+				--dark: #0f1923;
+				--dark2: #1a2b3c;
+				--green: #00c853;
+				--green-dim: #1b5e20;
+				--red: #ff5252;
+				--red-dim: #b71c1c;
+				--orange: #ffb300;
+				--indigo: #5c6bc0;
+				--purple: #7e57c2;
+				--blue-l1: #29b6f6;
+				--blue-l2: #0288d1;
+				--gold: #ffd54f;
+			}
 
-  body {
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--dark);
-    color: #fff;
-    -webkit-font-smoothing: antialiased;
-  }
+			body {
+				font-family:
+					'DM Sans',
+					-apple-system,
+					BlinkMacSystemFont,
+					sans-serif;
+				background: var(--dark);
+				color: #fff;
+				-webkit-font-smoothing: antialiased;
+			}
 
-  .screen { display: none; min-height: 100vh; }
-  .screen.active { display: block; }
+			.screen {
+				display: none;
+				min-height: 100vh;
+			}
+			.screen.active {
+				display: block;
+			}
 
-  /* ══════════════════════════════════════════
+			/* ══════════════════════════════════════════
      INTRO
      ══════════════════════════════════════════ */
-  .intro-screen {
-    background: linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%);
-    display: flex; align-items: center; justify-content: center; padding: 24px;
-  }
-  .intro-wrap { max-width: 580px; text-align: center; }
-  .awa-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 24px; padding: 8px 20px; margin-bottom: 28px;
-    font-size: 13px; color: rgba(255,255,255,0.7); letter-spacing: 0.5px;
-  }
-  .awa-badge strong { color: var(--accent); font-weight: 700; }
-  .intro-icon {
-    width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 28px;
-    background: linear-gradient(135deg, var(--teal), var(--accent));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 50px; box-shadow: 0 8px 40px rgba(0,139,139,0.4);
-  }
-  .intro-title {
-    font-family: 'Playfair Display', Georgia, serif;
-    color: #fff; font-size: 38px; font-weight: 700;
-    line-height: 1.12; margin-bottom: 10px;
-  }
-  .intro-subtitle {
-    color: var(--accent); font-size: 13px; font-weight: 600;
-    letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 40px;
-  }
-  .intro-phases {
-    display: flex; gap: 16px; margin-bottom: 36px; text-align: left;
-  }
-  .intro-phase {
-    flex: 1; background: rgba(255,255,255,0.04); border-radius: 14px;
-    padding: 22px 20px; border: 1px solid rgba(255,255,255,0.08);
-  }
-  .phase-tag {
-    display: inline-block; border-radius: 6px; padding: 3px 10px;
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1.5px; margin-bottom: 10px;
-  }
-  .phase-tag.a { background: rgba(0,200,83,0.15); color: var(--green); }
-  .phase-tag.b { background: rgba(92,107,192,0.15); color: var(--indigo); }
-  .intro-phase h3 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 17px; color: #fff; margin-bottom: 6px;
-  }
-  .intro-phase p { font-size: 13.5px; color: rgba(255,255,255,0.55); line-height: 1.55; }
-  .name-input {
-    width: 100%; max-width: 320px; padding: 14px 20px; border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06);
-    color: #fff; font-size: 16px; text-align: center; margin-bottom: 22px;
-    font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s;
-  }
-  .name-input::placeholder { color: rgba(255,255,255,0.3); }
-  .name-input:focus { border-color: var(--accent); }
+			.intro-screen {
+				background: linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 24px;
+			}
+			.intro-wrap {
+				max-width: 580px;
+				text-align: center;
+			}
+			.awa-badge {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				border-radius: 24px;
+				padding: 8px 20px;
+				margin-bottom: 28px;
+				font-size: 13px;
+				color: rgba(255, 255, 255, 0.7);
+				letter-spacing: 0.5px;
+			}
+			.awa-badge strong {
+				color: var(--accent);
+				font-weight: 700;
+			}
+			.intro-icon {
+				width: 100px;
+				height: 100px;
+				border-radius: 50%;
+				margin: 0 auto 28px;
+				background: linear-gradient(135deg, var(--teal), var(--accent));
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 50px;
+				box-shadow: 0 8px 40px rgba(0, 139, 139, 0.4);
+			}
+			.intro-title {
+				font-family: 'Playfair Display', Georgia, serif;
+				color: #fff;
+				font-size: 38px;
+				font-weight: 700;
+				line-height: 1.12;
+				margin-bottom: 10px;
+			}
+			.intro-subtitle {
+				color: var(--accent);
+				font-size: 13px;
+				font-weight: 600;
+				letter-spacing: 2.5px;
+				text-transform: uppercase;
+				margin-bottom: 40px;
+			}
+			.intro-phases {
+				display: flex;
+				gap: 16px;
+				margin-bottom: 36px;
+				text-align: left;
+			}
+			.intro-phase {
+				flex: 1;
+				background: rgba(255, 255, 255, 0.04);
+				border-radius: 14px;
+				padding: 22px 20px;
+				border: 1px solid rgba(255, 255, 255, 0.08);
+			}
+			.phase-tag {
+				display: inline-block;
+				border-radius: 6px;
+				padding: 3px 10px;
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 1.5px;
+				margin-bottom: 10px;
+			}
+			.phase-tag.a {
+				background: rgba(0, 200, 83, 0.15);
+				color: var(--green);
+			}
+			.phase-tag.b {
+				background: rgba(92, 107, 192, 0.15);
+				color: var(--indigo);
+			}
+			.intro-phase h3 {
+				font-family: 'Playfair Display', Georgia, serif;
+				font-size: 17px;
+				color: #fff;
+				margin-bottom: 6px;
+			}
+			.intro-phase p {
+				font-size: 13.5px;
+				color: rgba(255, 255, 255, 0.55);
+				line-height: 1.55;
+			}
+			.name-input {
+				width: 100%;
+				max-width: 320px;
+				padding: 14px 20px;
+				border-radius: 12px;
+				border: 1px solid rgba(255, 255, 255, 0.12);
+				background: rgba(255, 255, 255, 0.06);
+				color: #fff;
+				font-size: 16px;
+				text-align: center;
+				margin-bottom: 22px;
+				font-family: 'DM Sans', sans-serif;
+				outline: none;
+				transition: border-color 0.2s;
+			}
+			.name-input::placeholder {
+				color: rgba(255, 255, 255, 0.3);
+			}
+			.name-input:focus {
+				border-color: var(--accent);
+			}
 
-  .btn-primary {
-    background: linear-gradient(135deg, var(--teal), var(--accent));
-    color: #fff; border: none; border-radius: 14px; padding: 16px 56px;
-    font-size: 17px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px;
-    box-shadow: 0 4px 28px rgba(0,139,139,0.45);
-    font-family: 'DM Sans', sans-serif; transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 32px rgba(0,139,139,0.55); }
-  .btn-primary:disabled { background: #444; box-shadow: none; cursor: not-allowed; opacity: 0.5; }
+			.btn-primary {
+				background: linear-gradient(135deg, var(--teal), var(--accent));
+				color: #fff;
+				border: none;
+				border-radius: 14px;
+				padding: 16px 56px;
+				font-size: 17px;
+				font-weight: 700;
+				cursor: pointer;
+				letter-spacing: 0.5px;
+				box-shadow: 0 4px 28px rgba(0, 139, 139, 0.45);
+				font-family: 'DM Sans', sans-serif;
+				transition:
+					transform 0.15s,
+					box-shadow 0.15s;
+			}
+			.btn-primary:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 6px 32px rgba(0, 139, 139, 0.55);
+			}
+			.btn-primary:disabled {
+				background: #444;
+				box-shadow: none;
+				cursor: not-allowed;
+				opacity: 0.5;
+			}
 
-  /* ══════════════════════════════════════════
+			/* ══════════════════════════════════════════
      VOTING
      ══════════════════════════════════════════ */
-  .vote-screen { background: #f5f6f8; color: var(--dark); }
+			.vote-screen {
+				background: #f5f6f8;
+				color: var(--dark);
+			}
 
-  .vote-topbar {
-    background: var(--dark); padding: 14px 28px;
-    display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
-    box-shadow: 0 2px 20px rgba(0,0,0,0.25);
-  }
-  .topbar-left { display: flex; align-items: center; gap: 14px; }
-  .topbar-left .icon { font-size: 28px; }
-  .topbar-title {
-    font-family: 'Playfair Display', Georgia, serif;
-    color: #fff; font-size: 18px; font-weight: 600;
-  }
-  .topbar-phase {
-    display: flex; align-items: center; gap: 10px;
-  }
-  .topbar-phase-badge {
-    padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-  .topbar-phase-badge.a { background: rgba(0,200,83,0.15); color: var(--green); }
-  .topbar-phase-badge.b { background: rgba(92,107,192,0.15); color: #8C9EFF; }
-  .counter-pill {
-    border-radius: 22px; padding: 8px 20px;
-    display: flex; align-items: center; gap: 8px;
-    transition: all 0.3s;
-  }
-  .counter-pill.incomplete { background: rgba(255,255,255,0.08); }
-  .counter-pill.complete { background: linear-gradient(135deg, var(--teal), var(--accent)); }
-  .counter-num {
-    font-size: 22px; font-weight: 800; transition: color 0.3s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .counter-pill.incomplete .counter-num { color: var(--accent); }
-  .counter-pill.complete .counter-num { color: #fff; }
-  .counter-label { color: rgba(255,255,255,0.55); font-size: 13px; }
+			.vote-topbar {
+				background: var(--dark);
+				padding: 14px 28px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				position: sticky;
+				top: 0;
+				z-index: 100;
+				box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+			}
+			.topbar-left {
+				display: flex;
+				align-items: center;
+				gap: 14px;
+			}
+			.topbar-left .icon {
+				font-size: 28px;
+			}
+			.topbar-title {
+				font-family: 'Playfair Display', Georgia, serif;
+				color: #fff;
+				font-size: 18px;
+				font-weight: 600;
+			}
+			.topbar-phase {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+			.topbar-phase-badge {
+				padding: 6px 16px;
+				border-radius: 20px;
+				font-size: 13px;
+				font-weight: 700;
+				letter-spacing: 0.5px;
+			}
+			.topbar-phase-badge.a {
+				background: rgba(0, 200, 83, 0.15);
+				color: var(--green);
+			}
+			.topbar-phase-badge.b {
+				background: rgba(92, 107, 192, 0.15);
+				color: #8c9eff;
+			}
+			.counter-pill {
+				border-radius: 22px;
+				padding: 8px 20px;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				transition: all 0.3s;
+			}
+			.counter-pill.incomplete {
+				background: rgba(255, 255, 255, 0.08);
+			}
+			.counter-pill.complete {
+				background: linear-gradient(135deg, var(--teal), var(--accent));
+			}
+			.counter-num {
+				font-size: 22px;
+				font-weight: 800;
+				transition: color 0.3s;
+				font-family: 'DM Sans', sans-serif;
+			}
+			.counter-pill.incomplete .counter-num {
+				color: var(--accent);
+			}
+			.counter-pill.complete .counter-num {
+				color: #fff;
+			}
+			.counter-label {
+				color: rgba(255, 255, 255, 0.55);
+				font-size: 13px;
+			}
 
-  .vote-body { max-width: 940px; margin: 0 auto; padding: 24px 20px 40px; }
+			.vote-body {
+				max-width: 940px;
+				margin: 0 auto;
+				padding: 24px 20px 40px;
+			}
 
-  .phase-banner {
-    text-align: center; padding: 20px; margin-bottom: 20px;
-    border-radius: 14px;
-  }
-  .phase-banner.a { background: linear-gradient(135deg, rgba(0,200,83,0.06), rgba(0,200,83,0.02)); border: 1px solid rgba(0,200,83,0.15); }
-  .phase-banner.b { background: linear-gradient(135deg, rgba(92,107,192,0.06), rgba(92,107,192,0.02)); border: 1px solid rgba(92,107,192,0.15); }
-  .phase-banner h2 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 22px; margin-bottom: 6px;
-  }
-  .phase-banner.a h2 { color: #1B5E20; }
-  .phase-banner.b h2 { color: #3949AB; }
-  .phase-banner p { font-size: 14px; color: #777; line-height: 1.5; }
-  .phase-banner .research-ref {
-    display: inline-block; margin-top: 8px; font-size: 12px;
-    color: #999; font-style: italic; background: rgba(0,0,0,0.03);
-    padding: 4px 12px; border-radius: 6px;
-  }
+			.phase-banner {
+				text-align: center;
+				padding: 20px;
+				margin-bottom: 20px;
+				border-radius: 14px;
+			}
+			.phase-banner.a {
+				background: linear-gradient(135deg, rgba(0, 200, 83, 0.06), rgba(0, 200, 83, 0.02));
+				border: 1px solid rgba(0, 200, 83, 0.15);
+			}
+			.phase-banner.b {
+				background: linear-gradient(135deg, rgba(92, 107, 192, 0.06), rgba(92, 107, 192, 0.02));
+				border: 1px solid rgba(92, 107, 192, 0.15);
+			}
+			.phase-banner h2 {
+				font-family: 'Playfair Display', Georgia, serif;
+				font-size: 22px;
+				margin-bottom: 6px;
+			}
+			.phase-banner.a h2 {
+				color: #1b5e20;
+			}
+			.phase-banner.b h2 {
+				color: #3949ab;
+			}
+			.phase-banner p {
+				font-size: 14px;
+				color: #777;
+				line-height: 1.5;
+			}
+			.phase-banner .research-ref {
+				display: inline-block;
+				margin-top: 8px;
+				font-size: 12px;
+				color: #999;
+				font-style: italic;
+				background: rgba(0, 0, 0, 0.03);
+				padding: 4px 12px;
+				border-radius: 6px;
+			}
 
-  .feature-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 10px;
-  }
-  @media (max-width: 860px) { .feature-grid { grid-template-columns: 1fr; } }
+			.feature-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+				gap: 10px;
+			}
+			@media (max-width: 860px) {
+				.feature-grid {
+					grid-template-columns: 1fr;
+				}
+			}
 
-  .feature-card {
-    background: #fff; border: 2px solid #e4e6ea; border-radius: 12px;
-    padding: 14px 16px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;
-    transition: all 0.18s; user-select: none;
-  }
-  .feature-card:hover { border-color: #ccc; }
-  .feature-card.selected-a { background: rgba(0,200,83,0.04); border-color: var(--green); }
-  .feature-card.selected-b { background: rgba(92,107,192,0.04); border-color: var(--indigo); }
-  .feature-card.disabled { opacity: 0.35; cursor: not-allowed; }
-  .feature-card.used { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
+			.feature-card {
+				background: #fff;
+				border: 2px solid #e4e6ea;
+				border-radius: 12px;
+				padding: 14px 16px;
+				cursor: pointer;
+				display: flex;
+				align-items: flex-start;
+				gap: 12px;
+				transition: all 0.18s;
+				user-select: none;
+			}
+			.feature-card:hover {
+				border-color: #ccc;
+			}
+			.feature-card.selected-a {
+				background: rgba(0, 200, 83, 0.04);
+				border-color: var(--green);
+			}
+			.feature-card.selected-b {
+				background: rgba(92, 107, 192, 0.04);
+				border-color: var(--indigo);
+			}
+			.feature-card.disabled {
+				opacity: 0.35;
+				cursor: not-allowed;
+			}
+			.feature-card.used {
+				opacity: 0.25;
+				cursor: not-allowed;
+				pointer-events: none;
+			}
 
-  .card-check {
-    width: 24px; height: 24px; border-radius: 6px; flex-shrink: 0; margin-top: 1px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.18s; font-size: 14px; font-weight: 700; color: #fff;
-  }
-  .card-check.off { background: #f0f0f0; border: 2px solid #d0d0d0; }
-  .card-check.on-a { background: var(--green); border: none; }
-  .card-check.on-b { background: var(--indigo); border: none; }
+			.card-check {
+				width: 24px;
+				height: 24px;
+				border-radius: 6px;
+				flex-shrink: 0;
+				margin-top: 1px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 0.18s;
+				font-size: 14px;
+				font-weight: 700;
+				color: #fff;
+			}
+			.card-check.off {
+				background: #f0f0f0;
+				border: 2px solid #d0d0d0;
+			}
+			.card-check.on-a {
+				background: var(--green);
+				border: none;
+			}
+			.card-check.on-b {
+				background: var(--indigo);
+				border: none;
+			}
 
-  .card-name {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-weight: 600; font-size: 14.5px; color: var(--dark); line-height: 1.3;
-  }
-  .card-desc { font-size: 12.5px; color: #888; line-height: 1.45; }
-  .card-icon { font-size: 15px; }
+			.card-name {
+				font-family: 'Playfair Display', Georgia, serif;
+				font-weight: 600;
+				font-size: 14.5px;
+				color: var(--dark);
+				line-height: 1.3;
+			}
+			.card-desc {
+				font-size: 12.5px;
+				color: #888;
+				line-height: 1.45;
+			}
+			.card-icon {
+				font-size: 15px;
+			}
 
-  .free-text-box {
-    margin-top: 28px; background: #fff; border-radius: 12px;
-    border: 2px solid #e4e6ea; padding: 22px;
-  }
-  .free-text-box h3 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 16px; margin-bottom: 6px; color: var(--dark);
-  }
-  .free-text-box p { color: #888; font-size: 13px; margin-bottom: 12px; }
-  .free-text-box textarea {
-    width: 100%; min-height: 80px; padding: 14px; border-radius: 10px;
-    border: 1px solid #ddd; font-size: 14px; resize: vertical;
-    font-family: 'DM Sans', sans-serif; outline: none;
-  }
+			.free-text-box {
+				margin-top: 28px;
+				background: #fff;
+				border-radius: 12px;
+				border: 2px solid #e4e6ea;
+				padding: 22px;
+			}
+			.free-text-box h3 {
+				font-family: 'Playfair Display', Georgia, serif;
+				font-size: 16px;
+				margin-bottom: 6px;
+				color: var(--dark);
+			}
+			.free-text-box p {
+				color: #888;
+				font-size: 13px;
+				margin-bottom: 12px;
+			}
+			.free-text-box textarea {
+				width: 100%;
+				min-height: 80px;
+				padding: 14px;
+				border-radius: 10px;
+				border: 1px solid #ddd;
+				font-size: 14px;
+				resize: vertical;
+				font-family: 'DM Sans', sans-serif;
+				outline: none;
+			}
 
-  .submit-area { text-align: center; margin-top: 30px; padding-bottom: 40px; }
+			.submit-area {
+				text-align: center;
+				margin-top: 30px;
+				padding-bottom: 40px;
+			}
 
-  /* ══════════════════════════════════════════
+			/* ══════════════════════════════════════════
      DASHBOARD (large-screen optimised)
      ══════════════════════════════════════════ */
-  .dashboard-screen {
-    background: linear-gradient(170deg, #0a1219 0%, #0f1e2e 50%, #0a1219 100%);
-    min-height: 100vh; padding: 0;
-  }
+			.dashboard-screen {
+				background: linear-gradient(170deg, #0a1219 0%, #0f1e2e 50%, #0a1219 100%);
+				min-height: 100vh;
+				padding: 0;
+			}
 
-  .dash-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 28px 48px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-  .dash-header-left { display: flex; align-items: center; gap: 20px; }
-  .dash-logo {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 28px; font-weight: 800; color: #fff;
-  }
-  .dash-logo span { color: var(--accent); }
-  .dash-title {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 32px; font-weight: 700; color: #fff;
-  }
-  .dash-header-right {
-    display: flex; align-items: center; gap: 24px;
-  }
-  .dash-stat-pill {
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px; padding: 10px 22px; text-align: center;
-  }
-  .dash-stat-num {
-    font-size: 28px; font-weight: 800; color: var(--accent);
-    font-family: 'DM Sans', sans-serif;
-  }
-  .dash-stat-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+			.dash-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 28px 48px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+			}
+			.dash-header-left {
+				display: flex;
+				align-items: center;
+				gap: 20px;
+			}
+			.dash-logo {
+				font-family: 'Playfair Display', Georgia, serif;
+				font-size: 28px;
+				font-weight: 800;
+				color: #fff;
+			}
+			.dash-logo span {
+				color: var(--accent);
+			}
+			.dash-title {
+				font-family: 'Playfair Display', Georgia, serif;
+				font-size: 32px;
+				font-weight: 700;
+				color: #fff;
+			}
+			.dash-header-right {
+				display: flex;
+				align-items: center;
+				gap: 24px;
+			}
+			.dash-stat-pill {
+				background: rgba(255, 255, 255, 0.06);
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				border-radius: 12px;
+				padding: 10px 22px;
+				text-align: center;
+			}
+			.dash-stat-num {
+				font-size: 28px;
+				font-weight: 800;
+				color: var(--accent);
+				font-family: 'DM Sans', sans-serif;
+			}
+			.dash-stat-label {
+				font-size: 11px;
+				color: rgba(255, 255, 255, 0.4);
+				text-transform: uppercase;
+				letter-spacing: 1px;
+			}
 
-  .dash-body {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 28px; padding: 32px 48px;
-  }
-  @media (max-width: 1100px) { .dash-body { grid-template-columns: 1fr; } }
+			.dash-body {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 28px;
+				padding: 32px 48px;
+			}
+			@media (max-width: 1100px) {
+				.dash-body {
+					grid-template-columns: 1fr;
+				}
+			}
 
-  .dash-panel {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 20px; padding: 32px; overflow: hidden;
-  }
-  .dash-panel-header {
-    display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
-  }
-  .dash-panel-icon {
-    width: 48px; height: 48px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-  }
-  .dash-panel-icon.individual { background: rgba(0,200,83,0.12); }
-  .dash-panel-icon.communal { background: rgba(92,107,192,0.12); }
-  .dash-panel-title {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 24px; font-weight: 700;
-  }
-  .dash-panel-title.individual { color: var(--green); }
-  .dash-panel-title.communal { color: #8C9EFF; }
-  .dash-panel-sub {
-    font-size: 13px; color: rgba(255,255,255,0.4);
-    font-style: italic;
-  }
+			.dash-panel {
+				background: rgba(255, 255, 255, 0.03);
+				border: 1px solid rgba(255, 255, 255, 0.06);
+				border-radius: 20px;
+				padding: 32px;
+				overflow: hidden;
+			}
+			.dash-panel-header {
+				display: flex;
+				align-items: center;
+				gap: 14px;
+				margin-bottom: 24px;
+			}
+			.dash-panel-icon {
+				width: 48px;
+				height: 48px;
+				border-radius: 12px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 24px;
+			}
+			.dash-panel-icon.individual {
+				background: rgba(0, 200, 83, 0.12);
+			}
+			.dash-panel-icon.communal {
+				background: rgba(92, 107, 192, 0.12);
+			}
+			.dash-panel-title {
+				font-family: 'Playfair Display', Georgia, serif;
+				font-size: 24px;
+				font-weight: 700;
+			}
+			.dash-panel-title.individual {
+				color: var(--green);
+			}
+			.dash-panel-title.communal {
+				color: #8c9eff;
+			}
+			.dash-panel-sub {
+				font-size: 13px;
+				color: rgba(255, 255, 255, 0.4);
+				font-style: italic;
+			}
 
-  /* Large ranking rows */
-  .dash-rank-row {
-    display: flex; align-items: center; gap: 16px;
-    padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .dash-rank-row:last-child { border-bottom: none; }
-  .dash-rank-num {
-    width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 800; color: #fff;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .dash-rank-num.individual { background: linear-gradient(135deg, #1B5E20, var(--green)); }
-  .dash-rank-num.communal { background: linear-gradient(135deg, #283593, var(--indigo)); }
-  .dash-rank-body { flex: 1; }
-  .dash-rank-name {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 20px; font-weight: 600; color: #fff;
-    margin-bottom: 6px; line-height: 1.2;
-  }
-  .dash-rank-bar-bg {
-    height: 10px; background: rgba(255,255,255,0.06); border-radius: 5px;
-    overflow: hidden;
-  }
-  .dash-rank-bar-fill {
-    height: 100%; border-radius: 5px; transition: width 1.2s ease;
-  }
-  .dash-rank-bar-fill.individual { background: linear-gradient(90deg, var(--green-dim), var(--green)); }
-  .dash-rank-bar-fill.communal { background: linear-gradient(90deg, #283593, #8C9EFF); }
-  .dash-rank-pct {
-    font-size: 24px; font-weight: 800; min-width: 60px; text-align: right;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .dash-rank-pct.individual { color: var(--green); }
-  .dash-rank-pct.communal { color: #8C9EFF; }
+			/* Large ranking rows */
+			.dash-rank-row {
+				display: flex;
+				align-items: center;
+				gap: 16px;
+				padding: 12px 0;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+			}
+			.dash-rank-row:last-child {
+				border-bottom: none;
+			}
+			.dash-rank-num {
+				width: 38px;
+				height: 38px;
+				border-radius: 10px;
+				flex-shrink: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-size: 18px;
+				font-weight: 800;
+				color: #fff;
+				font-family: 'DM Sans', sans-serif;
+			}
+			.dash-rank-num.individual {
+				background: linear-gradient(135deg, #1b5e20, var(--green));
+			}
+			.dash-rank-num.communal {
+				background: linear-gradient(135deg, #283593, var(--indigo));
+			}
+			.dash-rank-body {
+				flex: 1;
+			}
+			.dash-rank-name {
+				font-family: 'Playfair Display', Georgia, serif;
+				font-size: 20px;
+				font-weight: 600;
+				color: #fff;
+				margin-bottom: 6px;
+				line-height: 1.2;
+			}
+			.dash-rank-bar-bg {
+				height: 10px;
+				background: rgba(255, 255, 255, 0.06);
+				border-radius: 5px;
+				overflow: hidden;
+			}
+			.dash-rank-bar-fill {
+				height: 100%;
+				border-radius: 5px;
+				transition: width 1.2s ease;
+			}
+			.dash-rank-bar-fill.individual {
+				background: linear-gradient(90deg, var(--green-dim), var(--green));
+			}
+			.dash-rank-bar-fill.communal {
+				background: linear-gradient(90deg, #283593, #8c9eff);
+			}
+			.dash-rank-pct {
+				font-size: 24px;
+				font-weight: 800;
+				min-width: 60px;
+				text-align: right;
+				font-family: 'DM Sans', sans-serif;
+			}
+			.dash-rank-pct.individual {
+				color: var(--green);
+			}
+			.dash-rank-pct.communal {
+				color: #8c9eff;
+			}
 
-  /* Evidence tag */
-  .evidence-tag {
-    display: inline-block; font-size: 12px; font-weight: 700; border-radius: 4px;
-    padding: 2px 8px; margin-top: 4px; letter-spacing: 0.3px;
-  }
-  .evidence-tag.yes { background: rgba(0,200,83,0.12); color: var(--green); }
-  .evidence-tag.no { background: rgba(255,82,82,0.12); color: var(--red); }
+			/* Evidence tag */
+			.evidence-tag {
+				display: inline-block;
+				font-size: 12px;
+				font-weight: 700;
+				border-radius: 4px;
+				padding: 2px 8px;
+				margin-top: 4px;
+				letter-spacing: 0.3px;
+			}
+			.evidence-tag.yes {
+				background: rgba(0, 200, 83, 0.12);
+				color: var(--green);
+			}
+			.evidence-tag.no {
+				background: rgba(255, 82, 82, 0.12);
+				color: var(--red);
+			}
 
-  /* Caption underneath evidence-based items */
-  .evidence-caption {
-    font-size: 14px; color: rgba(255,255,255,0.45);
-    margin-top: 4px; line-height: 1.4; font-style: italic;
-  }
+			/* Caption underneath evidence-based items */
+			.evidence-caption {
+				font-size: 14px;
+				color: rgba(255, 255, 255, 0.45);
+				margin-top: 4px;
+				line-height: 1.4;
+				font-style: italic;
+			}
 
-  /* Score strip */
-  .dash-score-strip {
-    display: flex; gap: 28px; padding: 0 48px 36px;
-  }
-  .dash-score-card {
-    flex: 1; background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 20px; padding: 28px 32px; text-align: center;
-  }
-  .dash-score-big {
-    font-size: 72px; font-weight: 800;
-    font-family: 'Playfair Display', Georgia, serif;
-    line-height: 1;
-  }
-  .dash-score-label {
-    font-size: 16px; color: rgba(255,255,255,0.5); margin-top: 8px; line-height: 1.4;
-  }
-  .dash-score-message {
-    font-size: 18px; padding: 18px 28px; border-radius: 14px; margin-top: 16px;
-    font-style: italic; line-height: 1.5;
-  }
-  .dash-score-message.great { background: rgba(0,200,83,0.08); color: rgba(255,255,255,0.8); }
-  .dash-score-message.ok { background: rgba(255,179,0,0.08); color: rgba(255,255,255,0.8); }
-  .dash-score-message.low { background: rgba(255,82,82,0.08); color: rgba(255,255,255,0.8); }
+			/* Score strip */
+			.dash-score-strip {
+				display: flex;
+				gap: 28px;
+				padding: 0 48px 36px;
+			}
+			.dash-score-card {
+				flex: 1;
+				background: rgba(255, 255, 255, 0.03);
+				border: 1px solid rgba(255, 255, 255, 0.06);
+				border-radius: 20px;
+				padding: 28px 32px;
+				text-align: center;
+			}
+			.dash-score-big {
+				font-size: 72px;
+				font-weight: 800;
+				font-family: 'Playfair Display', Georgia, serif;
+				line-height: 1;
+			}
+			.dash-score-label {
+				font-size: 16px;
+				color: rgba(255, 255, 255, 0.5);
+				margin-top: 8px;
+				line-height: 1.4;
+			}
+			.dash-score-message {
+				font-size: 18px;
+				padding: 18px 28px;
+				border-radius: 14px;
+				margin-top: 16px;
+				font-style: italic;
+				line-height: 1.5;
+			}
+			.dash-score-message.great {
+				background: rgba(0, 200, 83, 0.08);
+				color: rgba(255, 255, 255, 0.8);
+			}
+			.dash-score-message.ok {
+				background: rgba(255, 179, 0, 0.08);
+				color: rgba(255, 255, 255, 0.8);
+			}
+			.dash-score-message.low {
+				background: rgba(255, 82, 82, 0.08);
+				color: rgba(255, 255, 255, 0.8);
+			}
 
-  /* Research footer */
-  .dash-research-footer {
-    border-top: 1px solid rgba(255,255,255,0.06);
-    padding: 24px 48px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .dash-research-badge {
-    display: flex; align-items: center; gap: 12px;
-    font-size: 14px; color: rgba(255,255,255,0.35);
-  }
-  .dash-research-badge strong { color: rgba(255,255,255,0.6); }
-  .cebma-pill {
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px; padding: 6px 14px; font-size: 13px; color: rgba(255,255,255,0.5);
-  }
+			/* Research footer */
+			.dash-research-footer {
+				border-top: 1px solid rgba(255, 255, 255, 0.06);
+				padding: 24px 48px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+			.dash-research-badge {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+				font-size: 14px;
+				color: rgba(255, 255, 255, 0.35);
+			}
+			.dash-research-badge strong {
+				color: rgba(255, 255, 255, 0.6);
+			}
+			.cebma-pill {
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				border-radius: 8px;
+				padding: 6px 14px;
+				font-size: 13px;
+				color: rgba(255, 255, 255, 0.5);
+			}
 
-  /* Suggestions bar */
-  .dash-suggestions {
-    padding: 0 48px 32px;
-  }
-  .dash-suggestions h3 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 22px; color: rgba(255,255,255,0.6); margin-bottom: 14px;
-  }
-  .dash-suggestion-tags { display: flex; flex-wrap: wrap; gap: 10px; }
-  .dash-suggestion-tag {
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 24px; padding: 8px 20px; font-size: 16px; color: rgba(255,255,255,0.6);
-  }
+			/* Suggestions bar */
+			.dash-suggestions {
+				padding: 0 48px 32px;
+			}
+			.dash-suggestions h3 {
+				font-family: 'Playfair Display', Georgia, serif;
+				font-size: 22px;
+				color: rgba(255, 255, 255, 0.6);
+				margin-bottom: 14px;
+			}
+			.dash-suggestion-tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+			.dash-suggestion-tag {
+				background: rgba(255, 255, 255, 0.04);
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				border-radius: 24px;
+				padding: 8px 20px;
+				font-size: 16px;
+				color: rgba(255, 255, 255, 0.6);
+			}
 
-  /* AI prompt section */
-  .dash-ai-section { padding: 0 48px 40px; }
-  .dash-ai-card {
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 20px; padding: 32px;
-  }
-  .dash-ai-card h3 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 24px; color: #fff; margin-bottom: 6px;
-  }
-  .dash-ai-card .sub { font-size: 14px; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
-  .prompt-box-dark {
-    background: rgba(0,0,0,0.3); border-radius: 14px; padding: 22px;
-    border: 1px solid rgba(255,255,255,0.05);
-  }
-  .prompt-text-dark {
-    font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.6);
-    font-family: 'DM Sans', monospace;
-  }
-  .prompt-text-dark .hl { color: var(--accent); font-weight: 700; }
-  .prompt-text-dark .ghl { color: var(--green); font-weight: 700; }
-  .prompt-text-dark .rhl { color: var(--red); font-weight: 700; }
+			/* AI prompt section */
+			.dash-ai-section {
+				padding: 0 48px 40px;
+			}
+			.dash-ai-card {
+				background: rgba(255, 255, 255, 0.03);
+				border: 1px solid rgba(255, 255, 255, 0.06);
+				border-radius: 20px;
+				padding: 32px;
+			}
+			.dash-ai-card h3 {
+				font-family: 'Playfair Display', Georgia, serif;
+				font-size: 24px;
+				color: #fff;
+				margin-bottom: 6px;
+			}
+			.dash-ai-card .sub {
+				font-size: 14px;
+				color: rgba(255, 255, 255, 0.4);
+				margin-bottom: 20px;
+			}
+			.prompt-box-dark {
+				background: rgba(0, 0, 0, 0.3);
+				border-radius: 14px;
+				padding: 22px;
+				border: 1px solid rgba(255, 255, 255, 0.05);
+			}
+			.prompt-text-dark {
+				font-size: 14px;
+				line-height: 1.7;
+				color: rgba(255, 255, 255, 0.6);
+				font-family: 'DM Sans', monospace;
+			}
+			.prompt-text-dark .hl {
+				color: var(--accent);
+				font-weight: 700;
+			}
+			.prompt-text-dark .ghl {
+				color: var(--green);
+				font-weight: 700;
+			}
+			.prompt-text-dark .rhl {
+				color: var(--red);
+				font-weight: 700;
+			}
 
-  .caption-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px;
-  }
-  @media (max-width: 1100px) { .caption-grid { grid-template-columns: 1fr; } }
-  .caption-row {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 8px 14px; border-radius: 10px;
-  }
-  .caption-row.evidence { background: rgba(0,200,83,0.06); border-left: 3px solid var(--green); }
-  .caption-row.no-evidence { background: rgba(255,82,82,0.06); border-left: 3px solid var(--red); }
-  .caption-row .tag { font-size: 12px; font-weight: 700; font-family: monospace; flex-shrink: 0; margin-top: 2px; }
-  .caption-row .tag.g { color: var(--green); }
-  .caption-row .tag.r { color: var(--red); }
-  .caption-row .name { font-size: 14px; font-weight: 600; color: #fff; }
-  .caption-row .reason { font-size: 13px; color: rgba(255,255,255,0.4); }
+			.caption-grid {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 8px;
+				margin-top: 18px;
+			}
+			@media (max-width: 1100px) {
+				.caption-grid {
+					grid-template-columns: 1fr;
+				}
+			}
+			.caption-row {
+				display: flex;
+				align-items: flex-start;
+				gap: 10px;
+				padding: 8px 14px;
+				border-radius: 10px;
+			}
+			.caption-row.evidence {
+				background: rgba(0, 200, 83, 0.06);
+				border-left: 3px solid var(--green);
+			}
+			.caption-row.no-evidence {
+				background: rgba(255, 82, 82, 0.06);
+				border-left: 3px solid var(--red);
+			}
+			.caption-row .tag {
+				font-size: 12px;
+				font-weight: 700;
+				font-family: monospace;
+				flex-shrink: 0;
+				margin-top: 2px;
+			}
+			.caption-row .tag.g {
+				color: var(--green);
+			}
+			.caption-row .tag.r {
+				color: var(--red);
+			}
+			.caption-row .name {
+				font-size: 14px;
+				font-weight: 600;
+				color: #fff;
+			}
+			.caption-row .reason {
+				font-size: 13px;
+				color: rgba(255, 255, 255, 0.4);
+			}
 
-  /* Utility */
-  .fade-in { animation: fadeIn 0.5s ease forwards; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-</style>
-</head>
-<body>
+			/* Utility */
+			.fade-in {
+				animation: fadeIn 0.5s ease forwards;
+			}
+			@keyframes fadeIn {
+				from {
+					opacity: 0;
+				}
+				to {
+					opacity: 1;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<!-- ═══ INTRO ═══ -->
+		<div id="introScreen" class="screen active intro-screen">
+			<div class="intro-wrap">
+				<div class="awa-badge">Powered by <strong>&nbsp;AWA × CEBMa&nbsp;</strong> Research</div>
+				<div class="intro-icon">🧠</div>
+				<h1 class="intro-title">Designing Workplaces That Think</h1>
+				<p class="intro-subtitle">Cognitive Performance Exercise</p>
+				<div class="intro-phases">
+					<div class="intro-phase">
+						<span class="phase-tag a">Phase A</span>
+						<h3>The Individual Brain</h3>
+						<p>
+							Choose the <strong style="color: var(--dark)">5 features</strong> with the greatest
+							impact on an individual worker's cognitive performance — their body budget, focus and
+							mental energy.
+						</p>
+					</div>
+					<div class="intro-phase">
+						<span class="phase-tag b">Phase B</span>
+						<h3>The Connected Brain</h3>
+						<p>
+							From the remaining features, choose the
+							<strong style="color: var(--dark)">5 features</strong> with the greatest impact on
+							team cognitive performance — trust, cohesion and collective intelligence.
+						</p>
+					</div>
+				</div>
+				<input type="text" id="nameInput" class="name-input" placeholder="Your name (optional)" />
+				<br />
+				<button class="btn-primary" onclick="startPhaseA()">Begin Exercise →</button>
+			</div>
+		</div>
 
-<!-- ═══ INTRO ═══ -->
-<div id="introScreen" class="screen active intro-screen">
-  <div class="intro-wrap">
-    <div class="awa-badge">Powered by <strong>&nbsp;AWA × CEBMa&nbsp;</strong> Research</div>
-    <div class="intro-icon">🧠</div>
-    <h1 class="intro-title">Designing Workplaces That Think</h1>
-    <p class="intro-subtitle">Cognitive Performance Exercise</p>
-    <div class="intro-phases">
-      <div class="intro-phase">
-        <span class="phase-tag a">Phase A</span>
-        <h3>The Individual Brain</h3>
-        <p>Choose the <strong style="color:var(--dark)">5 features</strong> with the greatest impact on an individual worker's cognitive performance — their body budget, focus and mental energy.</p>
-      </div>
-      <div class="intro-phase">
-        <span class="phase-tag b">Phase B</span>
-        <h3>The Connected Brain</h3>
-        <p>From the remaining features, choose the <strong style="color:var(--dark)">5 features</strong> with the greatest impact on team cognitive performance — trust, cohesion and collective intelligence.</p>
-      </div>
-    </div>
-    <input type="text" id="nameInput" class="name-input" placeholder="Your name (optional)">
-    <br>
-    <button class="btn-primary" onclick="startPhaseA()">Begin Exercise →</button>
-  </div>
-</div>
+		<!-- ═══ VOTING ═══ -->
+		<div id="voteScreen" class="screen vote-screen">
+			<div class="vote-topbar">
+				<div class="topbar-left">
+					<span class="icon">🧠</span>
+					<span class="topbar-title">AWA · Workplace Cognitive Design</span>
+				</div>
+				<div class="topbar-phase">
+					<span id="phaseBadge" class="topbar-phase-badge a">Phase A</span>
+					<div id="counterPill" class="counter-pill incomplete">
+						<span id="counterNum" class="counter-num">0</span>
+						<span class="counter-label">/ 5 selected</span>
+					</div>
+				</div>
+			</div>
+			<div class="vote-body">
+				<div id="phaseBanner"></div>
+				<div id="featureGrid" class="feature-grid"></div>
+				<div id="freeTextSection" class="free-text-box" style="display: none">
+					<h3>💡 Missing something?</h3>
+					<p>
+						Add any workplace features you think would enhance cognitive performance that aren't
+						listed above.
+					</p>
+					<textarea
+						id="freeText"
+						placeholder="E.g. Walking meeting routes, scent management, nap pods..."
+					></textarea>
+				</div>
+				<div class="submit-area">
+					<button id="submitBtn" class="btn-primary" disabled onclick="handleSubmit()">
+						Select 5 more
+					</button>
+				</div>
+			</div>
+		</div>
 
-<!-- ═══ VOTING ═══ -->
-<div id="voteScreen" class="screen vote-screen">
-  <div class="vote-topbar">
-    <div class="topbar-left">
-      <span class="icon">🧠</span>
-      <span class="topbar-title">AWA · Workplace Cognitive Design</span>
-    </div>
-    <div class="topbar-phase">
-      <span id="phaseBadge" class="topbar-phase-badge a">Phase A</span>
-      <div id="counterPill" class="counter-pill incomplete">
-        <span id="counterNum" class="counter-num">0</span>
-        <span class="counter-label">/ 5 selected</span>
-      </div>
-    </div>
-  </div>
-  <div class="vote-body">
-    <div id="phaseBanner"></div>
-    <div id="featureGrid" class="feature-grid"></div>
-    <div id="freeTextSection" class="free-text-box" style="display:none">
-      <h3>💡 Missing something?</h3>
-      <p>Add any workplace features you think would enhance cognitive performance that aren't listed above.</p>
-      <textarea id="freeText" placeholder="E.g. Walking meeting routes, scent management, nap pods..."></textarea>
-    </div>
-    <div class="submit-area">
-      <button id="submitBtn" class="btn-primary" disabled onclick="handleSubmit()">Select 5 more</button>
-    </div>
-  </div>
-</div>
+		<!-- ═══ DASHBOARD ═══ -->
+		<div id="dashScreen" class="screen dashboard-screen"></div>
 
-<!-- ═══ DASHBOARD ═══ -->
-<div id="dashScreen" class="screen dashboard-screen"></div>
+		<script>
+			// ═══════════════════════════════════════════
+			// DATA
+			// ═══════════════════════════════════════════
+			const FEATURES = [
+				{
+					id: 1,
+					name: 'Tuneable LED lighting with circadian profiles',
+					desc: 'Lighting that adjusts colour temperature throughout the day to support natural alertness cycles',
+					cat: 'light',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 2,
+					name: 'Real-time desk-level environmental sensors',
+					desc: 'CO₂, temperature, humidity and noise sensors at individual workstation level',
+					cat: 'tech',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 3,
+					name: 'Dedicated quiet zones with acoustic treatment',
+					desc: 'Sound-absorbing materials, acoustic panels, and designated silent working areas',
+					cat: 'acoustic',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 4,
+					name: 'Biophilic design elements',
+					desc: 'Living walls, indoor plants, natural timber, stone and water features throughout',
+					cat: 'biophilic',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 5,
+					name: 'Distributed hydration points',
+					desc: 'Filtered water stations placed throughout the floor, not just in kitchens',
+					cat: 'wellness',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 6,
+					name: 'Team anchor points',
+					desc: 'Dedicated home zones where teams have a sense of belonging and territory',
+					cat: 'social',
+					imp: true,
+					level: 'communal'
+				},
+				{
+					id: 7,
+					name: 'Variety of thermal zones',
+					desc: 'Deliberately varied temperature areas — warmer and cooler zones across the floor',
+					cat: 'thermal',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 8,
+					name: 'High-quality ventilation with CO₂ monitoring',
+					desc: 'HVAC maintaining CO₂ below 800ppm with real-time monitoring and alerts',
+					cat: 'air',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 9,
+					name: 'Internal staircase connecting floors',
+					desc: 'Visible, attractive open staircase encouraging movement between floors',
+					cat: 'movement',
+					imp: true,
+					level: 'communal'
+				},
+				{
+					id: 10,
+					name: 'Café / social hub on high-footfall route',
+					desc: 'Central social space positioned where natural movement patterns intersect',
+					cat: 'social',
+					imp: true,
+					level: 'communal'
+				},
+				{
+					id: 11,
+					name: 'Restoration / decompression spaces',
+					desc: 'Genuine restorative areas with soft lighting, biophilic elements, no screens',
+					cat: 'wellness',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 12,
+					name: 'Healthy food provision',
+					desc: 'Fresh, nutritious food options beyond vending machines and processed snacks',
+					cat: 'wellness',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 13,
+					name: 'Variety of space types for different tasks',
+					desc: 'Focus booths, collaboration zones, creative spaces, social areas — true ABW',
+					cat: 'spatial',
+					imp: true,
+					level: 'communal'
+				},
+				{
+					id: 14,
+					name: 'Maximised natural daylight',
+					desc: 'Floor layouts designed to bring daylight deep into the floorplate for all workers',
+					cat: 'light',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 15,
+					name: 'Outdoor access / terrace / garden',
+					desc: 'Direct access to outdoor spaces for breaks, walking meetings, restoration',
+					cat: 'biophilic',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 16,
+					name: 'Exercise facilities on the working floor',
+					desc: 'Gym equipment, stretching areas or movement zones integrated into the work floor',
+					cat: 'movement',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 17,
+					name: 'Screens / apps showing space conditions',
+					desc: 'Displays showing real-time temperature, humidity, noise and availability of each zone',
+					cat: 'tech',
+					imp: true,
+					level: 'individual'
+				},
+				{
+					id: 18,
+					name: 'Branded feature wall in reception',
+					desc: 'High-impact branded installation showcasing company identity and values',
+					cat: 'aesthetic',
+					imp: false,
+					level: 'neither'
+				},
+				{
+					id: 19,
+					name: 'Sit-stand desks',
+					desc: 'Height-adjustable desks allowing workers to alternate between sitting and standing',
+					cat: 'furniture',
+					imp: false,
+					level: 'neither'
+				},
+				{
+					id: 20,
+					name: 'Premium ergonomic task chairs',
+					desc: 'High-end ergonomic seating (e.g. Herman Miller, Steelcase Gesture)',
+					cat: 'furniture',
+					imp: false,
+					level: 'neither'
+				},
+				{
+					id: 21,
+					name: 'Workplace booking app',
+					desc: 'Digital system for reserving desks, meeting rooms and collaboration spaces',
+					cat: 'tech',
+					imp: false,
+					level: 'neither'
+				},
+				{
+					id: 22,
+					name: 'Large video wall showing company news',
+					desc: 'Reception or communal area screen displaying company updates and metrics',
+					cat: 'aesthetic',
+					imp: false,
+					level: 'neither'
+				},
+				{
+					id: 23,
+					name: 'Ping pong / foosball table',
+					desc: 'Games tables in breakout areas for informal recreation',
+					cat: 'social',
+					imp: false,
+					level: 'neither'
+				},
+				{
+					id: 24,
+					name: 'Shower facilities',
+					desc: 'On-site showers supporting active commuting and lunchtime exercise',
+					cat: 'wellness',
+					imp: false,
+					level: 'neither'
+				},
+				{
+					id: 25,
+					name: 'Wellness app subscription',
+					desc: 'Company-provided meditation, fitness tracking and wellbeing app access',
+					cat: 'tech',
+					imp: false,
+					level: 'neither'
+				},
+				{
+					id: 26,
+					name: 'Phone booths for private calls',
+					desc: 'Small enclosed pods for confidential or focused telephone conversations',
+					cat: 'acoustic',
+					imp: false,
+					level: 'neither'
+				},
+				{
+					id: 27,
+					name: 'Designer furniture and high-end finishes',
+					desc: 'Premium materials, designer pieces and luxury aesthetic throughout',
+					cat: 'aesthetic',
+					imp: false,
+					level: 'neither'
+				},
+				{
+					id: 28,
+					name: 'Easy-to-access helpdesk',
+					desc: 'Visible, staffed facilities helpdesk for immediate issue resolution',
+					cat: 'operational',
+					imp: false,
+					level: 'neither'
+				}
+			];
 
-<script>
-// ═══════════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════════
-const FEATURES = [
-  { id:1,  name:"Tuneable LED lighting with circadian profiles", desc:"Lighting that adjusts colour temperature throughout the day to support natural alertness cycles", cat:"light", imp:true, level:"individual" },
-  { id:2,  name:"Real-time desk-level environmental sensors", desc:"CO₂, temperature, humidity and noise sensors at individual workstation level", cat:"tech", imp:true, level:"individual" },
-  { id:3,  name:"Dedicated quiet zones with acoustic treatment", desc:"Sound-absorbing materials, acoustic panels, and designated silent working areas", cat:"acoustic", imp:true, level:"individual" },
-  { id:4,  name:"Biophilic design elements", desc:"Living walls, indoor plants, natural timber, stone and water features throughout", cat:"biophilic", imp:true, level:"individual" },
-  { id:5,  name:"Distributed hydration points", desc:"Filtered water stations placed throughout the floor, not just in kitchens", cat:"wellness", imp:true, level:"individual" },
-  { id:6,  name:"Team anchor points", desc:"Dedicated home zones where teams have a sense of belonging and territory", cat:"social", imp:true, level:"communal" },
-  { id:7,  name:"Variety of thermal zones", desc:"Deliberately varied temperature areas — warmer and cooler zones across the floor", cat:"thermal", imp:true, level:"individual" },
-  { id:8,  name:"High-quality ventilation with CO₂ monitoring", desc:"HVAC maintaining CO₂ below 800ppm with real-time monitoring and alerts", cat:"air", imp:true, level:"individual" },
-  { id:9,  name:"Internal staircase connecting floors", desc:"Visible, attractive open staircase encouraging movement between floors", cat:"movement", imp:true, level:"communal" },
-  { id:10, name:"Café / social hub on high-footfall route", desc:"Central social space positioned where natural movement patterns intersect", cat:"social", imp:true, level:"communal" },
-  { id:11, name:"Restoration / decompression spaces", desc:"Genuine restorative areas with soft lighting, biophilic elements, no screens", cat:"wellness", imp:true, level:"individual" },
-  { id:12, name:"Healthy food provision", desc:"Fresh, nutritious food options beyond vending machines and processed snacks", cat:"wellness", imp:true, level:"individual" },
-  { id:13, name:"Variety of space types for different tasks", desc:"Focus booths, collaboration zones, creative spaces, social areas — true ABW", cat:"spatial", imp:true, level:"communal" },
-  { id:14, name:"Maximised natural daylight", desc:"Floor layouts designed to bring daylight deep into the floorplate for all workers", cat:"light", imp:true, level:"individual" },
-  { id:15, name:"Outdoor access / terrace / garden", desc:"Direct access to outdoor spaces for breaks, walking meetings, restoration", cat:"biophilic", imp:true, level:"individual" },
-  { id:16, name:"Exercise facilities on the working floor", desc:"Gym equipment, stretching areas or movement zones integrated into the work floor", cat:"movement", imp:true, level:"individual" },
-  { id:17, name:"Screens / apps showing space conditions", desc:"Displays showing real-time temperature, humidity, noise and availability of each zone", cat:"tech", imp:true, level:"individual" },
-  { id:18, name:"Branded feature wall in reception", desc:"High-impact branded installation showcasing company identity and values", cat:"aesthetic", imp:false, level:"neither" },
-  { id:19, name:"Sit-stand desks", desc:"Height-adjustable desks allowing workers to alternate between sitting and standing", cat:"furniture", imp:false, level:"neither" },
-  { id:20, name:"Premium ergonomic task chairs", desc:"High-end ergonomic seating (e.g. Herman Miller, Steelcase Gesture)", cat:"furniture", imp:false, level:"neither" },
-  { id:21, name:"Workplace booking app", desc:"Digital system for reserving desks, meeting rooms and collaboration spaces", cat:"tech", imp:false, level:"neither" },
-  { id:22, name:"Large video wall showing company news", desc:"Reception or communal area screen displaying company updates and metrics", cat:"aesthetic", imp:false, level:"neither" },
-  { id:23, name:"Ping pong / foosball table", desc:"Games tables in breakout areas for informal recreation", cat:"social", imp:false, level:"neither" },
-  { id:24, name:"Shower facilities", desc:"On-site showers supporting active commuting and lunchtime exercise", cat:"wellness", imp:false, level:"neither" },
-  { id:25, name:"Wellness app subscription", desc:"Company-provided meditation, fitness tracking and wellbeing app access", cat:"tech", imp:false, level:"neither" },
-  { id:26, name:"Phone booths for private calls", desc:"Small enclosed pods for confidential or focused telephone conversations", cat:"acoustic", imp:false, level:"neither" },
-  { id:27, name:"Designer furniture and high-end finishes", desc:"Premium materials, designer pieces and luxury aesthetic throughout", cat:"aesthetic", imp:false, level:"neither" },
-  { id:28, name:"Easy-to-access helpdesk", desc:"Visible, staffed facilities helpdesk for immediate issue resolution", cat:"operational", imp:false, level:"neither" },
-];
+			const ICONS = {
+				light: '☀️',
+				tech: '📡',
+				acoustic: '🔇',
+				biophilic: '🌿',
+				wellness: '💧',
+				social: '👥',
+				thermal: '🌡️',
+				air: '💨',
+				movement: '🏃',
+				spatial: '🏗️',
+				aesthetic: '✨',
+				furniture: '🪑',
+				operational: '🛠️'
+			};
 
-const ICONS = {
-  light:"☀️", tech:"📡", acoustic:"🔇", biophilic:"🌿", wellness:"💧",
-  social:"👥", thermal:"🌡️", air:"💨", movement:"🏃", spatial:"🏗️",
-  aesthetic:"✨", furniture:"🪑", operational:"🛠️"
-};
+			const CAPTIONS = {
+				1: 'Circadian-tuned light regulates alertness hormones and supports sustained focus — AWA/CEBMa body budget research',
+				2: 'Real-time data enables informed choice — people select conditions matching their cognitive needs (AWA Choice Principle)',
+				3: 'Noise is the #1 cognitive depleter — acoustic control protects deep focus and working memory (CEBMa systematic review)',
+				4: 'Nature elements reduce cortisol, restore directed attention and boost creativity by up to 15% (Human Spaces / CEBMa)',
+				5: 'Even 2% dehydration impairs cognitive function by up to 30% — proximity removes friction (Ritz & Berrut / CEBMa review)',
+				6: "Dedicated team zones build trust and social cohesion — two of AWA's 6 Factors of Connected Teams",
+				7: 'Individual thermal sensitivity varies enormously — one temperature is cognitively wrong for many (AWA/CEBMa research)',
+				8: 'CO₂ above 1000ppm measurably impairs decision-making and strategy (Harvard COGfx / CEBMa systematic review)',
+				9: 'Stairs promote movement (+30% executive function) and create spontaneous cross-team encounters (AWA 6 Factors)',
+				10: 'Social hubs on natural routes engineer productive collisions that build communal trust (AWA 6 Factors research)',
+				11: 'The brain needs periodic restoration to maintain the body budget — a cognitive necessity (Barrett / AWA research)',
+				12: 'Diet directly affects neurotransmitter production — nutritious food sustains mental performance (CEBMa 13 Factors)',
+				13: 'Different cognitive tasks need different environments — variety supports both focus and collaboration (AWA/CEBMa)',
+				14: '#1 worker priority; directly supports circadian rhythm, sleep quality and alertness (CEBMa systematic review)',
+				15: 'Nature exposure restores directed attention and improves working memory by 7% (Berman et al. / CEBMa review)',
+				16: 'Exercise increases BDNF and cerebral blood flow, boosting executive function by up to 30% (Kramer / CEBMa review)',
+				17: 'Informed choice turns environmental variety into cognitive advantage — people need data to choose well (AWA research)'
+			};
 
-const CAPTIONS = {
-  1:"Circadian-tuned light regulates alertness hormones and supports sustained focus — AWA/CEBMa body budget research",
-  2:"Real-time data enables informed choice — people select conditions matching their cognitive needs (AWA Choice Principle)",
-  3:"Noise is the #1 cognitive depleter — acoustic control protects deep focus and working memory (CEBMa systematic review)",
-  4:"Nature elements reduce cortisol, restore directed attention and boost creativity by up to 15% (Human Spaces / CEBMa)",
-  5:"Even 2% dehydration impairs cognitive function by up to 30% — proximity removes friction (Ritz & Berrut / CEBMa review)",
-  6:"Dedicated team zones build trust and social cohesion — two of AWA's 6 Factors of Connected Teams",
-  7:"Individual thermal sensitivity varies enormously — one temperature is cognitively wrong for many (AWA/CEBMa research)",
-  8:"CO₂ above 1000ppm measurably impairs decision-making and strategy (Harvard COGfx / CEBMa systematic review)",
-  9:"Stairs promote movement (+30% executive function) and create spontaneous cross-team encounters (AWA 6 Factors)",
-  10:"Social hubs on natural routes engineer productive collisions that build communal trust (AWA 6 Factors research)",
-  11:"The brain needs periodic restoration to maintain the body budget — a cognitive necessity (Barrett / AWA research)",
-  12:"Diet directly affects neurotransmitter production — nutritious food sustains mental performance (CEBMa 13 Factors)",
-  13:"Different cognitive tasks need different environments — variety supports both focus and collaboration (AWA/CEBMa)",
-  14:"#1 worker priority; directly supports circadian rhythm, sleep quality and alertness (CEBMa systematic review)",
-  15:"Nature exposure restores directed attention and improves working memory by 7% (Berman et al. / CEBMa review)",
-  16:"Exercise increases BDNF and cerebral blood flow, boosting executive function by up to 30% (Kramer / CEBMa review)",
-  17:"Informed choice turns environmental variety into cognitive advantage — people need data to choose well (AWA research)",
-};
+			// Shuffle
+			const shuffled = [...FEATURES].sort(
+				(a, b) => ((a.id * 2654435761) % 100) - ((b.id * 2654435761) % 100)
+			);
 
-// Shuffle
-const shuffled = [...FEATURES].sort((a,b) => ((a.id*2654435761)%100) - ((b.id*2654435761)%100));
+			// ═══════════════════════════════════════════
+			// STATE
+			// ═══════════════════════════════════════════
+			let phase = 'a'; // 'a' = individual, 'b' = communal
+			const selectedA = new Set();
+			const selectedB = new Set();
+			let allVotes = [];
+			let allComments = [];
 
-// ═══════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════
-let phase = 'a'; // 'a' = individual, 'b' = communal
-const selectedA = new Set();
-const selectedB = new Set();
-let allVotes = [];
-let allComments = [];
+			// ═══════════════════════════════════════════
+			// NAVIGATION
+			// ═══════════════════════════════════════════
+			function showScreen(id) {
+				document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
+				document.getElementById(id).classList.add('active');
+				window.scrollTo(0, 0);
+			}
 
-// ═══════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
-}
+			function startPhaseA() {
+				phase = 'a';
+				buildVoteUI();
+				showScreen('voteScreen');
+			}
 
-function startPhaseA() {
-  phase = 'a';
-  buildVoteUI();
-  showScreen('voteScreen');
-}
+			function startPhaseB() {
+				phase = 'b';
+				buildVoteUI();
+				showScreen('voteScreen');
+			}
 
-function startPhaseB() {
-  phase = 'b';
-  buildVoteUI();
-  showScreen('voteScreen');
-}
+			// ═══════════════════════════════════════════
+			// VOTING UI
+			// ═══════════════════════════════════════════
+			function buildVoteUI() {
+				const isA = phase === 'a';
+				const cur = isA ? selectedA : selectedB;
 
-// ═══════════════════════════════════════════
-// VOTING UI
-// ═══════════════════════════════════════════
-function buildVoteUI() {
-  const isA = phase === 'a';
-  const cur = isA ? selectedA : selectedB;
+				// Phase badge
+				document.getElementById('phaseBadge').className = `topbar-phase-badge ${phase}`;
+				document.getElementById('phaseBadge').textContent = isA ? 'Phase A' : 'Phase B';
 
-  // Phase badge
-  document.getElementById('phaseBadge').className = `topbar-phase-badge ${phase}`;
-  document.getElementById('phaseBadge').textContent = isA ? 'Phase A' : 'Phase B';
-
-  // Banner
-  const banner = document.getElementById('phaseBanner');
-  if (isA) {
-    banner.innerHTML = `
+				// Banner
+				const banner = document.getElementById('phaseBanner');
+				if (isA) {
+					banner.innerHTML = `
       <div class="phase-banner a">
         <h2>🧠 Phase A — The Individual Brain</h2>
         <p>Select the <strong>5 features</strong> you believe have the greatest impact on an <strong>individual knowledge worker's cognitive performance</strong> — their body budget, focus, mental energy and sustained thinking ability.</p>
         <span class="research-ref">Based on AWA & CEBMa research: The 13 Factors of Cognitive Fitness · Lisa Feldman Barrett's Body Budget Model</span>
       </div>`;
-  } else {
-    banner.innerHTML = `
+				} else {
+					banner.innerHTML = `
       <div class="phase-banner b">
         <h2>🤝 Phase B — The Connected Brain</h2>
         <p>From the <strong>remaining features</strong>, select the <strong>5</strong> you believe have the greatest impact on <strong>team and communal cognitive performance</strong> — trust, social cohesion, information sharing and collective intelligence.</p>
         <span class="research-ref">Based on AWA & CEBMa research: The 6 Factors of Connected Teams · Neural Synchrony in Co-located Teams</span>
       </div>`;
-  }
+				}
 
-  // Free text only in phase B
-  document.getElementById('freeTextSection').style.display = isA ? 'none' : 'block';
+				// Free text only in phase B
+				document.getElementById('freeTextSection').style.display = isA ? 'none' : 'block';
 
-  // Build cards
-  const grid = document.getElementById('featureGrid');
-  grid.innerHTML = '';
-  shuffled.forEach(f => {
-    const usedInA = !isA && selectedA.has(f.id);
-    const card = document.createElement('div');
-    card.className = 'feature-card' + (usedInA ? ' used' : '');
-    card.dataset.id = f.id;
-    card.innerHTML = `
+				// Build cards
+				const grid = document.getElementById('featureGrid');
+				grid.innerHTML = '';
+				shuffled.forEach((f) => {
+					const usedInA = !isA && selectedA.has(f.id);
+					const card = document.createElement('div');
+					card.className = 'feature-card' + (usedInA ? ' used' : '');
+					card.dataset.id = f.id;
+					card.innerHTML = `
       <div class="card-check off"></div>
       <div style="flex:1">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <span class="card-icon">${ICONS[f.cat]||'📌'}</span>
+          <span class="card-icon">${ICONS[f.cat] || '📌'}</span>
           <span class="card-name">${f.name}</span>
         </div>
         <div class="card-desc">${f.desc}${usedInA ? ' <em style="color:var(--green)">(selected in Phase A)</em>' : ''}</div>
       </div>`;
-    if (!usedInA) card.addEventListener('click', () => toggleFeature(f.id));
-    grid.appendChild(card);
-  });
-  updateVoteUI();
-}
+					if (!usedInA) card.addEventListener('click', () => toggleFeature(f.id));
+					grid.appendChild(card);
+				});
+				updateVoteUI();
+			}
 
-function toggleFeature(id) {
-  const cur = phase === 'a' ? selectedA : selectedB;
-  if (cur.has(id)) {
-    cur.delete(id);
-  } else if (cur.size < 5) {
-    cur.add(id);
-  }
-  updateVoteUI();
-}
+			function toggleFeature(id) {
+				const cur = phase === 'a' ? selectedA : selectedB;
+				if (cur.has(id)) {
+					cur.delete(id);
+				} else if (cur.size < 5) {
+					cur.add(id);
+				}
+				updateVoteUI();
+			}
 
-function updateVoteUI() {
-  const cur = phase === 'a' ? selectedA : selectedB;
-  const count = cur.size;
-  const cls = phase;
+			function updateVoteUI() {
+				const cur = phase === 'a' ? selectedA : selectedB;
+				const count = cur.size;
+				const cls = phase;
 
-  document.getElementById('counterNum').textContent = count;
-  const pill = document.getElementById('counterPill');
-  pill.className = 'counter-pill ' + (count === 5 ? 'complete' : 'incomplete');
+				document.getElementById('counterNum').textContent = count;
+				const pill = document.getElementById('counterPill');
+				pill.className = 'counter-pill ' + (count === 5 ? 'complete' : 'incomplete');
 
-  const btn = document.getElementById('submitBtn');
-  if (count === 5) {
-    btn.disabled = false;
-    btn.textContent = phase === 'a' ? 'Continue to Phase B →' : 'Submit & See Results →';
-  } else {
-    btn.disabled = true;
-    btn.textContent = `Select ${5 - count} more`;
-  }
+				const btn = document.getElementById('submitBtn');
+				if (count === 5) {
+					btn.disabled = false;
+					btn.textContent = phase === 'a' ? 'Continue to Phase B →' : 'Submit & See Results →';
+				} else {
+					btn.disabled = true;
+					btn.textContent = `Select ${5 - count} more`;
+				}
 
-  document.querySelectorAll('.feature-card:not(.used)').forEach(card => {
-    const id = parseInt(card.dataset.id);
-    const isSel = cur.has(id);
-    const check = card.querySelector('.card-check');
+				document.querySelectorAll('.feature-card:not(.used)').forEach((card) => {
+					const id = parseInt(card.dataset.id);
+					const isSel = cur.has(id);
+					const check = card.querySelector('.card-check');
 
-    card.className = 'feature-card' + (isSel ? ` selected-${cls}` : '') + (count >= 5 && !isSel ? ' disabled' : '');
-    check.className = 'card-check ' + (isSel ? `on-${cls}` : 'off');
-    check.textContent = isSel ? '✓' : '';
-  });
-}
+					card.className =
+						'feature-card' +
+						(isSel ? ` selected-${cls}` : '') +
+						(count >= 5 && !isSel ? ' disabled' : '');
+					check.className = 'card-check ' + (isSel ? `on-${cls}` : 'off');
+					check.textContent = isSel ? '✓' : '';
+				});
+			}
 
-function handleSubmit() {
-  if (phase === 'a') {
-    if (selectedA.size !== 5) return;
-    startPhaseB();
-  } else {
-    if (selectedB.size !== 5) return;
-    submitAll();
-  }
-}
+			function handleSubmit() {
+				if (phase === 'a') {
+					if (selectedA.size !== 5) return;
+					startPhaseB();
+				} else {
+					if (selectedB.size !== 5) return;
+					submitAll();
+				}
+			}
 
-function submitAll() {
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true;
-  btn.textContent = 'Analysing responses...';
+			function submitAll() {
+				const btn = document.getElementById('submitBtn');
+				btn.disabled = true;
+				btn.textContent = 'Analysing responses...';
 
-  const freeText = document.getElementById('freeText').value.trim();
-  const myVotes = { individual: [...selectedA], communal: [...selectedB], comment: freeText };
+				const freeText = document.getElementById('freeText').value.trim();
+				const myVotes = { individual: [...selectedA], communal: [...selectedB], comment: freeText };
 
-  setTimeout(() => {
-    const simCount = 10 + Math.floor(Math.random() * 10);
-    const simulated = [];
-    for (let i = 0; i < simCount; i++) {
-      const pool = [...FEATURES].sort(() => Math.random() - 0.5);
-      const indPicks = new Set();
-      const comPicks = new Set();
-      for (const f of pool) {
-        if (indPicks.size >= 5) break;
-        const chance = (f.imp && f.level === 'individual') ? 0.5 : (f.imp ? 0.25 : 0.12);
-        if (Math.random() < chance) indPicks.add(f.id);
-      }
-      while (indPicks.size < 5) { const r = FEATURES[Math.floor(Math.random()*FEATURES.length)]; if (!indPicks.has(r.id)) indPicks.add(r.id); }
-      const remaining = FEATURES.filter(f => !indPicks.has(f.id));
-      for (const f of remaining.sort(() => Math.random()-0.5)) {
-        if (comPicks.size >= 5) break;
-        const chance = (f.imp && f.level === 'communal') ? 0.55 : (f.imp ? 0.25 : 0.12);
-        if (Math.random() < chance) comPicks.add(f.id);
-      }
-      while (comPicks.size < 5) { const r = remaining[Math.floor(Math.random()*remaining.length)]; if (!comPicks.has(r.id)) comPicks.add(r.id); }
-      simulated.push({ individual: [...indPicks], communal: [...comPicks] });
-    }
-    allVotes = [myVotes, ...simulated];
-    allComments = freeText ? [freeText] : [];
-    allComments.push("Walking meeting routes", "Circadian-aligned break schedules", "Scent management zones", "Nap pods for cognitive recovery", "Adjustable acoustic masking by zone");
+				setTimeout(() => {
+					const simCount = 10 + Math.floor(Math.random() * 10);
+					const simulated = [];
+					for (let i = 0; i < simCount; i++) {
+						const pool = [...FEATURES].sort(() => Math.random() - 0.5);
+						const indPicks = new Set();
+						const comPicks = new Set();
+						for (const f of pool) {
+							if (indPicks.size >= 5) break;
+							const chance = f.imp && f.level === 'individual' ? 0.5 : f.imp ? 0.25 : 0.12;
+							if (Math.random() < chance) indPicks.add(f.id);
+						}
+						while (indPicks.size < 5) {
+							const r = FEATURES[Math.floor(Math.random() * FEATURES.length)];
+							if (!indPicks.has(r.id)) indPicks.add(r.id);
+						}
+						const remaining = FEATURES.filter((f) => !indPicks.has(f.id));
+						for (const f of remaining.sort(() => Math.random() - 0.5)) {
+							if (comPicks.size >= 5) break;
+							const chance = f.imp && f.level === 'communal' ? 0.55 : f.imp ? 0.25 : 0.12;
+							if (Math.random() < chance) comPicks.add(f.id);
+						}
+						while (comPicks.size < 5) {
+							const r = remaining[Math.floor(Math.random() * remaining.length)];
+							if (!comPicks.has(r.id)) comPicks.add(r.id);
+						}
+						simulated.push({ individual: [...indPicks], communal: [...comPicks] });
+					}
+					allVotes = [myVotes, ...simulated];
+					allComments = freeText ? [freeText] : [];
+					allComments.push(
+						'Walking meeting routes',
+						'Circadian-aligned break schedules',
+						'Scent management zones',
+						'Nap pods for cognitive recovery',
+						'Adjustable acoustic masking by zone'
+					);
 
-    buildDashboard();
-    showScreen('dashScreen');
-  }, 1600);
-}
+					buildDashboard();
+					showScreen('dashScreen');
+				}, 1600);
+			}
 
-// ═══════════════════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════════════════
-function buildDashboard() {
-  const total = allVotes.length;
+			// ═══════════════════════════════════════════
+			// DASHBOARD
+			// ═══════════════════════════════════════════
+			function buildDashboard() {
+				const total = allVotes.length;
 
-  // Tally individual
-  const tallyInd = {};
-  FEATURES.forEach(f => tallyInd[f.id] = 0);
-  allVotes.forEach(v => v.individual.forEach(id => tallyInd[id]++));
-  const rankedInd = FEATURES.map(f => ({...f, votes: tallyInd[f.id]})).sort((a,b) => b.votes - a.votes).slice(0, 5);
+				// Tally individual
+				const tallyInd = {};
+				FEATURES.forEach((f) => (tallyInd[f.id] = 0));
+				allVotes.forEach((v) => v.individual.forEach((id) => tallyInd[id]++));
+				const rankedInd = FEATURES.map((f) => ({ ...f, votes: tallyInd[f.id] }))
+					.sort((a, b) => b.votes - a.votes)
+					.slice(0, 5);
 
-  // Tally communal
-  const tallyCom = {};
-  FEATURES.forEach(f => tallyCom[f.id] = 0);
-  allVotes.forEach(v => v.communal.forEach(id => tallyCom[id]++));
-  const rankedCom = FEATURES.map(f => ({...f, votes: tallyCom[f.id]})).sort((a,b) => b.votes - a.votes).slice(0, 5);
+				// Tally communal
+				const tallyCom = {};
+				FEATURES.forEach((f) => (tallyCom[f.id] = 0));
+				allVotes.forEach((v) => v.communal.forEach((id) => tallyCom[id]++));
+				const rankedCom = FEATURES.map((f) => ({ ...f, votes: tallyCom[f.id] }))
+					.sort((a, b) => b.votes - a.votes)
+					.slice(0, 5);
 
-  const indCorrect = rankedInd.filter(f => f.imp && f.level === 'individual').length;
-  const comCorrect = rankedCom.filter(f => f.imp && f.level === 'communal').length;
-  const indEvidence = rankedInd.filter(f => f.imp).length;
-  const comEvidence = rankedCom.filter(f => f.imp).length;
-  const totalCorrect = indEvidence + comEvidence;
+				const indCorrect = rankedInd.filter((f) => f.imp && f.level === 'individual').length;
+				const comCorrect = rankedCom.filter((f) => f.imp && f.level === 'communal').length;
+				const indEvidence = rankedInd.filter((f) => f.imp).length;
+				const comEvidence = rankedCom.filter((f) => f.imp).length;
+				const totalCorrect = indEvidence + comEvidence;
 
-  function makeRows(ranked, type) {
-    return ranked.map((f, i) => {
-      const pct = Math.round((f.votes / total) * 100);
-      const hasEvidence = f.imp;
-      const caption = hasEvidence ? (CAPTIONS[f.id] || '') : '';
-      return `
+				function makeRows(ranked, type) {
+					return ranked
+						.map((f, i) => {
+							const pct = Math.round((f.votes / total) * 100);
+							const hasEvidence = f.imp;
+							const caption = hasEvidence ? CAPTIONS[f.id] || '' : '';
+							return `
         <div class="dash-rank-row">
           <div class="dash-rank-num ${type}">${i + 1}</div>
           <div class="dash-rank-body">
-            <div class="dash-rank-name">${ICONS[f.cat]||'📌'} ${f.name}</div>
+            <div class="dash-rank-name">${ICONS[f.cat] || '📌'} ${f.name}</div>
             <span class="evidence-tag ${hasEvidence ? 'yes' : 'no'}">${hasEvidence ? '✓ EVIDENCE-BASED' : '✗ LIMITED EVIDENCE'}</span>
             ${caption ? `<div class="evidence-caption">${caption}</div>` : ''}
             <div class="dash-rank-bar-bg" style="margin-top:8px">
@@ -771,41 +1459,50 @@ function buildDashboard() {
           </div>
           <div class="dash-rank-pct ${type}">${pct}%</div>
         </div>`;
-    }).join('');
-  }
+						})
+						.join('');
+				}
 
-  const scoreColor = totalCorrect >= 8 ? 'var(--green)' : totalCorrect >= 5 ? 'var(--orange)' : 'var(--red)';
-  const msgClass = totalCorrect >= 8 ? 'great' : totalCorrect >= 5 ? 'ok' : 'low';
-  const msg = totalCorrect >= 8
-    ? "Outstanding cognitive literacy. The group clearly connected the science to practical design decisions. AWA's body budget and 6 Factors frameworks have landed."
-    : totalCorrect >= 5
-    ? "Good instincts — but some popular choices don't move the cognitive needle. This is exactly why evidence-based design matters, and why AWA's CEBMa research partnership exists."
-    : "A common result. The group favoured traditional fit-out over evidence-based cognitive design. This gap between intuition and evidence is precisely what AWA's research programme with CEBMa was designed to close.";
+				const scoreColor =
+					totalCorrect >= 8 ? 'var(--green)' : totalCorrect >= 5 ? 'var(--orange)' : 'var(--red)';
+				const msgClass = totalCorrect >= 8 ? 'great' : totalCorrect >= 5 ? 'ok' : 'low';
+				const msg =
+					totalCorrect >= 8
+						? "Outstanding cognitive literacy. The group clearly connected the science to practical design decisions. AWA's body budget and 6 Factors frameworks have landed."
+						: totalCorrect >= 5
+							? "Good instincts — but some popular choices don't move the cognitive needle. This is exactly why evidence-based design matters, and why AWA's CEBMa research partnership exists."
+							: "A common result. The group favoured traditional fit-out over evidence-based cognitive design. This gap between intuition and evidence is precisely what AWA's research programme with CEBMa was designed to close.";
 
-  // All top 10 for the AI prompt
-  const allTop10 = [...rankedInd, ...rankedCom];
+				// All top 10 for the AI prompt
+				const allTop10 = [...rankedInd, ...rankedCom];
 
-  const captionItemsHTML = allTop10.map(f => {
-    const isEv = f.imp;
-    const reason = isEv ? (CAPTIONS[f.id] || 'Supports cognitive performance') : 'No strong cognitive performance evidence';
-    return `<div class="caption-row ${isEv ? 'evidence' : 'no-evidence'}">
+				const captionItemsHTML = allTop10
+					.map((f) => {
+						const isEv = f.imp;
+						const reason = isEv
+							? CAPTIONS[f.id] || 'Supports cognitive performance'
+							: 'No strong cognitive performance evidence';
+						return `<div class="caption-row ${isEv ? 'evidence' : 'no-evidence'}">
       <span class="tag ${isEv ? 'g' : 'r'}">${isEv ? 'GREEN' : ' RED '}</span>
       <div><span class="name">${f.name}</span><br><span class="reason">${reason}</span></div>
     </div>`;
-  }).join('');
+					})
+					.join('');
 
-  const promptFeatures = allTop10.map(f => f.name.toLowerCase()).join(', ');
-  const promptAnnotations = allTop10.map(f =>
-    `${f.name.toLowerCase()} = ${f.imp ? 'GREEN' : 'RED'} circle`
-  ).join('; ');
+				const promptFeatures = allTop10.map((f) => f.name.toLowerCase()).join(', ');
+				const promptAnnotations = allTop10
+					.map((f) => `${f.name.toLowerCase()} = ${f.imp ? 'GREEN' : 'RED'} circle`)
+					.join('; ');
 
-  const suggestionsHTML = allComments.length ? `
+				const suggestionsHTML = allComments.length
+					? `
     <div class="dash-suggestions">
       <h3>💡 Group Suggestions</h3>
-      <div class="dash-suggestion-tags">${allComments.map(c => `<span class="dash-suggestion-tag">${c}</span>`).join('')}</div>
-    </div>` : '';
+      <div class="dash-suggestion-tags">${allComments.map((c) => `<span class="dash-suggestion-tag">${c}</span>`).join('')}</div>
+    </div>`
+					: '';
 
-  document.getElementById('dashScreen').innerHTML = `
+				document.getElementById('dashScreen').innerHTML = `
     <!-- Header -->
     <div class="dash-header">
       <div class="dash-header-left">
@@ -838,7 +1535,7 @@ function buildDashboard() {
         <div class="dash-score-label">Connected Brain accuracy<br><small style="color:rgba(255,255,255,0.3)">Evidence-based picks in Phase B</small></div>
       </div>
       <div class="dash-score-card">
-        <div class="dash-score-big" style="color:${scoreColor}">${Math.round((totalCorrect/10)*100)}%</div>
+        <div class="dash-score-big" style="color:${scoreColor}">${Math.round((totalCorrect / 10) * 100)}%</div>
         <div class="dash-score-label">Overall Cognitive<br>Design Literacy</div>
       </div>
     </div>
@@ -908,13 +1605,13 @@ function buildDashboard() {
     </div>
   `;
 
-  // Animate bars
-  setTimeout(() => {
-    document.querySelectorAll('.dash-rank-bar-fill').forEach(bar => {
-      bar.style.width = bar.dataset.width;
-    });
-  }, 400);
-}
-</script>
-</body>
+				// Animate bars
+				setTimeout(() => {
+					document.querySelectorAll('.dash-rank-bar-fill').forEach((bar) => {
+						bar.style.width = bar.dataset.width;
+					});
+				}, 400);
+			}
+		</script>
+	</body>
 </html>
