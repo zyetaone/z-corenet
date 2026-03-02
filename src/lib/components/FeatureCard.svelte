@@ -32,6 +32,8 @@
 	class:used
 	onclick={!disabled && !used ? onclick : undefined}
 	{disabled}
+	tabindex={used ? -1 : 0}
+	aria-disabled={used || disabled}
 >
 	<span class="card-check {checkClass}">
 		{#if selected}✓{/if}
@@ -58,8 +60,8 @@
 		width: 100%;
 		min-height: 3rem;
 		padding: 0.875rem 1rem;
-		background: #fff;
-		border: 2px solid #e4e6ea;
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid rgba(255, 255, 255, 0.08);
 		border-radius: 0.75rem;
 		cursor: pointer;
 		user-select: none;
@@ -69,16 +71,16 @@
 	}
 
 	.feature-card:hover:not(.disabled):not(.used) {
-		border-color: #ccc;
+		border-color: rgba(255, 255, 255, 0.2);
 	}
 
 	.feature-card.selected-a {
-		background: rgba(0, 200, 83, 0.04);
+		background: rgba(0, 200, 83, 0.08);
 		border-color: var(--green);
 	}
 
 	.feature-card.selected-b {
-		background: rgba(92, 107, 192, 0.04);
+		background: rgba(92, 107, 192, 0.08);
 		border-color: var(--indigo);
 	}
 
@@ -109,8 +111,8 @@
 	}
 
 	.card-check.off {
-		background: #f0f0f0;
-		border: 2px solid #d0d0d0;
+		background: rgba(255, 255, 255, 0.1);
+		border: 2px solid rgba(255, 255, 255, 0.2);
 	}
 
 	.card-check.on-a {
@@ -132,8 +134,8 @@
 	.card-name {
 		font-family: 'Playfair Display', Georgia, serif;
 		font-weight: 600;
-		font-size: 0.90625rem;
-		color: var(--dark);
+		font-size: 0.9375rem;
+		color: #fff;
 		line-height: 1.3;
 	}
 
@@ -142,14 +144,14 @@
 	}
 
 	.card-desc {
-		font-size: 0.78125rem;
-		color: #888;
+		font-size: 0.8125rem;
+		color: rgba(255, 255, 255, 0.5);
 		line-height: 1.45;
 	}
 
 	.used-label {
 		display: inline;
 		font-style: italic;
-		color: #aaa;
+		color: rgba(255, 255, 255, 0.35);
 	}
 </style>

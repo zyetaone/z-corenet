@@ -4,18 +4,20 @@
 	let {
 		children,
 		disabled = false,
+		fullWidth = false,
 		onclick,
 		type = 'button',
 		...rest
 	}: {
 		children: Snippet;
 		disabled?: boolean;
+		fullWidth?: boolean;
 		onclick?: () => void;
 		type?: 'button' | 'submit';
 	} = $props();
 </script>
 
-<button {type} {disabled} {onclick} class="btn-primary" {...rest}>
+<button {type} {disabled} {onclick} class="btn-primary" class:full-width={fullWidth} {...rest}>
 	{@render children()}
 </button>
 
@@ -47,5 +49,11 @@
 		box-shadow: none;
 		cursor: not-allowed;
 		opacity: 0.5;
+	}
+
+	.btn-primary.full-width {
+		width: 100%;
+		padding: 1rem 2rem;
+		font-size: 1.125rem;
 	}
 </style>

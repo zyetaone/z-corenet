@@ -50,7 +50,7 @@
 <div class="flex items-center gap-4 border-b border-white/4 py-3 last:border-b-0">
 	<!-- Rank badge -->
 	<div
-		class="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] text-lg font-extrabold text-white"
+		class="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] text-sm font-extrabold text-white md:h-[38px] md:w-[38px] md:text-lg"
 		style={rankGradient}
 	>
 		{rank}
@@ -59,7 +59,7 @@
 	<!-- Body -->
 	<div class="flex-1">
 		<div
-			class="mb-1.5 font-[Playfair_Display,Georgia,serif] text-xl leading-tight font-semibold text-white"
+			class="mb-1.5 font-display text-base leading-tight font-semibold text-white md:text-xl"
 		>
 			{icon}
 			{name}

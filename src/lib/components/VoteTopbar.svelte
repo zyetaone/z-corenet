@@ -14,7 +14,8 @@
 <header class="vote-topbar">
 	<div class="topbar-left">
 		<span class="topbar-icon">&#x1f9e0;</span>
-		<span class="topbar-title">AWA &middot; Workplace Cognitive Design</span>
+		<span class="topbar-title-short">AWA</span>
+		<span class="topbar-title-full">AWA &middot; Workplace Cognitive Design</span>
 	</div>
 	<div class="topbar-phase">
 		<span class="topbar-phase-badge" class:badge-a={isIndividual} class:badge-b={!isIndividual}>
@@ -52,7 +53,15 @@
 		font-size: 1.75rem;
 	}
 
-	.topbar-title {
+	.topbar-title-short {
+		display: none;
+		font-family: 'Playfair Display', Georgia, serif;
+		color: #fff;
+		font-size: 1rem;
+		font-weight: 700;
+	}
+
+	.topbar-title-full {
 		font-family: 'Playfair Display', Georgia, serif;
 		color: #fff;
 		font-size: 1.125rem;
@@ -121,7 +130,10 @@
 	}
 
 	@media (max-width: 640px) {
-		.topbar-title {
+		.topbar-title-short {
+			display: inline;
+		}
+		.topbar-title-full {
 			display: none;
 		}
 	}

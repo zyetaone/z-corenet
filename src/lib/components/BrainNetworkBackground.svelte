@@ -62,7 +62,9 @@
 </script>
 
 <div
-	class="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-40 mix-blend-screen transition-opacity duration-1000"
+	class="pointer-events-none absolute inset-0 z-0 overflow-hidden mix-blend-screen"
+	aria-hidden="true"
+	style="animation: breathe 6s ease-in-out infinite"
 >
 	{#if mounted}
 		<svg class="h-full w-full" in:fade={{ duration: 1500 }}>
@@ -90,7 +92,6 @@
 						stroke="var(--teal)"
 						stroke-opacity="0.3"
 						stroke-width="1.5"
-						class="animate-pulse"
 					/>
 				{/if}
 			{/each}
@@ -101,9 +102,6 @@
 					x="{node.x}%"
 					y="{node.y}%"
 					overflow="visible"
-					class="animate-pulse"
-					style="animation-delay: {Math.random() * 2}s; animation-duration: {3 +
-						Math.random() * 2}s"
 				>
 					<g transform="translate(0, -5)">
 						<!-- Head silhouette -->
@@ -125,3 +123,10 @@
 		</svg>
 	{/if}
 </div>
+
+<style>
+	@keyframes breathe {
+		0%, 100% { opacity: 0.3; }
+		50% { opacity: 0.45; }
+	}
+</style>

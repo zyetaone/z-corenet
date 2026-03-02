@@ -21,19 +21,20 @@
 	);
 </script>
 
-<div class="px-12 pb-10" {hidden}>
+{#if !hidden}
+<div class="px-4 pb-10 md:px-8">
 	<div class="rounded-[20px] border border-white/6 bg-white/3 p-8">
 		<!-- Header -->
-		<h3 class="mb-1.5 font-[Playfair_Display,Georgia,serif] text-2xl font-bold text-white">
+		<h3 class="mb-1.5 font-display text-2xl font-bold text-white">
 			🎨 AI Workplace Visualisation
 		</h3>
-		<p class="mb-5 text-sm text-white/40">
+		<p class="mb-5 text-sm text-white/45">
 			Generate an image of the group's ideal cognitive workplace — annotated with evidence status
 		</p>
 
 		<!-- Prompt box -->
 		<div class="rounded-[14px] border border-white/5 bg-black/30 p-[22px]">
-			<div class="font-['DM_Sans',monospace] text-sm leading-[1.7] text-white/60">
+			<div class="text-sm leading-[1.7] text-white/70">
 				Create a photorealistic architectural visualisation of a modern workplace interior designed
 				for cognitive performance. The space must prominently feature: <span
 					class="font-bold text-[var(--accent)]">{promptFeatures}</span
@@ -74,16 +75,17 @@
 					</span>
 					<div>
 						<span class="text-sm font-semibold text-white">{feature.name}</span><br />
-						<span class="text-[13px] text-white/40">{reason}</span>
+						<span class="text-[13px] text-white/45">{reason}</span>
 					</div>
 				</div>
 			{/each}
 		</div>
 
 		<!-- Footer note -->
-		<p class="mt-4 text-xs text-white/30 italic">
+		<p class="mt-4 text-xs text-white/25 italic">
 			Paste prompt into Midjourney, DALL·E or similar. Use caption reference for manual annotation
 			in PowerPoint/Canva if needed.
 		</p>
 	</div>
 </div>
+{/if}

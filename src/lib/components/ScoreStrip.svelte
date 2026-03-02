@@ -33,49 +33,49 @@
 </script>
 
 <!-- Score cards -->
-<div class="flex flex-col gap-7 px-12 pb-9 md:flex-row">
+<div class="flex flex-col gap-5 px-4 pb-8 md:flex-row md:gap-7 md:px-8">
 	<!-- Individual Brain accuracy -->
-	<div class="flex-1 rounded-[20px] border border-white/6 bg-white/3 px-8 py-7 text-center">
-		<div class="font-[Playfair_Display,Georgia,serif] text-[72px] leading-none font-extrabold">
-			<span style="color: var(--green)">{individualScore}</span><span class="text-4xl text-white/30"
+	<div class="flex-1 rounded-[20px] border border-white/6 bg-white/3 px-6 py-6 text-center">
+		<div class="font-display text-[72px] leading-none font-extrabold">
+			<span style="color: var(--green)">{individualScore}</span><span class="text-4xl text-white/25"
 				>/5</span
 			>
 		</div>
-		<div class="mt-2 text-base leading-relaxed text-white/50">
+		<div class="mt-2 text-base leading-relaxed text-white/45">
 			Individual Brain accuracy<br />
-			<small class="text-white/30">Evidence-based picks in Phase A</small>
+			<small class="text-white/25">Evidence-based picks in Phase A</small>
 		</div>
 	</div>
 
 	<!-- Connected Brain accuracy -->
-	<div class="flex-1 rounded-[20px] border border-white/6 bg-white/3 px-8 py-7 text-center">
-		<div class="font-[Playfair_Display,Georgia,serif] text-[72px] leading-none font-extrabold">
-			<span style="color: #8C9EFF">{communalScore}</span><span class="text-4xl text-white/30"
+	<div class="flex-1 rounded-[20px] border border-white/6 bg-white/3 px-6 py-6 text-center">
+		<div class="font-display text-[72px] leading-none font-extrabold">
+			<span style="color: #8C9EFF">{communalScore}</span><span class="text-4xl text-white/25"
 				>/5</span
 			>
 		</div>
-		<div class="mt-2 text-base leading-relaxed text-white/50">
+		<div class="mt-2 text-base leading-relaxed text-white/45">
 			Connected Brain accuracy<br />
-			<small class="text-white/30">Evidence-based picks in Phase B</small>
+			<small class="text-white/25">Evidence-based picks in Phase B</small>
 		</div>
 	</div>
 
 	<!-- Overall Cognitive Design Literacy -->
-	<div class="flex-1 rounded-[20px] border border-white/6 bg-white/3 px-8 py-7 text-center">
+	<div class="flex-1 rounded-[20px] border border-white/6 bg-white/3 px-6 py-6 text-center">
 		<div
-			class="font-[Playfair_Display,Georgia,serif] text-[72px] leading-none font-extrabold"
+			class="font-display text-[72px] leading-none font-extrabold"
 			style="color: {scoreColor}"
 		>
 			{overallPct}%
 		</div>
-		<div class="mt-2 text-base leading-relaxed text-white/50">
+		<div class="mt-2 text-base leading-relaxed text-white/45">
 			Overall Cognitive<br />Design Literacy
 		</div>
 	</div>
 </div>
 
 <!-- Score message -->
-<div class="px-12 pb-7">
+<div class="px-4 pb-7 md:px-8">
 	<div
 		class="rounded-[14px] p-[18px_28px] text-lg leading-relaxed text-white/80 italic"
 		style={messageBg}

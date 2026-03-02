@@ -40,13 +40,13 @@
 		</div>
 		<div>
 			<div
-				class="font-[Playfair_Display,Georgia,serif] text-2xl font-bold"
+				class="font-display text-2xl font-bold"
 				class:text-[var(--green)]={isIndividual}
 				class:text-[#8C9EFF]={!isIndividual}
 			>
 				{title}
 			</div>
-			<div class="text-[13px] text-white/40 italic">{subtitle}</div>
+			<div class="text-[13px] text-white/45 italic">{subtitle}</div>
 		</div>
 	</div>
 
