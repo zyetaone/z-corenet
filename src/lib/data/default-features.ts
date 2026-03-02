@@ -1,8 +1,39 @@
+export const FEATURE_GROUPS = [
+	{ key: 'light', label: 'Light & Daylight', icon: '💡' },
+	{ key: 'air', label: 'Air & Thermal', icon: '🌡️' },
+	{ key: 'acoustic', label: 'Acoustic', icon: '🔇' },
+	{ key: 'biophilic', label: 'Biophilic & Nature', icon: '🌿' },
+	{ key: 'wellness', label: 'Movement & Wellness', icon: '🏃' },
+	{ key: 'tech', label: 'Technology', icon: '📱' },
+	{ key: 'social', label: 'Social & Spatial', icon: '🤝' },
+	{ key: 'furniture', label: 'Furniture & Aesthetics', icon: '🪑' }
+] as const;
+
+export type GroupKey = (typeof FEATURE_GROUPS)[number]['key'];
+
+/** Maps raw category values to display group keys */
+export const CATEGORY_TO_GROUP: Record<string, GroupKey> = {
+	light: 'light',
+	air: 'air',
+	thermal: 'air',
+	acoustic: 'acoustic',
+	biophilic: 'biophilic',
+	wellness: 'wellness',
+	movement: 'wellness',
+	tech: 'tech',
+	operational: 'tech',
+	social: 'social',
+	spatial: 'social',
+	furniture: 'furniture',
+	aesthetic: 'furniture'
+};
+
 export interface DefaultFeature {
 	featureId: number;
 	name: string;
 	description: string;
 	category: string;
+	group: GroupKey;
 	hasEvidence: boolean;
 	level: 'individual' | 'communal' | 'neither';
 	caption: string | null;
@@ -15,6 +46,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		description:
 			'Lighting that adjusts colour temperature throughout the day to support natural alertness cycles',
 		category: 'light',
+		group: 'light',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -25,6 +57,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Real-time desk-level environmental sensors',
 		description: 'CO₂, temperature, humidity and noise sensors at individual workstation level',
 		category: 'tech',
+		group: 'tech',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -35,6 +68,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Dedicated quiet zones with acoustic treatment',
 		description: 'Sound-absorbing materials, acoustic panels, and designated silent working areas',
 		category: 'acoustic',
+		group: 'acoustic',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -45,6 +79,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Biophilic design elements',
 		description: 'Living walls, indoor plants, natural timber, stone and water features throughout',
 		category: 'biophilic',
+		group: 'biophilic',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -55,6 +90,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Distributed hydration points',
 		description: 'Filtered water stations placed throughout the floor, not just in kitchens',
 		category: 'wellness',
+		group: 'wellness',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -65,6 +101,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Team anchor points',
 		description: 'Dedicated home zones where teams have a sense of belonging and territory',
 		category: 'social',
+		group: 'social',
 		hasEvidence: true,
 		level: 'communal',
 		caption:
@@ -75,6 +112,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Variety of thermal zones',
 		description: 'Deliberately varied temperature areas — warmer and cooler zones across the floor',
 		category: 'thermal',
+		group: 'air',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -85,6 +123,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'High-quality ventilation with CO₂ monitoring',
 		description: 'HVAC maintaining CO₂ below 800ppm with real-time monitoring and alerts',
 		category: 'air',
+		group: 'air',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -95,6 +134,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Internal staircase connecting floors',
 		description: 'Visible, attractive open staircase encouraging movement between floors',
 		category: 'movement',
+		group: 'wellness',
 		hasEvidence: true,
 		level: 'communal',
 		caption:
@@ -105,6 +145,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Café / social hub on high-footfall route',
 		description: 'Central social space positioned where natural movement patterns intersect',
 		category: 'social',
+		group: 'social',
 		hasEvidence: true,
 		level: 'communal',
 		caption:
@@ -115,6 +156,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Restoration / decompression spaces',
 		description: 'Genuine restorative areas with soft lighting, biophilic elements, no screens',
 		category: 'wellness',
+		group: 'wellness',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -125,6 +167,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Healthy food provision',
 		description: 'Fresh, nutritious food options beyond vending machines and processed snacks',
 		category: 'wellness',
+		group: 'wellness',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -135,6 +178,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Variety of space types for different tasks',
 		description: 'Focus booths, collaboration zones, creative spaces, social areas — true ABW',
 		category: 'spatial',
+		group: 'social',
 		hasEvidence: true,
 		level: 'communal',
 		caption:
@@ -146,6 +190,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		description:
 			'Floor layouts designed to bring daylight deep into the floorplate for all workers',
 		category: 'light',
+		group: 'light',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -156,6 +201,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Outdoor access / terrace / garden',
 		description: 'Direct access to outdoor spaces for breaks, walking meetings, restoration',
 		category: 'biophilic',
+		group: 'biophilic',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -166,6 +212,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Exercise facilities on the working floor',
 		description: 'Gym equipment, stretching areas or movement zones integrated into the work floor',
 		category: 'movement',
+		group: 'wellness',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -177,6 +224,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		description:
 			'Displays showing real-time temperature, humidity, noise and availability of each zone',
 		category: 'tech',
+		group: 'tech',
 		hasEvidence: true,
 		level: 'individual',
 		caption:
@@ -187,6 +235,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Branded feature wall in reception',
 		description: 'High-impact branded installation showcasing company identity and values',
 		category: 'aesthetic',
+		group: 'furniture',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null
@@ -197,6 +246,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		description:
 			'Height-adjustable desks allowing workers to alternate between sitting and standing',
 		category: 'furniture',
+		group: 'furniture',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null
@@ -206,6 +256,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Premium ergonomic task chairs',
 		description: 'High-end ergonomic seating (e.g. Herman Miller, Steelcase Gesture)',
 		category: 'furniture',
+		group: 'furniture',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null
@@ -215,6 +266,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Workplace booking app',
 		description: 'Digital system for reserving desks, meeting rooms and collaboration spaces',
 		category: 'tech',
+		group: 'tech',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null
@@ -224,6 +276,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Large video wall showing company news',
 		description: 'Reception or communal area screen displaying company updates and metrics',
 		category: 'aesthetic',
+		group: 'furniture',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null
@@ -233,6 +286,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Ping pong / foosball table',
 		description: 'Games tables in breakout areas for informal recreation',
 		category: 'social',
+		group: 'social',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null
@@ -242,6 +296,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Shower facilities',
 		description: 'On-site showers supporting active commuting and lunchtime exercise',
 		category: 'wellness',
+		group: 'wellness',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null
@@ -251,6 +306,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Wellness app subscription',
 		description: 'Company-provided meditation, fitness tracking and wellbeing app access',
 		category: 'tech',
+		group: 'tech',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null
@@ -260,6 +316,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Phone booths for private calls',
 		description: 'Small enclosed pods for confidential or focused telephone conversations',
 		category: 'acoustic',
+		group: 'acoustic',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null
@@ -269,6 +326,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Designer furniture and high-end finishes',
 		description: 'Premium materials, designer pieces and luxury aesthetic throughout',
 		category: 'aesthetic',
+		group: 'furniture',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null
@@ -278,6 +336,7 @@ export const DEFAULT_FEATURES: DefaultFeature[] = [
 		name: 'Easy-to-access helpdesk',
 		description: 'Visible, staffed facilities helpdesk for immediate issue resolution',
 		category: 'operational',
+		group: 'tech',
 		hasEvidence: false,
 		level: 'neither',
 		caption: null

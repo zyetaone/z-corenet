@@ -55,6 +55,6 @@ export const actions: Actions = {
 			await saveComment(db, participantId, sessionId, comment);
 		}
 
-		redirect(303, '/dashboard');
+		redirect(303, '/thanks');
 	}
 };
