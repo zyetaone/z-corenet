@@ -41,7 +41,7 @@
 					name="title"
 					type="text"
 					bind:value={title}
-					class="w-full rounded-xl border border-white/12 bg-white/6 px-5 py-3.5 text-white placeholder-white/30 outline-none transition-colors focus:border-[var(--accent)]"
+					class="w-full rounded-xl border border-white/12 bg-white/6 px-5 py-3.5 text-white placeholder-white/30 transition-colors outline-none focus:border-[var(--accent)]"
 					placeholder="Designing Workplaces That Think"
 				/>
 			</div>
@@ -53,8 +53,8 @@
 					<div>
 						<p class="text-sm font-medium text-white/80">28 default features included</p>
 						<p class="mt-1 text-xs text-white/40">
-							The standard AWA × CEBMa evidence-based feature set will be loaded. Feature
-							editing will be available in a future update.
+							The standard AWA × CEBMa evidence-based feature set will be loaded. Feature editing
+							will be available in a future update.
 						</p>
 					</div>
 				</div>

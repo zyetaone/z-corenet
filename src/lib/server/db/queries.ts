@@ -6,19 +6,12 @@ import type { DefaultFeature } from '$lib/data/default-features';
 
 // ── Sessions ──
 
-export async function createSession(
-	db: DbClient,
-	code: string,
-	title: string
-): Promise<Session> {
+export async function createSession(db: DbClient, code: string, title: string): Promise<Session> {
 	const [session] = await db.insert(sessions).values({ code, title }).returning();
 	return session;
 }
 
-export async function getSessionByCode(
-	db: DbClient,
-	code: string
-): Promise<Session | undefined> {
+export async function getSessionByCode(db: DbClient, code: string): Promise<Session | undefined> {
 	const [session] = await db.select().from(sessions).where(eq(sessions.code, code));
 	return session;
 }
@@ -61,7 +54,9 @@ export async function getSessionFeatures(
 export async function updateSessionFeature(
 	db: DbClient,
 	id: number,
-	data: Partial<Pick<SessionFeature, 'name' | 'description' | 'category' | 'hasEvidence' | 'level' | 'caption'>>
+	data: Partial<
+		Pick<SessionFeature, 'name' | 'description' | 'category' | 'hasEvidence' | 'level' | 'caption'>
+	>
 ): Promise<void> {
 	await db.update(sessionFeatures).set(data).where(eq(sessionFeatures.id, id));
 }

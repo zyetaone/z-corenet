@@ -22,7 +22,11 @@
 }
 
 body {
-	font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family:
+		'DM Sans',
+		-apple-system,
+		BlinkMacSystemFont,
+		sans-serif;
 	background: var(--dark);
 	color: #fff;
 	-webkit-font-smoothing: antialiased;
