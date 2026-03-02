@@ -1,12 +1,39 @@
-// See https://svelte.dev/docs/kit/types#app.d.ts
-// for information about these interfaces
 declare global {
+	interface D1Database {
+		prepare(query: string): D1PreparedStatement;
+		dump(): Promise<ArrayBuffer>;
+		batch<T = unknown>(statements: D1PreparedStatement[]): Promise<D1Result<T>[]>;
+		exec(query: string): Promise<D1ExecResult>;
+	}
+	interface D1PreparedStatement {
+		bind(...values: unknown[]): D1PreparedStatement;
+		first<T = unknown>(colName?: string): Promise<T | null>;
+		run<T = unknown>(): Promise<D1Result<T>>;
+		all<T = unknown>(): Promise<D1Result<T>>;
+		raw<T = unknown>(): Promise<T[]>;
+	}
+	interface D1Result<T = unknown> {
+		results?: T[];
+		success: boolean;
+		error?: string;
+		meta: object;
+	}
+	interface D1ExecResult {
+		count: number;
+		duration: number;
+	}
+
+	interface Env {
+		DB: D1Database;
+	}
+
 	namespace App {
-		// interface Error {}
-		// interface Locals {}
-		// interface PageData {}
-		// interface PageState {}
-		// interface Platform {}
+		interface Platform {
+			env: Env;
+			ctx: ExecutionContext;
+			caches: CacheStorage;
+			cf?: IncomingRequestCfProperties;
+		}
 	}
 }
 
