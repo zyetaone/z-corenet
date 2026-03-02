@@ -4,7 +4,6 @@
 	import type { PageData } from './$types';
 	import { VotingEngine } from '$lib/stores/voting.svelte';
 	import VoteTopbar from '$lib/components/VoteTopbar.svelte';
-	import PhaseBanner from '$lib/components/PhaseBanner.svelte';
 	import FeatureGrid from '$lib/components/FeatureGrid.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 
@@ -34,11 +33,13 @@
 	class="flex min-h-screen flex-col transition-colors duration-700 {engine.phase === 'communal' ? 'theme-dark-blue' : ''}"
 >
 	<div class="animated-grid-bg"></div>
-	<VoteTopbar count={engine.count} phase={engine.phase} />
+	<VoteTopbar
+		phase={engine.phase}
+		completedGroups={engine.completedGroups}
+		totalPicks={engine.count}
+	/>
 
 	<main class="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6">
-		<PhaseBanner phase={engine.phase} />
-
 		<FeatureGrid
 			features={displayFeatures}
 			selectedIds={engine.currentSelection}

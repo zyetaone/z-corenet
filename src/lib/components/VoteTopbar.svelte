@@ -1,156 +1,88 @@
 <script lang="ts">
+	import type { GroupKey } from '$lib/data/default-features';
+	import { FEATURE_GROUPS } from '$lib/data/default-features';
+
 	let {
-		count,
-		phase
+		phase,
+		completedGroups,
+		totalPicks
 	}: {
-		count: number;
 		phase: 'individual' | 'communal';
+		completedGroups: Set<GroupKey>;
+		totalPicks: number;
 	} = $props();
 
-	let isComplete = $derived(count === 5);
-	let isIndividual = $derived(phase === 'individual');
+	const isIndividual = $derived(phase === 'individual');
+	const allDone = $derived(completedGroups.size === FEATURE_GROUPS.length);
 </script>
 
 <header class="vote-topbar">
-	<div class="topbar-left">
-		<span class="topbar-icon">&#x1f9e0;</span>
-		<span class="topbar-title-short">AWA</span>
-		<span class="topbar-title-full">AWA &middot; Workplace Cognitive Design</span>
+	<!-- Left: phase context -->
+	<div class="flex items-center gap-3 min-w-0">
+		<span class="text-2xl shrink-0">{isIndividual ? '\u{1F9E0}' : '\u{1F91D}'}</span>
+		<div class="min-w-0">
+			<div
+				class="font-display text-base font-bold truncate md:text-lg"
+				class:text-[var(--green)]={isIndividual}
+				class:text-[var(--indigo-text)]={!isIndividual}
+			>
+				{isIndividual ? 'The Individual Brain' : 'The Collective Brain'}
+			</div>
+			<div class="text-xs text-white/45 truncate">
+				{isIndividual ? 'Pick from each section below' : 'Now think as a team'}
+			</div>
+		</div>
 	</div>
-	<div class="topbar-phase">
-		<span class="topbar-phase-badge" class:badge-a={isIndividual} class:badge-b={!isIndividual}>
-			{isIndividual ? 'Phase A' : 'Phase B'}
-		</span>
-		<span class="counter-pill" class:incomplete={!isComplete} class:complete={isComplete}>
-			<span class="counter-num" class:num-incomplete={!isComplete} class:num-complete={isComplete}>
-				{count}
-			</span>
-			<span class="counter-label">/ 5 selected</span>
-		</span>
+
+	<!-- Right: progress -->
+	<div class="flex items-center gap-4 shrink-0">
+		<!-- Section dots -->
+		<div class="hidden sm:flex items-center gap-1.5">
+			{#each FEATURE_GROUPS as group (group.key)}
+				<div
+					class="h-2.5 w-2.5 rounded-full transition-all duration-300 {completedGroups.has(group.key)
+						? isIndividual
+							? 'bg-[var(--green)] scale-125'
+							: 'bg-[var(--indigo-text)] scale-125'
+						: 'bg-white/15'}"
+					title="{group.label}{completedGroups.has(group.key) ? ' ✓' : ''}"
+				></div>
+			{/each}
+		</div>
+
+		<!-- Counter pill -->
+		<div
+			class="rounded-full px-4 py-1.5 text-sm font-bold transition-all duration-300 {allDone
+				? isIndividual
+					? 'bg-[var(--green)]/20 text-[var(--green)]'
+					: 'bg-[var(--indigo-text)]/20 text-[var(--indigo-text)]'
+				: 'bg-white/8 text-white/60'}"
+		>
+			<span style="font-variant-numeric: tabular-nums">{totalPicks}</span> picks
+		</div>
 	</div>
 </header>
 
 <style>
 	.vote-topbar {
-		background: var(--dark);
-		padding: 0.875rem 1rem;
+		background: rgba(15, 25, 35, 0.85);
+		backdrop-filter: blur(16px);
+		-webkit-backdrop-filter: blur(16px);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+		padding: 0.75rem 1rem;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 1rem;
 		position: sticky;
 		top: 0;
 		z-index: 50;
-		box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
-	}
-
-	.topbar-left {
-		display: flex;
-		align-items: center;
-		gap: 0.875rem;
-	}
-
-	.topbar-icon {
-		font-size: 1.75rem;
-	}
-
-	.topbar-title-short {
-		display: none;
-		font-family: 'Playfair Display', Georgia, serif;
-		color: #fff;
-		font-size: 1rem;
-		font-weight: 700;
-	}
-
-	.topbar-title-full {
-		font-family: 'Playfair Display', Georgia, serif;
-		color: #fff;
-		font-size: 1.125rem;
-		font-weight: 600;
-	}
-
-	.topbar-phase {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.topbar-phase-badge {
-		padding: 0.375rem 1rem;
-		border-radius: 1.25rem;
-		font-size: 0.8125rem;
-		font-weight: 700;
-		letter-spacing: 0.5px;
-	}
-
-	.badge-a {
-		background: rgba(0, 200, 83, 0.15);
-		color: var(--green);
-	}
-
-	.badge-b {
-		background: rgba(92, 107, 192, 0.15);
-		color: var(--indigo-text);
-	}
-
-	.counter-pill {
-		border-radius: 1.375rem;
-		padding: 0.5rem 1.25rem;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		transition: all 0.3s;
-	}
-
-	.counter-pill.incomplete {
-		background: rgba(255, 255, 255, 0.08);
-	}
-
-	.counter-pill.complete {
-		background: linear-gradient(135deg, var(--teal), var(--accent));
-		animation: pill-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-	}
-
-	.counter-num {
-		font-size: 1.375rem;
-		font-weight: 800;
-		transition: color 0.3s;
-		font-family: 'DM Sans', sans-serif;
-	}
-
-	.num-incomplete {
-		color: var(--accent);
-	}
-
-	.num-complete {
-		color: #fff;
-	}
-
-	.counter-label {
-		color: rgba(255, 255, 255, 0.55);
-		font-size: 0.8125rem;
+		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 	}
 
 	@media (min-width: 640px) {
 		.vote-topbar {
-			padding: 0.875rem 1.75rem;
+			padding: 0.75rem 1.75rem;
 		}
-	}
-
-	@media (max-width: 640px) {
-		.topbar-title-short {
-			display: inline;
-		}
-		.topbar-title-full {
-			display: none;
-		}
-	}
-
-	@keyframes pill-pop {
-		0% { transform: scale(1); }
-		50% { transform: scale(1.08); }
-		100% { transform: scale(1); }
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.counter-pill.complete { animation: none; }
 	}
 </style>
