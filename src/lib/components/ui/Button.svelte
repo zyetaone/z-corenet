@@ -44,6 +44,11 @@
 		box-shadow: 0 6px 32px rgba(0, 139, 139, 0.55);
 	}
 
+	.btn-primary:active:not(:disabled) {
+		transform: translateY(1px);
+		box-shadow: 0 2px 16px rgba(0, 139, 139, 0.35);
+	}
+
 	.btn-primary:disabled {
 		background: rgba(0, 139, 139, 0.2);
 		box-shadow: none;

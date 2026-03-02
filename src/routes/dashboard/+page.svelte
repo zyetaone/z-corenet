@@ -71,7 +71,7 @@
 				<!-- QR Code -->
 				{#if baseUrl}
 					<div class="mb-8 rounded-2xl border border-white/10 bg-white/5 p-6">
-						<QrCode url={baseUrl} size={280} />
+						<QrCode url={baseUrl} size={220} />
 					</div>
 				{/if}
 
@@ -91,11 +91,11 @@
 				<!-- Live counters -->
 				<div class="mb-10 flex items-center gap-3 text-lg text-white/45">
 					<span>
-						<span class="font-bold text-white">{results.participantCount}</span> joined
+						<span class="font-bold text-white" style="font-variant-numeric: tabular-nums">{results.participantCount}</span> joined
 					</span>
 					<span class="text-white/25">&middot;</span>
 					<span>
-						<span class="font-bold text-white">{results.voteCount}</span> voted
+						<span class="font-bold text-white" style="font-variant-numeric: tabular-nums">{results.voteCount}</span> voted
 					</span>
 				</div>
 
@@ -156,12 +156,12 @@
 					<div class="flex items-center justify-center gap-6 text-white/45">
 						<div class="flex items-center gap-2">
 							<span class="text-lg">&#128101;</span>
-							<span class="text-lg font-bold text-white">{results.participantCount}</span>
+							<span class="text-lg font-bold text-white" style="font-variant-numeric: tabular-nums">{results.participantCount}</span>
 							<span>joined</span>
 						</div>
 						<div class="flex items-center gap-2">
 							<span class="text-lg">&#9989;</span>
-							<span class="text-lg font-bold text-white">{results.voteCount}</span>
+							<span class="text-lg font-bold text-white" style="font-variant-numeric: tabular-nums">{results.voteCount}</span>
 							<span>voted</span>
 						</div>
 					</div>
@@ -169,7 +169,7 @@
 
 				{#if results.voteCount === 0}
 					<div class="py-20 text-center">
-						<div class="mx-auto mb-6 animate-pulse text-6xl">&#129504;</div>
+						<div class="mx-auto mb-6 text-6xl breathe-slow-anim">&#129504;</div>
 						<h2 class="font-display mb-2 text-2xl font-bold text-white">
 							Waiting for participants...
 						</h2>
@@ -177,7 +177,7 @@
 					</div>
 				{:else}
 					<!-- Score Strip -->
-					<div class="analytics-card" style="animation-delay: 0ms">
+					<div class="analytics-card mb-6" style="animation-delay: 0ms">
 						<ScoreStrip
 							individualScore={results.individual.score}
 							communalScore={results.communal.score}
@@ -187,7 +187,7 @@
 
 					<!-- Rank Panels -->
 					<div
-						class="analytics-card grid grid-cols-1 gap-6 pb-10 md:px-8 lg:grid-cols-2"
+						class="analytics-card grid grid-cols-1 gap-6 mb-6 pb-6 md:px-8 lg:grid-cols-2"
 						style="animation-delay: 100ms"
 					>
 						<RankPanel
@@ -209,7 +209,7 @@
 					</div>
 
 					<!-- Practical Next Steps -->
-					<div class="analytics-card pb-10 md:px-8" style="animation-delay: 200ms">
+					<div class="analytics-card mb-6 pb-6 md:px-8" style="animation-delay: 200ms">
 						<h3 class="font-display mb-5 text-center text-2xl font-bold text-white">
 							Practical Next Steps
 						</h3>
@@ -245,7 +245,7 @@
 					<AiPrompt features={allTop10Features} hidden={true} />
 
 					<!-- Research Footer -->
-					<div class="analytics-card pb-10 md:px-8" style="animation-delay: 300ms">
+					<div class="analytics-card pb-6 md:px-8" style="animation-delay: 300ms">
 						<div class="rounded-2xl border border-white/6 bg-white/3 p-8 text-center">
 							<div class="mb-3 text-3xl">&#128218;</div>
 							<h3 class="font-display mb-3 text-xl font-bold text-white">Research Foundation</h3>
@@ -343,5 +343,24 @@
 			opacity: 1;
 			transform: translateY(0);
 		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.analytics-container.animate-in .analytics-card {
+			animation: none;
+			opacity: 1;
+			transform: none;
+		}
+	}
+
+	.breathe-slow-anim {
+		animation: breathe-slow 4s ease-in-out infinite;
+	}
+	@keyframes breathe-slow {
+		0%, 100% { opacity: 0.6; }
+		50% { opacity: 1; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.breathe-slow-anim { animation: none; opacity: 0.8; }
 	}
 </style>

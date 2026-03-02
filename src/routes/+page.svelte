@@ -7,8 +7,10 @@
 	let name = $state('');
 	let isSubmitting = $state(false);
 	let mounted = $state(false);
+	let reduceMotion = $state(false);
 
 	onMount(() => {
+		reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		mounted = true;
 	});
 </script>
@@ -25,15 +27,15 @@
 	<div class="relative z-10 w-full max-w-md text-center">
 		{#if mounted}
 			<div
-				in:fly={{ y: -20, duration: 800, delay: 100 }}
-				class="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl text-5xl shadow-2xl transition-transform duration-500 hover:scale-105 hover:rotate-3"
+				in:fly={{ y: reduceMotion ? 0 : -20, duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 100 }}
+				class="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl text-5xl shadow-2xl"
 				style="background: linear-gradient(135deg, var(--teal), var(--accent)); box-shadow: 0 10px 40px rgba(0,139,139,0.2)"
 			>
 				🧠
 			</div>
 
 			<h1 
-				in:fly={{ y: 20, duration: 800, delay: 200 }}
+				in:fly={{ y: reduceMotion ? 0 : 20, duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 200 }}
 				class="font-display mb-3 text-4xl tracking-tight font-bold text-transparent bg-clip-text md:text-5xl" 
 				style="background-image: linear-gradient(to right, #ffffff, #d1d5db); line-height: 1.15"
 			>
@@ -41,14 +43,14 @@
 			</h1>
 
 			<p 
-				in:fade={{ duration: 800, delay: 400 }}
-				class="mb-12 text-xs font-bold tracking-[0.25em] text-[var(--accent)] uppercase"
+				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 400 }}
+				class="mb-8 text-xs font-bold tracking-[0.15em] text-[var(--accent)] uppercase"
 			>
 				Cognitive Performance Exercise
 			</p>
 
 			<form
-				in:fly={{ y: 30, duration: 800, delay: 600 }}
+				in:fly={{ y: reduceMotion ? 0 : 30, duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 600 }}
 				method="POST"
 				use:enhance={() => {
 					isSubmitting = true;

@@ -36,7 +36,7 @@
 <div class="flex flex-col gap-5 px-4 pb-8 md:flex-row md:gap-7 md:px-8">
 	<!-- Individual Brain accuracy -->
 	<div class="flex-1 rounded-[20px] border border-white/6 bg-white/3 px-6 py-6 text-center">
-		<div class="font-display text-[72px] leading-none font-extrabold">
+		<div class="font-display text-[72px] leading-none font-extrabold" style="font-variant-numeric: tabular-nums">
 			<span style="color: var(--green)">{individualScore}</span><span class="text-4xl text-white/25"
 				>/5</span
 			>
@@ -49,8 +49,8 @@
 
 	<!-- Connected Brain accuracy -->
 	<div class="flex-1 rounded-[20px] border border-white/6 bg-white/3 px-6 py-6 text-center">
-		<div class="font-display text-[72px] leading-none font-extrabold">
-			<span style="color: #8C9EFF">{communalScore}</span><span class="text-4xl text-white/25"
+		<div class="font-display text-[72px] leading-none font-extrabold" style="font-variant-numeric: tabular-nums">
+			<span style="color: var(--indigo-text)">{communalScore}</span><span class="text-4xl text-white/25"
 				>/5</span
 			>
 		</div>
@@ -64,7 +64,7 @@
 	<div class="flex-1 rounded-[20px] border border-white/6 bg-white/3 px-6 py-6 text-center">
 		<div
 			class="font-display text-[72px] leading-none font-extrabold"
-			style="color: {scoreColor}"
+			style="color: {scoreColor}; font-variant-numeric: tabular-nums"
 		>
 			{overallPct}%
 		</div>

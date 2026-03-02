@@ -85,11 +85,13 @@
 	.feature-card.selected-a {
 		background: rgba(0, 200, 83, 0.08);
 		border-color: var(--green);
+		box-shadow: 0 2px 12px rgba(0, 200, 83, 0.12);
 	}
 
 	.feature-card.selected-b {
 		background: rgba(92, 107, 192, 0.08);
 		border-color: var(--indigo);
+		box-shadow: 0 2px 12px rgba(92, 107, 192, 0.12);
 	}
 
 	.feature-card.disabled {
@@ -153,7 +155,7 @@
 
 	.card-desc {
 		font-size: 0.8125rem;
-		color: rgba(255, 255, 255, 0.5);
+		color: rgba(255, 255, 255, 0.6);
 		line-height: 1.45;
 	}
 

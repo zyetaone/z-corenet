@@ -89,7 +89,7 @@
 
 	.badge-b {
 		background: rgba(92, 107, 192, 0.15);
-		color: #8c9eff;
+		color: var(--indigo-text);
 	}
 
 	.counter-pill {
@@ -107,6 +107,7 @@
 
 	.counter-pill.complete {
 		background: linear-gradient(135deg, var(--teal), var(--accent));
+		animation: pill-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 	}
 
 	.counter-num {
@@ -142,5 +143,14 @@
 		.topbar-title-full {
 			display: none;
 		}
+	}
+
+	@keyframes pill-pop {
+		0% { transform: scale(1); }
+		50% { transform: scale(1.08); }
+		100% { transform: scale(1); }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.counter-pill.complete { animation: none; }
 	}
 </style>

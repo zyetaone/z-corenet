@@ -4,13 +4,13 @@
 
 {#if hasEvidence}
 	<span
-		class="mt-1 inline-block rounded bg-green-500/12 px-2 py-0.5 text-xs font-bold tracking-wide text-[var(--green)]"
+		class="mt-1 inline-block rounded bg-green-500/12 px-2 py-0.5 text-xs font-bold tracking-wide text-[var(--green)] min-w-[140px] text-center"
 	>
 		&#10003; EVIDENCE-BASED
 	</span>
 {:else}
 	<span
-		class="mt-1 inline-block rounded bg-red-500/12 px-2 py-0.5 text-xs font-bold tracking-wide text-[var(--red)]"
+		class="mt-1 inline-block rounded bg-red-500/12 px-2 py-0.5 text-xs font-bold tracking-wide text-[var(--red)] min-w-[140px] text-center"
 	>
 		&#10007; LIMITED EVIDENCE
 	</span>

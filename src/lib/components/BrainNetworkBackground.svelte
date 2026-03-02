@@ -64,7 +64,7 @@
 <div
 	class="pointer-events-none absolute inset-0 z-0 overflow-hidden mix-blend-screen"
 	aria-hidden="true"
-	style="animation: breathe 6s ease-in-out infinite"
+	class:breathe-animation={true}
 >
 	{#if mounted}
 		<svg class="h-full w-full" in:fade={{ duration: 1500 }}>
@@ -125,6 +125,12 @@
 </div>
 
 <style>
+	.breathe-animation {
+		animation: breathe 6s ease-in-out infinite;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.breathe-animation { animation: none; opacity: 0.35; }
+	}
 	@keyframes breathe {
 		0%, 100% { opacity: 0.3; }
 		50% { opacity: 0.45; }

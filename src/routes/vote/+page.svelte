@@ -47,7 +47,7 @@
 			ontoggle={(id) => engine.toggle(id)}
 		/>
 
-		<div class="mt-8 flex flex-col items-center gap-6 pb-10">
+		<div class="mt-6 flex flex-col items-center gap-6 pb-8">
 			{#if engine.phase === 'individual'}
 				<Button disabled={!engine.canContinue} onclick={() => engine.advancePhase()}>
 					{engine.buttonText}

@@ -42,7 +42,7 @@
 			<div
 				class="font-display text-2xl font-bold"
 				class:text-[var(--green)]={isIndividual}
-				class:text-[#8C9EFF]={!isIndividual}
+				class:text-[var(--indigo-text)]={!isIndividual}
 			>
 				{title}
 			</div>

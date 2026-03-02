@@ -43,7 +43,7 @@
 	const barGradient = $derived(
 		isIndividual
 			? 'background: linear-gradient(90deg, var(--green-dim), var(--green))'
-			: 'background: linear-gradient(90deg, #283593, #8C9EFF)'
+			: 'background: linear-gradient(90deg, #283593, var(--indigo-text))'
 	);
 </script>
 
@@ -72,7 +72,7 @@
 		<div class="mt-2 h-2.5 overflow-hidden rounded-[5px] bg-white/6">
 			<div
 				bind:this={barEl}
-				class="h-full w-0 rounded-[5px] transition-[width] duration-[1200ms] ease-out"
+				class="h-full w-0 rounded-[5px] transition-[width] duration-[1200ms] ease-out motion-reduce:transition-none"
 				style={barGradient}
 			></div>
 		</div>
@@ -80,9 +80,9 @@
 
 	<!-- Percentage -->
 	<div
-		class="min-w-[60px] text-right text-2xl font-extrabold"
+		class="min-w-[60px] text-right text-2xl font-extrabold tabular-nums"
 		class:text-[var(--green)]={isIndividual}
-		class:text-[#8C9EFF]={!isIndividual}
+		class:text-[var(--indigo-text)]={!isIndividual}
 	>
 		{percentage}%
 	</div>
