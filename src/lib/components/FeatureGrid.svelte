@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { SessionFeature } from '$lib/server/db/schema';
-	import { FEATURE_GROUPS, CATEGORY_TO_GROUP } from '$lib/data/default-features';
+	import { FEATURE_GROUPS, CATEGORY_TO_GROUP, type GroupKey } from '$lib/data/default-features';
 	import FeatureCard from './FeatureCard.svelte';
 	import { fly } from 'svelte/transition';
 
@@ -10,7 +10,8 @@
 		disabledIds,
 		usedIds,
 		phase,
-		ontoggle
+		ontoggle,
+		completedGroups
 	}: {
 		features: SessionFeature[];
 		selectedIds: Set<number>;
@@ -18,6 +19,7 @@
 		usedIds: Set<number>;
 		phase: 'individual' | 'communal';
 		ontoggle: (featureId: number) => void;
+		completedGroups: Set<GroupKey>;
 	} = $props();
 
 	let grouped = $derived(
@@ -32,22 +34,30 @@
 
 <div class="space-y-8">
 	{#each grouped as group, i (group.key)}
-		<div 
+		<div
 			in:fly={{ y: 20, duration: 600, delay: i * 100 }}
 			class="rounded-3xl border border-white/5 bg-white/5 p-5 shadow-sm sm:p-6"
 		>
 			<div class="mb-5 flex items-center gap-3">
-				<div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-xl shadow-inner backdrop-blur-md">
-					{group.icon}
+				<div
+					class="flex h-10 w-10 items-center justify-center rounded-2xl text-xl shadow-inner backdrop-blur-md transition-colors duration-300 {completedGroups.has(group.key) ? (phase === 'individual' ? 'bg-[var(--green)]/15' : 'bg-[var(--indigo-text)]/15') : 'bg-white/10'}"
+				>
+					{#if completedGroups.has(group.key)}
+						<svg class="h-5 w-5 text-[var(--green)]" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+						</svg>
+					{:else}
+						{group.icon}
+					{/if}
 				</div>
 				<h3 class="font-display text-base font-bold tracking-wide text-white/90 uppercase">
 					{group.label}
 				</h3>
 			</div>
-			
+
 			<div class="grid gap-3.5 sm:gap-2.5" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
 				{#each group.features as feature, j (feature.id)}
-					<div in:fly={{ y: 10, duration: 400, delay: (i * 100) + (j * 50) }}>
+					<div in:fly={{ y: 10, duration: 400, delay: i * 100 + j * 50 }}>
 						<FeatureCard
 							{feature}
 							selected={selectedIds.has(feature.featureId)}

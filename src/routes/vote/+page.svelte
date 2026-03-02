@@ -12,7 +12,7 @@
 	const engine = untrack(() => new VotingEngine(data.features));
 
 	let disabledIds = $derived(
-		engine.count >= 5
+		engine.atSoftCap
 			? new Set(
 					engine.features
 						.filter((f) => !engine.currentSelection.has(f.featureId))
@@ -31,8 +31,9 @@
 </script>
 
 <div
-	class="flex min-h-screen flex-col"
+	class="flex min-h-screen flex-col transition-colors duration-700 {engine.phase === 'communal' ? 'theme-dark-blue' : ''}"
 >
+	<div class="animated-grid-bg"></div>
 	<VoteTopbar count={engine.count} phase={engine.phase} />
 
 	<main class="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6">
@@ -45,6 +46,7 @@
 			{usedIds}
 			phase={engine.phase}
 			ontoggle={(id) => engine.toggle(id)}
+			completedGroups={engine.completedGroups}
 		/>
 
 		<div class="mt-6 flex flex-col items-center gap-6 pb-8">
@@ -81,7 +83,7 @@
 						placeholder="Any thoughts on workplace design? (optional)"
 						aria-label="Comments on workplace design"
 						rows="3"
-						class="w-full rounded-xl border border-white/12 bg-white/6 px-5 py-3.5 text-base text-white placeholder-white/30 transition-colors outline-none focus:border-[var(--accent)]"
+						class="w-full rounded-xl border border-white/12 bg-white/6 px-5 py-3.5 text-base text-white placeholder-white/30 transition-colors outline-none focus:border-(--accent)"
 					></textarea>
 
 					<Button type="submit" disabled={!engine.canContinue || engine.isSubmitting}>
