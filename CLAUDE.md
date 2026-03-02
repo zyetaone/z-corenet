@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **CoreNet** is a SvelteKit app that ports the AWA (Advanced Workplace Associates) interactive workplace design tool from a single-file HTML document into a component-based SvelteKit application, deployed to Cloudflare.
 
 The source HTML lives at `docs/remixed-a39be00c.html` (also copied to project root). It's a multi-screen interactive app with:
+
 - Intro screen with phase overview
 - Feature voting (individual + communal workplace features)
 - Vote simulation and dashboard with evidence-based scoring
@@ -56,6 +57,7 @@ docs/
 ### Porting Strategy
 
 The source HTML is a single-file app with multiple "screens" toggled via JS (`showScreen()`). When porting:
+
 - Each screen becomes a SvelteKit route or Svelte component
 - Inline `<style>` CSS maps to Tailwind utility classes or scoped component styles
 - Global JS state (`allVotes`, `allComments`, feature data) maps to Svelte 5 runes (`$state`, `$derived`)
@@ -72,6 +74,7 @@ The source HTML is a single-file app with multiple "screens" toggled via JS (`sh
 ## Svelte MCP Server
 
 This project has the Svelte MCP server configured (`.mcp.json`). When writing Svelte code:
+
 1. Use `list-sections` first to discover relevant docs
 2. Use `get-documentation` to fetch sections matching the task
 3. Run `svelte-autofixer` on every Svelte component before finalizing
@@ -80,6 +83,7 @@ This project has the Svelte MCP server configured (`.mcp.json`). When writing Sv
 ## Formatting Rules
 
 Prettier config (`.prettierrc`):
+
 - Tabs for indentation
 - Single quotes
 - No trailing commas

@@ -165,6 +165,7 @@ buttonText: string         — $derived from phase + count
 ## User Flow
 
 ### Facilitator
+
 1. Lands on `/` → clicks "Create Session"
 2. `/session/create` — edits title, customizes features (defaults pre-loaded), clicks "Create"
 3. Gets session code + shareable link (`/session/ABC123`)
@@ -172,6 +173,7 @@ buttonText: string         — $derived from phase + count
 5. Shares link with participants
 
 ### Participant
+
 1. Opens `/session/ABC123`
 2. Sees branding + "This exercise explores what matters most for cognitive performance"
 3. Optionally enters name, clicks "Begin"
