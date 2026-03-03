@@ -12,6 +12,9 @@
 	let canvas: HTMLCanvasElement;
 	let animationId: number;
 
+	let mouseX = -1000;
+	let mouseY = -1000;
+
 	interface Particle {
 		x: number;
 		y: number;
@@ -61,6 +64,9 @@
 
 			ctx.clearRect(0, 0, w, h);
 
+			// Add a subtle composite operation for glowing intersections
+			ctx.globalCompositeOperation = 'screen';
+
 			// Update and draw particles
 			for (const p of particles) {
 				if (!reduceMotion) {
@@ -76,26 +82,49 @@
 						p.vx += (w / 2 - p.x) * 0.0001;
 						p.vy += (h / 2 - p.y) * 0.0001;
 					}
+
+					// Mouse interaction (gentle repel)
+					const dx = mouseX - p.x;
+					const dy = mouseY - p.y;
+					const dist = Math.sqrt(dx * dx + dy * dy);
+					if (dist < 150) {
+						const force = (150 - dist) / 1500;
+						p.vx -= dx * force;
+						p.vy -= dy * force;
+					}
+
+					// Friction to stop infinite acceleration
+					p.vx *= 0.99;
+					p.vy *= 0.99;
 				}
 
 				// Draw particle
 				ctx.beginPath();
 				ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-				ctx.fillStyle = 'rgba(0, 191, 165, 0.15)';
+				ctx.fillStyle = phase === 'communal' ? 'rgba(79, 70, 229, 0.4)' : 'rgba(0, 191, 165, 0.4)';
+				ctx.shadowBlur = 10;
+				ctx.shadowColor =
+					phase === 'communal' ? 'rgba(79, 70, 229, 0.5)' : 'rgba(0, 191, 165, 0.5)';
 				ctx.fill();
 			}
 
-			// Draw connections in collective mode
-			if (phase === 'communal' && !reduceMotion) {
-				ctx.strokeStyle = 'rgba(0, 191, 165, 0.06)';
-				ctx.lineWidth = 1;
+			// Draw connections
+			if (!reduceMotion) {
+				ctx.shadowBlur = 0; // Reset shadow for lines
+				const connectionColor = phase === 'communal' ? '79, 70, 229' : '0, 191, 165';
+
+				// Optional: In individual phase, connect slightly less aggressively
+				const currentConnectionDist =
+					phase === 'communal' ? CONNECTION_DISTANCE : CONNECTION_DISTANCE * 0.8;
+				ctx.strokeStyle = `rgba(${connectionColor}, 0.15)`;
+				ctx.lineWidth = 1.5;
 				for (let i = 0; i < particles.length; i++) {
 					for (let j = i + 1; j < particles.length; j++) {
 						const dx = particles[i].x - particles[j].x;
 						const dy = particles[i].y - particles[j].y;
 						const dist = Math.sqrt(dx * dx + dy * dy);
-						if (dist < CONNECTION_DISTANCE) {
-							ctx.globalAlpha = 1 - dist / CONNECTION_DISTANCE;
+						if (dist < currentConnectionDist) {
+							ctx.globalAlpha = 1 - Math.pow(dist / currentConnectionDist, 1.5);
 							ctx.beginPath();
 							ctx.moveTo(particles[i].x, particles[i].y);
 							ctx.lineTo(particles[j].x, particles[j].y);
@@ -105,6 +134,9 @@
 				}
 				ctx.globalAlpha = 1;
 			}
+
+			// Reset Composite logic for next frame
+			ctx.globalCompositeOperation = 'source-over';
 
 			animationId = requestAnimationFrame(animate);
 		}
@@ -117,6 +149,17 @@
 		};
 	});
 </script>
+
+<svelte:window
+	onmousemove={(e) => {
+		mouseX = e.clientX;
+		mouseY = e.clientY;
+	}}
+	onmouseleave={() => {
+		mouseX = -1000;
+		mouseY = -1000;
+	}}
+/>
 
 <canvas
 	bind:this={canvas}

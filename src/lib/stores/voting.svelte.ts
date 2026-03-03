@@ -26,6 +26,16 @@ export class VotingEngine {
 			: this.features
 	);
 
+	// How many groups actually have selectable (non-used) features in the current phase
+	readonly selectableGroupCount = $derived.by(() => {
+		const groups = new Set<GroupKey>();
+		for (const f of this.availableFeatures) {
+			const group = this.featureGroupMap.get(f.featureId);
+			if (group) groups.add(group);
+		}
+		return groups.size;
+	});
+
 	// Map featureId -> group key for quick lookup
 	private readonly featureGroupMap = $derived(
 		new Map(
@@ -48,9 +58,20 @@ export class VotingEngine {
 
 	readonly completedGroupCount = $derived(this.completedGroups.size);
 
-	readonly allGroupsCovered = $derived(this.completedGroupCount === GROUP_COUNT);
+	readonly allGroupsCovered = $derived(this.completedGroupCount >= this.selectableGroupCount);
 
 	readonly atSoftCap = $derived(this.count >= SOFT_CAP);
+
+	// Groups that have NO picks yet in the current phase
+	readonly uncoveredGroups = $derived.by(() => {
+		const all = new Set<GroupKey>();
+		for (const f of this.availableFeatures) {
+			const group = this.featureGroupMap.get(f.featureId);
+			if (group) all.add(group);
+		}
+		for (const g of this.completedGroups) all.delete(g);
+		return all;
+	});
 
 	readonly canContinue = $derived(this.allGroupsCovered);
 
@@ -59,7 +80,7 @@ export class VotingEngine {
 			? this.phase === 'individual'
 				? 'Continue →'
 				: 'Submit & See Results →'
-			: `${this.completedGroupCount} of ${GROUP_COUNT} sections`
+			: `${this.completedGroupCount} of ${this.selectableGroupCount} sections`
 	);
 
 	constructor(features: SessionFeature[]) {
@@ -70,9 +91,14 @@ export class VotingEngine {
 		const sel = this.currentSelection;
 		if (sel.has(featureId)) {
 			sel.delete(featureId);
-		} else if (!this.atSoftCap) {
+		} else if (!this.atSoftCap || this.isFromUncoveredGroup(featureId)) {
 			sel.add(featureId);
 		}
+	}
+
+	isFromUncoveredGroup(featureId: number): boolean {
+		const group = this.featureGroupMap.get(featureId);
+		return group ? this.uncoveredGroups.has(group) : false;
 	}
 
 	isGroupComplete(groupKey: GroupKey): boolean {

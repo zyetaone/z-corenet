@@ -136,6 +136,8 @@ export async function saveVotes(
 	phase: string,
 	featureIds: number[]
 ): Promise<void> {
+	if (featureIds.length === 0) return;
+
 	const rows = featureIds.map((featureId) => ({
 		participantId,
 		sessionId,

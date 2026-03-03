@@ -5,8 +5,10 @@
 :root {
 	--teal: #008b8b;
 	--accent: #00bfa5;
-	--dark: #0f1923;
-	--dark2: #1a2b3c;
+	--dark: #f0f4f8; /* pale off-white */
+	--dark2: #dbe4ef; /* pale off-white darker shade */
+	--blue-grad-start: #0f1923; /* deep blue */
+	--blue-grad-end: #1a2b3c;
 	--green: #00c853;
 	--green-dim: #1b5e20;
 	--red: #ff5252;
@@ -18,6 +20,17 @@
 	--blue-l1: #29b6f6;
 	--blue-l2: #0288d1;
 	--gold: #ffd54f;
+	/* Text-safe contrast colors */
+	--text-primary: #1a2b3c;
+	--text-secondary: rgba(26, 43, 60, 0.6);
+	--text-muted: rgba(26, 43, 60, 0.4);
+	--text-disabled: rgba(26, 43, 60, 0.25);
+	--green-text: #00873a;
+	--red-text: #c62828;
+	/* Surface colors */
+	--surface-card: rgba(255, 255, 255, 0.6);
+	--surface-row: rgba(26, 43, 60, 0.03);
+	--border-light: rgba(26, 43, 60, 0.1);
 }
 
 body {
@@ -28,8 +41,43 @@ body {
 		sans-serif;
 	background: linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%);
 	min-height: 100vh;
-	color: #fff;
+	color: #1a2b3c; /* Dark text for pale bg */
 	-webkit-font-smoothing: antialiased;
+}
+
+/* Animated Grid Background */
+.animated-grid-bg {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background-size: 40px 40px;
+	background-image:
+		linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+		linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+	mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+	-webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+	animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+	0% {
+		transform: translateY(0);
+	}
+	100% {
+		transform: translateY(40px);
+	}
+}
+
+.theme-dark-blue {
+	background: linear-gradient(160deg, var(--blue-grad-start) 0%, var(--blue-grad-end) 100%);
+	color: #fff;
+}
+
+.theme-dark-blue .animated-grid-bg {
+	background-image:
+		linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+		linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
 }
 
 .font-display {

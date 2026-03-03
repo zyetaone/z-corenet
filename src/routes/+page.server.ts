@@ -28,10 +28,7 @@ export const actions: Actions = {
 		const db = getDb(platform);
 		const session = await getOrCreateSession(db);
 
-		const formData = await request.formData();
-		const name = (formData.get('name') as string)?.trim() || undefined;
-
-		const participant = await createParticipant(db, session.id, name);
+		const participant = await createParticipant(db, session.id);
 
 		cookies.set('participant_id', participant.id, {
 			path: '/',

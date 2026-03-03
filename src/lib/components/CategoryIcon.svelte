@@ -37,5 +37,7 @@
 {:else if group === 'furniture'}
 	<FurnitureIcon {size} {animated} />
 {:else}
-	<svg width={size} height={size} viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor" /></svg>
+	<svg width={size} height={size} viewBox="0 0 24 24"
+		><circle cx="12" cy="12" r="4" fill="currentColor" /></svg
+	>
 {/if}

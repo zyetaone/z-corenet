@@ -25,10 +25,18 @@
 		animation-delay: var(--ray-delay);
 	}
 	@keyframes ray-pulse {
-		0%, 100% { opacity: 0.4; }
-		50% { opacity: 1; }
+		0%,
+		100% {
+			opacity: 0.4;
+		}
+		50% {
+			opacity: 1;
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.ray-animated { animation: none; opacity: 0.7; }
+		.ray-animated {
+			animation: none;
+			opacity: 0.7;
+		}
 	}
 </style>

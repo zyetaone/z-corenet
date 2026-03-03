@@ -28,14 +28,27 @@
 		transform-origin: 12px 14px;
 	}
 	@keyframes leaf-sway {
-		0%, 100% { transform: rotate(0deg); }
-		50% { transform: rotate(3deg); }
+		0%,
+		100% {
+			transform: rotate(0deg);
+		}
+		50% {
+			transform: rotate(3deg);
+		}
 	}
 	@keyframes leaf-sway-reverse {
-		0%, 100% { transform: rotate(0deg); }
-		50% { transform: rotate(-2deg); }
+		0%,
+		100% {
+			transform: rotate(0deg);
+		}
+		50% {
+			transform: rotate(-2deg);
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.sway, .sway-reverse { animation: none; }
+		.sway,
+		.sway-reverse {
+			animation: none;
+		}
 	}
 </style>

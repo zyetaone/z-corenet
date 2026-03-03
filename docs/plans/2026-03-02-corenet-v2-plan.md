@@ -13,6 +13,7 @@
 ## Task 1: Rewrite VotingEngine — Category-Aware Selection
 
 **Files:**
+
 - Modify: `src/lib/stores/voting.svelte.ts`
 - Modify: `src/routes/vote/+page.svelte`
 - Modify: `src/lib/components/FeatureGrid.svelte`
@@ -244,6 +245,7 @@ git commit -m "feat: category-aware voting — pick from each section, soft cap 
 ## Task 2: Unified Topbar (merge VoteTopbar + PhaseBanner)
 
 **Files:**
+
 - Rewrite: `src/lib/components/VoteTopbar.svelte`
 - Delete: `src/lib/components/PhaseBanner.svelte`
 - Modify: `src/routes/vote/+page.svelte` (remove PhaseBanner import)
@@ -348,6 +350,7 @@ Replace the entire contents of `src/lib/components/VoteTopbar.svelte`. The new t
 **Step 2: Update vote page**
 
 In `src/routes/vote/+page.svelte`:
+
 - Remove the PhaseBanner import and usage
 - Update VoteTopbar props:
 
@@ -388,6 +391,7 @@ git commit -m "feat: unified topbar — phase context replaces AWA branding duri
 ## Task 3: Custom Animated SVG Category Icons
 
 **Files:**
+
 - Create: `src/lib/components/icons/LightIcon.svelte`
 - Create: `src/lib/components/icons/AirIcon.svelte`
 - Create: `src/lib/components/icons/AcousticIcon.svelte`
@@ -403,6 +407,7 @@ git commit -m "feat: unified topbar — phase context replaces AWA branding duri
 **Step 1: Create icon components**
 
 Create `src/lib/components/icons/LightIcon.svelte`:
+
 ```svelte
 <script lang="ts">
 	let { size = 24, animated = true }: { size?: number; animated?: boolean } = $props();
@@ -433,25 +438,55 @@ Create `src/lib/components/icons/LightIcon.svelte`:
 		animation-delay: var(--ray-delay);
 	}
 	@keyframes ray-pulse {
-		0%, 100% { opacity: 0.4; }
-		50% { opacity: 1; }
+		0%,
+		100% {
+			opacity: 0.4;
+		}
+		50% {
+			opacity: 1;
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.ray-animated { animation: none; opacity: 0.7; }
+		.ray-animated {
+			animation: none;
+			opacity: 0.7;
+		}
 	}
 </style>
 ```
 
 Create `src/lib/components/icons/AirIcon.svelte`:
+
 ```svelte
 <script lang="ts">
 	let { size = 24, animated = true }: { size?: number; animated?: boolean } = $props();
 </script>
 
 <svg width={size} height={size} viewBox="0 0 24 24" fill="none" class="category-icon">
-	<path d="M3 8h12a3 3 0 100-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" class:flow={animated} style="--flow-delay: 0s" />
-	<path d="M3 12h16a3 3 0 110 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" class:flow={animated} style="--flow-delay: 0.3s" />
-	<path d="M3 16h10a3 3 0 100 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" class:flow={animated} style="--flow-delay: 0.6s" />
+	<path
+		d="M3 8h12a3 3 0 100-3"
+		stroke="currentColor"
+		stroke-width="2"
+		stroke-linecap="round"
+		class:flow={animated}
+		style="--flow-delay: 0s"
+	/>
+	<path
+		d="M3 12h16a3 3 0 110 3"
+		stroke="currentColor"
+		stroke-width="2"
+		stroke-linecap="round"
+		class:flow={animated}
+		style="--flow-delay: 0.3s"
+	/>
+	<path
+		d="M3 16h10a3 3 0 100 3"
+		stroke="currentColor"
+		stroke-width="2"
+		stroke-linecap="round"
+		class:flow={animated}
+		style="--flow-delay: 0.6s"
+	/>
 </svg>
 
 <style>
@@ -460,16 +495,27 @@ Create `src/lib/components/icons/AirIcon.svelte`:
 		animation-delay: var(--flow-delay);
 	}
 	@keyframes wind-flow {
-		0%, 100% { opacity: 0.4; transform: translateX(0); }
-		50% { opacity: 1; transform: translateX(2px); }
+		0%,
+		100% {
+			opacity: 0.4;
+			transform: translateX(0);
+		}
+		50% {
+			opacity: 1;
+			transform: translateX(2px);
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.flow { animation: none; opacity: 0.7; }
+		.flow {
+			animation: none;
+			opacity: 0.7;
+		}
 	}
 </style>
 ```
 
 Create `src/lib/components/icons/AcousticIcon.svelte`:
+
 ```svelte
 <script lang="ts">
 	let { size = 24, animated = true }: { size?: number; animated?: boolean } = $props();
@@ -477,9 +523,36 @@ Create `src/lib/components/icons/AcousticIcon.svelte`:
 
 <svg width={size} height={size} viewBox="0 0 24 24" fill="none" class="category-icon">
 	<circle cx="12" cy="12" r="2" fill="currentColor" />
-	<circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.5" fill="none" class:ring={animated} style="--ring-delay: 0s" />
-	<circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.5" fill="none" class:ring={animated} style="--ring-delay: 0.4s" />
-	<circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="1" fill="none" class:ring={animated} style="--ring-delay: 0.8s" />
+	<circle
+		cx="12"
+		cy="12"
+		r="5"
+		stroke="currentColor"
+		stroke-width="1.5"
+		fill="none"
+		class:ring={animated}
+		style="--ring-delay: 0s"
+	/>
+	<circle
+		cx="12"
+		cy="12"
+		r="8"
+		stroke="currentColor"
+		stroke-width="1.5"
+		fill="none"
+		class:ring={animated}
+		style="--ring-delay: 0.4s"
+	/>
+	<circle
+		cx="12"
+		cy="12"
+		r="11"
+		stroke="currentColor"
+		stroke-width="1"
+		fill="none"
+		class:ring={animated}
+		style="--ring-delay: 0.8s"
+	/>
 </svg>
 
 <style>
@@ -488,16 +561,28 @@ Create `src/lib/components/icons/AcousticIcon.svelte`:
 		animation-delay: var(--ring-delay);
 	}
 	@keyframes ring-expand {
-		0% { opacity: 0.8; transform-origin: center; transform: scale(0.95); }
-		100% { opacity: 0; transform-origin: center; transform: scale(1.15); }
+		0% {
+			opacity: 0.8;
+			transform-origin: center;
+			transform: scale(0.95);
+		}
+		100% {
+			opacity: 0;
+			transform-origin: center;
+			transform: scale(1.15);
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.ring { animation: none; opacity: 0.4; }
+		.ring {
+			animation: none;
+			opacity: 0.4;
+		}
 	}
 </style>
 ```
 
 Create `src/lib/components/icons/BiophilicIcon.svelte`:
+
 ```svelte
 <script lang="ts">
 	let { size = 24, animated = true }: { size?: number; animated?: boolean } = $props();
@@ -531,20 +616,34 @@ Create `src/lib/components/icons/BiophilicIcon.svelte`:
 		transform-origin: 12px 14px;
 	}
 	@keyframes leaf-sway {
-		0%, 100% { transform: rotate(0deg); }
-		50% { transform: rotate(3deg); }
+		0%,
+		100% {
+			transform: rotate(0deg);
+		}
+		50% {
+			transform: rotate(3deg);
+		}
 	}
 	@keyframes leaf-sway-reverse {
-		0%, 100% { transform: rotate(0deg); }
-		50% { transform: rotate(-2deg); }
+		0%,
+		100% {
+			transform: rotate(0deg);
+		}
+		50% {
+			transform: rotate(-2deg);
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.sway, .sway-reverse { animation: none; }
+		.sway,
+		.sway-reverse {
+			animation: none;
+		}
 	}
 </style>
 ```
 
 Create `src/lib/components/icons/WellnessIcon.svelte`:
+
 ```svelte
 <script lang="ts">
 	let { size = 24, animated = true }: { size?: number; animated?: boolean } = $props();
@@ -556,7 +655,14 @@ Create `src/lib/components/icons/WellnessIcon.svelte`:
 	<!-- Body -->
 	<path d="M12 8v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
 	<!-- Arms -->
-	<path d="M8 10l4 2 4-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class:stretch={animated} />
+	<path
+		d="M8 10l4 2 4-2"
+		stroke="currentColor"
+		stroke-width="2"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+		class:stretch={animated}
+	/>
 	<!-- Legs -->
 	<path d="M12 13l-3 6M12 13l3 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
 </svg>
@@ -567,16 +673,24 @@ Create `src/lib/components/icons/WellnessIcon.svelte`:
 		transform-origin: 12px 10px;
 	}
 	@keyframes arm-stretch {
-		0%, 100% { transform: scaleY(1); }
-		50% { transform: scaleY(1.1) translateY(-1px); }
+		0%,
+		100% {
+			transform: scaleY(1);
+		}
+		50% {
+			transform: scaleY(1.1) translateY(-1px);
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.stretch { animation: none; }
+		.stretch {
+			animation: none;
+		}
 	}
 </style>
 ```
 
 Create `src/lib/components/icons/TechIcon.svelte`:
+
 ```svelte
 <script lang="ts">
 	let { size = 24, animated = true }: { size?: number; animated?: boolean } = $props();
@@ -590,10 +704,46 @@ Create `src/lib/components/icons/TechIcon.svelte`:
 	<circle cx="6" cy="18" r="2" fill="currentColor" opacity="0.7" />
 	<circle cx="18" cy="18" r="2" fill="currentColor" opacity="0.7" />
 	<!-- Connections -->
-	<line x1="8" y1="7" x2="10" y2="11" stroke="currentColor" stroke-width="1" class:pulse-line={animated} style="--line-delay: 0s" />
-	<line x1="16" y1="7" x2="14" y2="11" stroke="currentColor" stroke-width="1" class:pulse-line={animated} style="--line-delay: 0.2s" />
-	<line x1="8" y1="17" x2="10" y2="13" stroke="currentColor" stroke-width="1" class:pulse-line={animated} style="--line-delay: 0.4s" />
-	<line x1="16" y1="17" x2="14" y2="13" stroke="currentColor" stroke-width="1" class:pulse-line={animated} style="--line-delay: 0.6s" />
+	<line
+		x1="8"
+		y1="7"
+		x2="10"
+		y2="11"
+		stroke="currentColor"
+		stroke-width="1"
+		class:pulse-line={animated}
+		style="--line-delay: 0s"
+	/>
+	<line
+		x1="16"
+		y1="7"
+		x2="14"
+		y2="11"
+		stroke="currentColor"
+		stroke-width="1"
+		class:pulse-line={animated}
+		style="--line-delay: 0.2s"
+	/>
+	<line
+		x1="8"
+		y1="17"
+		x2="10"
+		y2="13"
+		stroke="currentColor"
+		stroke-width="1"
+		class:pulse-line={animated}
+		style="--line-delay: 0.4s"
+	/>
+	<line
+		x1="16"
+		y1="17"
+		x2="14"
+		y2="13"
+		stroke="currentColor"
+		stroke-width="1"
+		class:pulse-line={animated}
+		style="--line-delay: 0.6s"
+	/>
 </svg>
 
 <style>
@@ -602,16 +752,25 @@ Create `src/lib/components/icons/TechIcon.svelte`:
 		animation-delay: var(--line-delay);
 	}
 	@keyframes line-pulse {
-		0%, 100% { opacity: 0.2; }
-		50% { opacity: 0.8; }
+		0%,
+		100% {
+			opacity: 0.2;
+		}
+		50% {
+			opacity: 0.8;
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.pulse-line { animation: none; opacity: 0.5; }
+		.pulse-line {
+			animation: none;
+			opacity: 0.5;
+		}
 	}
 </style>
 ```
 
 Create `src/lib/components/icons/SocialIcon.svelte`:
+
 ```svelte
 <script lang="ts">
 	let { size = 24, animated = true }: { size?: number; animated?: boolean } = $props();
@@ -625,7 +784,13 @@ Create `src/lib/components/icons/SocialIcon.svelte`:
 	<circle cx="16" cy="7" r="2.5" fill="currentColor" opacity="0.8" />
 	<path d="M20 17c0-2.2-1.8-4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
 	<!-- Connection arc -->
-	<path d="M8 13c1.5-1 6.5-1 8 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class:reach={animated} />
+	<path
+		d="M8 13c1.5-1 6.5-1 8 0"
+		stroke="currentColor"
+		stroke-width="1.5"
+		stroke-linecap="round"
+		class:reach={animated}
+	/>
 </svg>
 
 <style>
@@ -634,29 +799,56 @@ Create `src/lib/components/icons/SocialIcon.svelte`:
 		transform-origin: center;
 	}
 	@keyframes reach-connect {
-		0%, 100% { opacity: 0.3; transform: scaleX(0.9); }
-		50% { opacity: 0.9; transform: scaleX(1); }
+		0%,
+		100% {
+			opacity: 0.3;
+			transform: scaleX(0.9);
+		}
+		50% {
+			opacity: 0.9;
+			transform: scaleX(1);
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.reach { animation: none; opacity: 0.6; }
+		.reach {
+			animation: none;
+			opacity: 0.6;
+		}
 	}
 </style>
 ```
 
 Create `src/lib/components/icons/FurnitureIcon.svelte`:
+
 ```svelte
 <script lang="ts">
 	let { size = 24, animated = true }: { size?: number; animated?: boolean } = $props();
 </script>
 
-<svg width={size} height={size} viewBox="0 0 24 24" fill="none" class="category-icon" class:subtle-shift={animated}>
+<svg
+	width={size}
+	height={size}
+	viewBox="0 0 24 24"
+	fill="none"
+	class="category-icon"
+	class:subtle-shift={animated}
+>
 	<!-- Desk top -->
 	<rect x="3" y="10" width="18" height="2" rx="1" fill="currentColor" opacity="0.9" />
 	<!-- Legs -->
 	<rect x="5" y="12" width="2" height="8" rx="0.5" fill="currentColor" opacity="0.6" />
 	<rect x="17" y="12" width="2" height="8" rx="0.5" fill="currentColor" opacity="0.6" />
 	<!-- Monitor -->
-	<rect x="9" y="4" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1.5" fill="none" />
+	<rect
+		x="9"
+		y="4"
+		width="6"
+		height="5"
+		rx="1"
+		stroke="currentColor"
+		stroke-width="1.5"
+		fill="none"
+	/>
 	<line x1="12" y1="9" x2="12" y2="10" stroke="currentColor" stroke-width="1.5" />
 </svg>
 
@@ -665,11 +857,18 @@ Create `src/lib/components/icons/FurnitureIcon.svelte`:
 		animation: desk-settle 5s ease-in-out infinite;
 	}
 	@keyframes desk-settle {
-		0%, 100% { transform: perspective(200px) rotateY(0deg); }
-		50% { transform: perspective(200px) rotateY(1.5deg); }
+		0%,
+		100% {
+			transform: perspective(200px) rotateY(0deg);
+		}
+		50% {
+			transform: perspective(200px) rotateY(1.5deg);
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.subtle-shift { animation: none; }
+		.subtle-shift {
+			animation: none;
+		}
 	}
 </style>
 ```
@@ -677,6 +876,7 @@ Create `src/lib/components/icons/FurnitureIcon.svelte`:
 **Step 2: Create CategoryIcon dispatcher**
 
 Create `src/lib/components/CategoryIcon.svelte`:
+
 ```svelte
 <script lang="ts">
 	import type { GroupKey } from '$lib/data/default-features';
@@ -718,19 +918,23 @@ Create `src/lib/components/CategoryIcon.svelte`:
 	<FurnitureIcon {size} {animated} />
 {:else}
 	<!-- Fallback dot -->
-	<svg width={size} height={size} viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor" /></svg>
+	<svg width={size} height={size} viewBox="0 0 24 24"
+		><circle cx="12" cy="12" r="4" fill="currentColor" /></svg
+	>
 {/if}
 ```
 
 **Step 3: Integrate into FeatureCard and FeatureGrid**
 
 In `src/lib/components/FeatureCard.svelte`:
+
 - Replace `import { CATEGORY_ICONS } from '$lib/data/icons'` with `import CategoryIcon from './CategoryIcon.svelte'`
 - Replace `import { CATEGORY_TO_GROUP } from '$lib/data/default-features'`
 - Replace the emoji icon span with `<CategoryIcon group={CATEGORY_TO_GROUP[feature.category] ?? feature.category} size={22} animated={!disabled && !used} />`
 - Remove the `let icon = $derived(...)` line
 
 In `src/lib/components/FeatureGrid.svelte`:
+
 - Import `CategoryIcon` and replace `{group.icon}` emoji with `<CategoryIcon group={group.key} size={22} />`
 
 **Step 4: Verify**
@@ -750,6 +954,7 @@ git commit -m "feat: custom animated SVG category icons replace emoji"
 ## Task 4: Scoring Logic + API Changes
 
 **Files:**
+
 - Modify: `src/lib/server/tally.ts` (new scoring model, return all features)
 - Modify: `src/routes/api/votes/+server.ts` (no changes needed — passthrough)
 - Modify: `src/routes/dashboard/+page.server.ts` (no changes needed — passthrough)
@@ -757,6 +962,7 @@ git commit -m "feat: custom animated SVG category icons replace emoji"
 **Step 1: Rewrite tally.ts scoring**
 
 The key changes:
+
 1. Return ALL features with vote counts (not just top 5)
 2. Score = evidence ratio (% of picks that were evidence-based) instead of count-of-5
 3. Add `group` field to each ranked feature for the histogram
@@ -776,10 +982,10 @@ export interface RankedFeature {
 }
 
 export interface PhaseResult {
-	score: number;          // evidence ratio 0-100
-	totalPicks: number;     // total votes cast across all participants
-	evidencePicks: number;  // votes that went to evidence-based features
-	features: RankedFeature[];  // ALL features sorted by vote count desc
+	score: number; // evidence ratio 0-100
+	totalPicks: number; // total votes cast across all participants
+	evidencePicks: number; // votes that went to evidence-based features
+	features: RankedFeature[]; // ALL features sorted by vote count desc
 }
 ```
 
@@ -831,7 +1037,7 @@ const featuresMap = new Map(
 		{
 			name: f.name,
 			category: f.category,
-			group: (f as any).group ?? f.category,  // group field from sessionFeatures
+			group: (f as any).group ?? f.category, // group field from sessionFeatures
 			hasEvidence: f.hasEvidence,
 			caption: f.caption
 		}
@@ -865,6 +1071,7 @@ git commit -m "feat: evidence ratio scoring — return all features with vote co
 ## Task 5: Histogram Component
 
 **Files:**
+
 - Create: `src/lib/components/Histogram.svelte`
 
 **Step 1: Build the animated histogram**
@@ -988,6 +1195,7 @@ git commit -m "feat: animated histogram component for analytics reveal"
 ## Task 6: Staged Analytics Reveal
 
 **Files:**
+
 - Create: `src/lib/components/StageNav.svelte`
 - Major rewrite: `src/routes/dashboard/+page.svelte`
 
@@ -1097,6 +1305,7 @@ git commit -m "feat: 4-stage facilitator-paced analytics reveal"
 ## Task 7: Particle Field (Lobby Background)
 
 **Files:**
+
 - Create: `src/lib/components/ParticleField.svelte`
 - Modify: `src/routes/dashboard/+page.svelte` (replace current particle divs with canvas)
 

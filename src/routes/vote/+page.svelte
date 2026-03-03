@@ -14,23 +14,31 @@
 		engine.atSoftCap
 			? new Set(
 					engine.features
-						.filter((f) => !engine.currentSelection.has(f.featureId))
+						.filter(
+							(f) =>
+								!engine.currentSelection.has(f.featureId) &&
+								!engine.isFromUncoveredGroup(f.featureId)
+						)
 						.map((f) => f.featureId)
 				)
 			: new Set<number>()
 	);
 
-	let displayFeatures = $derived(
-		engine.phase === 'individual' ? engine.features : engine.availableFeatures
-	);
+	let displayFeatures = $derived(engine.features);
 
 	let usedIds = $derived(
 		engine.phase === 'communal' ? engine.selectedIndividual : new Set<number>()
 	);
 </script>
 
+<svelte:head>
+	<title>Vote — CoreNet</title>
+</svelte:head>
+
 <div
-	class="flex min-h-screen flex-col transition-colors duration-700 {engine.phase === 'communal' ? 'theme-dark-blue' : ''}"
+	class="flex min-h-screen flex-col transition-colors duration-700 {engine.phase === 'communal'
+		? 'theme-dark-blue'
+		: ''}"
 >
 	<div class="animated-grid-bg"></div>
 	<VoteTopbar
@@ -67,16 +75,12 @@
 						};
 					}}
 				>
-					<input
-						type="hidden"
-						name="individualIds"
-						value={JSON.stringify([...engine.selectedIndividual])}
-					/>
-					<input
-						type="hidden"
-						name="communalIds"
-						value={JSON.stringify([...engine.selectedCommunal])}
-					/>
+					{#each [...engine.selectedIndividual] as id}
+						<input type="hidden" name="individualIds" value={id} />
+					{/each}
+					{#each [...engine.selectedCommunal] as id}
+						<input type="hidden" name="communalIds" value={id} />
+					{/each}
 
 					<textarea
 						name="comment"

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { DashboardState, RADAR_LABELS } from './state.svelte';
-	import Histogram from '$lib/components/Histogram.svelte';
+	import { Dashboard2State, RADAR_LABELS } from './state.svelte';
+	import BucketDistribution from '$lib/components/BucketDistribution.svelte';
 	import CategoryBreakdown from '$lib/components/CategoryBreakdown.svelte';
 	import AiPrompt from '$lib/components/AiPrompt.svelte';
 	import QrCode from '$lib/components/QrCode.svelte';
@@ -13,7 +13,7 @@
 
 	let { data }: { data: PageData } = $props();
 
-	const s = new DashboardState();
+	const s = new Dashboard2State();
 
 	// Keep data in sync with props (handles initial load + SvelteKit invalidation)
 	$effect(() => {
@@ -29,7 +29,7 @@
 </script>
 
 <svelte:head>
-	<title>Results Dashboard — CoreNet</title>
+	<title>Bucket Analysis — CoreNet</title>
 </svelte:head>
 
 <div class="relative z-10 min-h-screen px-4 py-10 md:px-8">
@@ -43,7 +43,7 @@
 		{#if !s.showResults}
 			<!-- ===== LOBBY ===== -->
 			<div class="flex min-h-[90vh] flex-col items-center justify-center text-center">
-				<div class="mb-6 text-xs font-bold tracking-[0.25em] text-[#1a2b3c]/40 uppercase">
+				<div class="mb-6 text-xs font-bold tracking-[0.25em] text-[#1a2b3c]/50 uppercase">
 					Powered by AWA &times; Zyeta
 				</div>
 
@@ -80,7 +80,7 @@
 					<div class="h-10 w-px bg-[#1a2b3c]/10"></div>
 					<div class="flex flex-col items-center">
 						<span
-							class="text-5xl font-extrabold text-(--accent) drop-shadow-md"
+							class="text-5xl font-extrabold text-(--teal) drop-shadow-md"
 							style="font-variant-numeric: tabular-nums">{s.results.voteCount}</span
 						>
 						<span class="mt-1 text-sm font-medium tracking-widest text-[#1a2b3c]/40 uppercase"
@@ -100,12 +100,12 @@
 				</button>
 			</div>
 		{:else}
-			<!-- ===== ANALYTICS — Single Page ===== -->
+			<!-- ===== ANALYTICS — Single-Page Graphical View ===== -->
 			<div class="flex min-h-[90vh] flex-col gap-6">
 				<!-- Compact header -->
 				<header class="relative flex items-center justify-between pt-4">
 					<div>
-						<div class="text-xs font-bold tracking-[0.25em] text-[#1a2b3c]/40 uppercase">
+						<div class="text-xs font-bold tracking-[0.25em] text-[#1a2b3c]/50 uppercase">
 							Powered by AWA &times; Zyeta
 						</div>
 						<h1
@@ -116,7 +116,6 @@
 						</h1>
 					</div>
 					<div class="flex items-center gap-4">
-						<!-- Live badge -->
 						<div
 							class="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors duration-300"
 							style="border-color: rgba(0,191,165,0.3); color: var(--accent); background: rgba(0,191,165,{s.justUpdated
@@ -143,26 +142,25 @@
 					</div>
 				</header>
 
-				<!-- Stat counters -->
+				<!-- Stat counters row -->
 				<div
 					class="flex items-center justify-center gap-8 rounded-2xl border border-[#1a2b3c]/10 bg-white/60 px-8 py-5 shadow-sm backdrop-blur-sm"
 				>
 					<AnimatedCounter value={s.results.participantCount} label="Participants" />
 					<div class="h-10 w-px bg-[#1a2b3c]/10"></div>
-					<AnimatedCounter value={s.results.voteCount} label="Votes" color="var(--teal)" />
+					<AnimatedCounter value={s.totalAll} label="Sorted" color="var(--teal)" />
 					<div class="h-10 w-px bg-[#1a2b3c]/10"></div>
 					<AnimatedCounter
-						value={s.overallEvidenceRatio}
-						label="Evidence"
+						value={s.individualPct}
+						label="Individual"
 						suffix="%"
 						color="var(--green)"
 					/>
 				</div>
 
-				<!-- Waiting state if no votes -->
 				{#if s.results.voteCount === 0}
 					<div class="py-20 text-center">
-						<div class="breathe-slow-anim mx-auto mb-6 text-6xl">&#129504;</div>
+						<div class="breathe-slow-anim mx-auto mb-6 text-6xl">&#x1F0CF;</div>
 						<h2 class="font-display mb-2 text-2xl font-bold text-[#1a2b3c]">
 							Waiting for participants...
 						</h2>
@@ -181,22 +179,9 @@
 								AWA &times; Zyeta Insights
 							</h3>
 							<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-								{#if s.topOverallFeature}
-									<div class="rounded-2xl bg-white/60 p-5 shadow-sm">
-										<div class="mb-1 text-xs font-bold tracking-wide text-(--accent) uppercase">
-											Top Priority
-										</div>
-										<div class="mb-2 text-lg leading-tight font-bold text-[#1a2b3c]">
-											{s.topOverallFeature.name}
-										</div>
-										<p class="text-xs text-[#1a2b3c]/60">
-											Captured the most votes across both phases.
-										</p>
-									</div>
-								{/if}
 								{#if s.topCategory}
 									<div class="rounded-2xl bg-white/60 p-5 shadow-sm">
-										<div class="mb-1 text-xs font-bold tracking-wide text-(--teal) uppercase">
+										<div class="mb-1 text-xs font-bold tracking-wide text-(--accent) uppercase">
 											Dominant Theme
 										</div>
 										<div class="mb-2 text-lg leading-tight font-bold text-[#1a2b3c]">
@@ -207,35 +192,64 @@
 										</p>
 									</div>
 								{/if}
-								<div class="rounded-2xl bg-white/60 p-5 shadow-sm">
-									<div
-										class="mb-1 text-xs font-bold tracking-wide text-(--indigo-text) uppercase"
-									>
-										Alignment Score
+								{#if s.mostDivisive}
+									<div class="rounded-2xl bg-white/60 p-5 shadow-sm">
+										<div class="mb-1 text-xs font-bold tracking-wide text-(--teal) uppercase">
+											Most Divisive
+										</div>
+										<div class="mb-2 text-lg leading-tight font-bold text-[#1a2b3c]">
+											{s.mostDivisive.name}
+										</div>
+										<p class="text-xs text-[#1a2b3c]/60">
+											Highest split between Individual vs Communal priority.
+										</p>
 									</div>
-									<div
-										class="mb-2 text-2xl leading-tight font-black text-[#1a2b3c] tabular-nums"
-									>
-										{s.consensusAlignment}%
+								{/if}
+								{#if s.topCommunalShift}
+									<div class="rounded-2xl bg-white/60 p-5 shadow-sm">
+										<div
+											class="mb-1 text-xs font-bold tracking-wide text-(--indigo-text) uppercase"
+										>
+											Biggest Consensus Shift
+										</div>
+										<div class="mb-2 text-lg leading-tight font-bold text-[#1a2b3c]">
+											{s.topCommunalShift.name}
+										</div>
+										<p class="text-xs text-[#1a2b3c]/60">
+											+{s.topCommunalShift.shift}% increase in support during the Collective
+											phase.
+										</p>
 									</div>
-									<p class="text-xs text-[#1a2b3c]/60">
-										Overlap between individual and collective top 5 priorities.
-									</p>
-								</div>
+								{:else}
+									<div class="rounded-2xl bg-white/60 p-5 shadow-sm">
+										<div
+											class="mb-1 text-xs font-bold tracking-wide text-(--indigo-text) uppercase"
+										>
+											Consensus Alignment
+										</div>
+										<div
+											class="mb-2 text-2xl leading-tight font-black text-[#1a2b3c] tabular-nums"
+										>
+											High
+										</div>
+										<p class="text-xs text-[#1a2b3c]/60">
+											No extreme consensus shifts detected between phases.
+										</p>
+									</div>
+								{/if}
 							</div>
 						</div>
 
-						<!-- TOP-LEFT: Radar Chart -->
+						<!-- Radar Chart -->
 						<div
 							class="rounded-2xl border border-[#1a2b3c]/10 bg-white/60 p-5 shadow-sm backdrop-blur-sm"
 						>
 							<h3 class="mb-3 text-center text-sm font-semibold text-[#1a2b3c]/50">
-								Category Radar
+								Sorting Profile
 							</h3>
 							<div class="mx-auto max-w-[320px]">
 								<RadarChart datasets={s.radarDatasets} labels={RADAR_LABELS} size={300} />
 							</div>
-							<!-- Legend -->
 							<div class="mt-3 flex items-center justify-center gap-6 text-xs font-semibold">
 								<span class="flex items-center gap-1.5">
 									<span class="h-2.5 w-2.5 rounded-full" style="background: var(--green)"></span>
@@ -249,57 +263,54 @@
 							</div>
 						</div>
 
-						<!-- TOP-RIGHT: Histogram -->
+						<!-- Bucket Distribution -->
 						<div
 							class="rounded-2xl border border-[#1a2b3c]/10 bg-white/60 p-5 shadow-sm backdrop-blur-sm"
 						>
 							<h3 class="mb-3 text-center text-sm font-semibold text-[#1a2b3c]/50">
-								Top Features
+								How You Sorted
 							</h3>
-							<Histogram
-								features={s.combinedFeatures}
-								showEvidence={true}
-								maxBars={10}
-								animateIn={true}
-							/>
+							<BucketDistribution features={s.bucketFeatures.slice(0, 10)} />
 						</div>
 
-						<!-- BOTTOM-LEFT: Donut Chart -->
+						<!-- Individual vs Communal Donut -->
 						<div
 							class="rounded-2xl border border-[#1a2b3c]/10 bg-white/60 p-5 shadow-sm backdrop-blur-sm"
 						>
 							<h3 class="mb-3 text-center text-sm font-semibold text-[#1a2b3c]/50">
-								Evidence Alignment
+								Individual vs Communal
 							</h3>
 							<div class="mx-auto max-w-[220px]">
 								<DonutChart
-									segments={s.evidenceSegments}
-									centerText="{s.overallEvidenceRatio}%"
-									centerSubtext="evidence-backed"
+									segments={s.bucketSegments}
+									centerText="{s.individualPct}%"
+									centerSubtext="individual focus"
 									size={220}
 								/>
 							</div>
 						</div>
 
-						<!-- BOTTOM-RIGHT: Category Breakdown -->
+						<!-- Category Breakdown -->
 						<div
 							class="rounded-2xl border border-[#1a2b3c]/10 bg-white/60 p-5 shadow-sm backdrop-blur-sm"
 						>
 							<h3 class="mb-3 text-center text-sm font-semibold text-[#1a2b3c]/50">
-								By Category
+								Category Split
 							</h3>
 							<CategoryBreakdown
-								categories={s.categoryStats}
-								maxVotes={s.categoryStats.length > 0 ? s.categoryStats[0].totalVotes : 1}
+								categories={s.categorySplitStats}
+								maxVotes={s.categorySplitStats.length > 0
+									? s.categorySplitStats[0].totalVotes
+									: 1}
 							/>
 						</div>
 					</div>
 
-					<!-- Comments (compact, if any) -->
+					<!-- Comments compact -->
 					{#if s.results.comments.length > 0}
 						<div class="rounded-2xl border border-[#1a2b3c]/10 bg-white/40 p-5 shadow-sm">
 							<h3 class="font-display mb-3 text-sm font-bold text-[#1a2b3c]/60">
-								&#128172; Comments
+								&#x1F4AC; Comments
 							</h3>
 							<div class="flex flex-wrap gap-2">
 								{#each s.results.comments as comment (comment.id)}
@@ -313,7 +324,7 @@
 						</div>
 					{/if}
 
-					<!-- Research footer (very compact) -->
+					<!-- Research footer compact -->
 					<div class="flex items-center justify-center gap-4 py-4 text-xs text-[#1a2b3c]/30">
 						<span>Based on AWA &times; CEBMa research</span>
 						<span>&middot;</span>
@@ -346,7 +357,6 @@
 					</div>
 				{/if}
 
-				<!-- Hidden AI Prompt (keep) -->
 				<AiPrompt features={s.allFeatures} hidden={true} />
 			</div>
 		{/if}

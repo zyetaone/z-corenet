@@ -10,14 +10,14 @@
 
 ## Routes
 
-| Route | Who | Purpose |
-|-------|-----|---------|
-| `/` | Participant | Intro + name entry → join |
-| `/vote` | Participant | Two-phase feature selection (visual clusters) |
-| `/thanks` | Participant | Thank you + personal picks |
-| `/dashboard` | Facilitator | QR lobby → manual reveal → analytics → reset |
-| `/api/votes` | Internal | JSON tally for dashboard polling |
-| `/api/reset` | Facilitator | POST: close session, create fresh one |
+| Route        | Who         | Purpose                                       |
+| ------------ | ----------- | --------------------------------------------- |
+| `/`          | Participant | Intro + name entry → join                     |
+| `/vote`      | Participant | Two-phase feature selection (visual clusters) |
+| `/thanks`    | Participant | Thank you + personal picks                    |
+| `/dashboard` | Facilitator | QR lobby → manual reveal → analytics → reset  |
+| `/api/votes` | Internal    | JSON tally for dashboard polling              |
+| `/api/reset` | Facilitator | POST: close session, create fresh one         |
 
 ---
 
@@ -61,18 +61,19 @@
 
 Features grouped by category with spatial proximity (like sticky notes on a wall):
 
-| Group | Icon | Count |
-|-------|------|-------|
-| Light & Daylight | 💡 | 2 |
-| Air & Thermal | 🌡️ | 2 |
-| Acoustic | 🔇 | 2 |
-| Biophilic & Nature | 🌿 | 3 |
-| Movement & Wellness | 🏃 | 6 |
-| Technology | 📱 | 4 |
-| Social & Spatial | 🤝 | 3 |
-| Furniture & Aesthetics | 🪑 | 6 |
+| Group                  | Icon | Count |
+| ---------------------- | ---- | ----- |
+| Light & Daylight       | 💡   | 2     |
+| Air & Thermal          | 🌡️   | 2     |
+| Acoustic               | 🔇   | 2     |
+| Biophilic & Nature     | 🌿   | 3     |
+| Movement & Wellness    | 🏃   | 6     |
+| Technology             | 📱   | 4     |
+| Social & Spatial       | 🤝   | 3     |
+| Furniture & Aesthetics | 🪑   | 6     |
 
 **Layout:**
+
 - Small muted category label as divider (not a header)
 - Cards within group: tighter spacing
 - Gap between groups: larger spacing
@@ -98,6 +99,7 @@ Features grouped by category with spatial proximity (like sticky notes on a wall
 5. Dashboard detects new session on next poll → Lobby state
 
 **Stale participant handling:**
+
 - Participants with old `session_id` cookies who hit `/vote` → check session status → if closed, redirect to `/`
 - No error shown, just fresh start
 

@@ -272,6 +272,7 @@ New: class="rounded-[14px] p-[18px_28px] text-lg leading-relaxed text-white/90 f
 ### 1.10 Dashboard: background repeated via inline style on every route
 
 **What's wrong**: The same background gradient is applied via inline `style` on every route page:
+
 - `D:\CoreNet\src\routes\+page.svelte` line 18: `style="background: linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%)"`
 - `D:\CoreNet\src\routes\vote\+page.svelte` line 35: same
 - `D:\CoreNet\src\routes\dashboard\+page.svelte` line 66: same
@@ -451,6 +452,7 @@ New: color: rgba(255, 255, 255, 0.6);
 ### 2.7 Dashboard: Inconsistent section spacing (analytics cards)
 
 **What's wrong**: `D:\CoreNet\src\routes\dashboard\+page.svelte` -- the analytics cards use varying spacing patterns:
+
 - ScoreStrip wrapper (line 186): no explicit margin, just the card's internal padding
 - RankPanel grid (line 196): `pb-10 md:px-8` plus `gap-6`
 - Next Steps (line 218): `pb-10 md:px-8`
@@ -508,6 +510,7 @@ requires functionality changes. The simpler fix is the smaller default.
 ### 2.9 Typography: `#8C9EFF` hardcoded in multiple places instead of using CSS variable
 
 **What's wrong**: The communal/Phase B color `#8C9EFF` (a light indigo) appears as a hardcoded value in:
+
 - `D:\CoreNet\src\lib\components\VoteTopbar.svelte` line 93
 - `D:\CoreNet\src\lib\components\PhaseBanner.svelte` line 33
 - `D:\CoreNet\src\lib\components\ScoreStrip.svelte` line 53
@@ -1028,70 +1031,70 @@ Add to the <style> block:
 
 ## IMPLEMENTATION TABLE
 
-| # | File | Line(s) | Property | Old Value | New Value |
-|---|------|---------|----------|-----------|-----------|
-| 1.1 | `src\lib\components\ui\Button.svelte` | 48 | background | `#444` | `rgba(0, 139, 139, 0.2)` |
-| 1.2 | `src\lib\components\ui\Button.svelte` | after 51 | (add rule) | -- | `.btn-primary:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }` |
-| 1.3 | `src\lib\components\FeatureGrid.svelte` | 37 | grid gap | `gap-2.5` | `gap-3.5 sm:gap-2.5` |
-| 1.4a | `src\lib\components\VoteTopbar.svelte` | 36 | padding | `0.875rem 1.75rem` | `0.875rem 1rem` + media query for sm+ |
-| 1.4b | `src\lib\components\VoteTopbar.svelte` | 74 | gap | `0.625rem` | `0.5rem` + media query for sm+ |
-| 1.5 | `src\routes\dashboard\+page.svelte` | 104-117 | inline style | ternary style attrs | CSS classes with hover/focus/active |
-| 1.6 | `src\lib\components\ResetButton.svelte` | script + 32 | focus management | none | autofocus Cancel button via `$effect` |
-| 1.7 | `src\routes\+page.svelte` | 68 | aria-label | -- | `aria-label="Your name"` |
-| 1.8 | `src\routes\vote\+page.svelte` | 82 | aria-label | -- | `aria-label="Comments on workplace design"` |
-| 1.9 | `src\lib\components\ScoreStrip.svelte` | 80 | class | `text-white/80 italic` | `text-white/90 font-medium` |
-| 1.10a | `src\routes\layout.css` | 28 | body background | `var(--dark)` | `linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%); min-height: 100vh` |
-| 1.10b | 4 route files | various | inline style | `style="background: linear-gradient(...)"` | (remove attribute) |
-| 2.1 | `src\routes\+page.svelte` | 30 | hover classes | `hover:scale-105 hover:rotate-3` | (remove) |
-| 2.2 | `src\routes\+page.svelte` | 46 | letter-spacing | `tracking-[0.25em]` | `tracking-[0.15em]` |
-| 2.3 | `src\routes\+page.svelte` | 46 | margin-bottom | `mb-12` | `mb-8` |
-| 2.4a | `src\lib\components\PhaseBanner.svelte` | 18 | padding | `0.5rem` | `1rem 0.5rem` |
-| 2.4b | `src\lib\components\PhaseBanner.svelte` | 19 | margin-bottom | `1rem` | `1.5rem` |
-| 2.5 | `src\lib\components\PhaseBanner.svelte` | after 9, 11 | (add element) | -- | `<p class="banner-sub">` instruction text |
-| 2.6 | `src\lib\components\FeatureCard.svelte` | 148 | color opacity | `rgba(255,255,255,0.5)` | `rgba(255,255,255,0.6)` |
-| 2.7a | `src\routes\dashboard\+page.svelte` | 186 | class | `analytics-card` | `analytics-card mb-6` |
-| 2.7b | `src\routes\dashboard\+page.svelte` | 196 | class | `pb-10` | `mb-6 pb-6` |
-| 2.7c | `src\routes\dashboard\+page.svelte` | 218 | class | `pb-10` | `mb-6 pb-6` |
-| 2.7d | `src\routes\dashboard\+page.svelte` | 254 | class | `pb-10` | `pb-6` |
-| 2.8 | `src\routes\dashboard\+page.svelte` | 75 | QR size | `size={280}` | `size={220}` |
-| 2.9a | `src\routes\layout.css` | after 15 | (add variable) | -- | `--indigo-text: #8c9eff;` |
-| 2.9b | 5 component files | various | color value | `#8C9EFF` / `#8c9eff` | `var(--indigo-text)` |
-| 2.11 | `src\lib\components\RankRow.svelte` | 75 | class | (none) | add `motion-reduce:transition-none` |
-| 2.12 | `src\routes\vote\+page.svelte` | 51 | spacing | `mt-8` / `pb-10` | `mt-6` / `pb-8` |
-| 2.13 | `src\routes\thanks\+page.svelte` | 37 | emoji | `&#x2705;` | `&#x2713;` |
-| 2.14 | `src\routes\thanks\+page.svelte` | 42 | margin-bottom | `mb-10` | `mb-6` |
-| 3.1 | `src\lib\components\ui\Button.svelte` | after 45 | (add rule) | -- | `.btn-primary:active:not(:disabled) { transform: translateY(1px); ... }` |
-| 3.2a | `src\lib\components\FeatureCard.svelte` | 78-80 | (add property) | -- | `box-shadow: 0 2px 12px rgba(0,200,83,0.12)` |
-| 3.2b | `src\lib\components\FeatureCard.svelte` | 83-85 | (add property) | -- | `box-shadow: 0 2px 12px rgba(92,107,192,0.12)` |
-| 3.3 | `src\lib\components\VoteTopbar.svelte` | 108-109 | (add animation) | -- | `pill-pop` keyframe with reduced-motion override |
-| 3.4 | `src\routes\dashboard\+page.svelte` | after 330 | (add rule) | -- | `@media (prefers-reduced-motion) { ... }` |
-| 3.5 | `src\routes\+page.svelte` | script + transitions | (add logic) | raw durations | conditional `reduceMotion ? 0 : duration` |
-| 3.6 | `src\routes\thanks\+page.svelte` | script + transitions | (add logic) | raw durations | conditional `reduceMotion ? 0 : duration` |
-| 3.7 | `src\lib\components\BrainNetworkBackground.svelte` | 67 + style | inline animation | `style="animation: ..."` | class + `prefers-reduced-motion` override |
-| 3.8 | `src\routes\dashboard\+page.svelte` | 95,99,165,170 | font-variant | -- | `font-variant-numeric: tabular-nums` |
-| 3.9 | `src\lib\components\ScoreStrip.svelte` | 39,53,66 | font-variant | -- | `style="font-variant-numeric: tabular-nums"` |
-| 3.10 | `src\lib\components\RankRow.svelte` | 83 | class | -- | add `tabular-nums` |
-| 3.11 | `src\lib\components\EvidenceTag.svelte` | 7,13 | class | -- | add `min-w-[140px] text-center` |
-| 3.12 | `src\routes\dashboard\+page.svelte` | 178 | animation | `animate-pulse` | custom `breathe-slow` keyframe at 4s |
+| #     | File                                               | Line(s)              | Property         | Old Value                                  | New Value                                                                       |
+| ----- | -------------------------------------------------- | -------------------- | ---------------- | ------------------------------------------ | ------------------------------------------------------------------------------- |
+| 1.1   | `src\lib\components\ui\Button.svelte`              | 48                   | background       | `#444`                                     | `rgba(0, 139, 139, 0.2)`                                                        |
+| 1.2   | `src\lib\components\ui\Button.svelte`              | after 51             | (add rule)       | --                                         | `.btn-primary:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }`  |
+| 1.3   | `src\lib\components\FeatureGrid.svelte`            | 37                   | grid gap         | `gap-2.5`                                  | `gap-3.5 sm:gap-2.5`                                                            |
+| 1.4a  | `src\lib\components\VoteTopbar.svelte`             | 36                   | padding          | `0.875rem 1.75rem`                         | `0.875rem 1rem` + media query for sm+                                           |
+| 1.4b  | `src\lib\components\VoteTopbar.svelte`             | 74                   | gap              | `0.625rem`                                 | `0.5rem` + media query for sm+                                                  |
+| 1.5   | `src\routes\dashboard\+page.svelte`                | 104-117              | inline style     | ternary style attrs                        | CSS classes with hover/focus/active                                             |
+| 1.6   | `src\lib\components\ResetButton.svelte`            | script + 32          | focus management | none                                       | autofocus Cancel button via `$effect`                                           |
+| 1.7   | `src\routes\+page.svelte`                          | 68                   | aria-label       | --                                         | `aria-label="Your name"`                                                        |
+| 1.8   | `src\routes\vote\+page.svelte`                     | 82                   | aria-label       | --                                         | `aria-label="Comments on workplace design"`                                     |
+| 1.9   | `src\lib\components\ScoreStrip.svelte`             | 80                   | class            | `text-white/80 italic`                     | `text-white/90 font-medium`                                                     |
+| 1.10a | `src\routes\layout.css`                            | 28                   | body background  | `var(--dark)`                              | `linear-gradient(160deg, var(--dark) 0%, var(--dark2) 100%); min-height: 100vh` |
+| 1.10b | 4 route files                                      | various              | inline style     | `style="background: linear-gradient(...)"` | (remove attribute)                                                              |
+| 2.1   | `src\routes\+page.svelte`                          | 30                   | hover classes    | `hover:scale-105 hover:rotate-3`           | (remove)                                                                        |
+| 2.2   | `src\routes\+page.svelte`                          | 46                   | letter-spacing   | `tracking-[0.25em]`                        | `tracking-[0.15em]`                                                             |
+| 2.3   | `src\routes\+page.svelte`                          | 46                   | margin-bottom    | `mb-12`                                    | `mb-8`                                                                          |
+| 2.4a  | `src\lib\components\PhaseBanner.svelte`            | 18                   | padding          | `0.5rem`                                   | `1rem 0.5rem`                                                                   |
+| 2.4b  | `src\lib\components\PhaseBanner.svelte`            | 19                   | margin-bottom    | `1rem`                                     | `1.5rem`                                                                        |
+| 2.5   | `src\lib\components\PhaseBanner.svelte`            | after 9, 11          | (add element)    | --                                         | `<p class="banner-sub">` instruction text                                       |
+| 2.6   | `src\lib\components\FeatureCard.svelte`            | 148                  | color opacity    | `rgba(255,255,255,0.5)`                    | `rgba(255,255,255,0.6)`                                                         |
+| 2.7a  | `src\routes\dashboard\+page.svelte`                | 186                  | class            | `analytics-card`                           | `analytics-card mb-6`                                                           |
+| 2.7b  | `src\routes\dashboard\+page.svelte`                | 196                  | class            | `pb-10`                                    | `mb-6 pb-6`                                                                     |
+| 2.7c  | `src\routes\dashboard\+page.svelte`                | 218                  | class            | `pb-10`                                    | `mb-6 pb-6`                                                                     |
+| 2.7d  | `src\routes\dashboard\+page.svelte`                | 254                  | class            | `pb-10`                                    | `pb-6`                                                                          |
+| 2.8   | `src\routes\dashboard\+page.svelte`                | 75                   | QR size          | `size={280}`                               | `size={220}`                                                                    |
+| 2.9a  | `src\routes\layout.css`                            | after 15             | (add variable)   | --                                         | `--indigo-text: #8c9eff;`                                                       |
+| 2.9b  | 5 component files                                  | various              | color value      | `#8C9EFF` / `#8c9eff`                      | `var(--indigo-text)`                                                            |
+| 2.11  | `src\lib\components\RankRow.svelte`                | 75                   | class            | (none)                                     | add `motion-reduce:transition-none`                                             |
+| 2.12  | `src\routes\vote\+page.svelte`                     | 51                   | spacing          | `mt-8` / `pb-10`                           | `mt-6` / `pb-8`                                                                 |
+| 2.13  | `src\routes\thanks\+page.svelte`                   | 37                   | emoji            | `&#x2705;`                                 | `&#x2713;`                                                                      |
+| 2.14  | `src\routes\thanks\+page.svelte`                   | 42                   | margin-bottom    | `mb-10`                                    | `mb-6`                                                                          |
+| 3.1   | `src\lib\components\ui\Button.svelte`              | after 45             | (add rule)       | --                                         | `.btn-primary:active:not(:disabled) { transform: translateY(1px); ... }`        |
+| 3.2a  | `src\lib\components\FeatureCard.svelte`            | 78-80                | (add property)   | --                                         | `box-shadow: 0 2px 12px rgba(0,200,83,0.12)`                                    |
+| 3.2b  | `src\lib\components\FeatureCard.svelte`            | 83-85                | (add property)   | --                                         | `box-shadow: 0 2px 12px rgba(92,107,192,0.12)`                                  |
+| 3.3   | `src\lib\components\VoteTopbar.svelte`             | 108-109              | (add animation)  | --                                         | `pill-pop` keyframe with reduced-motion override                                |
+| 3.4   | `src\routes\dashboard\+page.svelte`                | after 330            | (add rule)       | --                                         | `@media (prefers-reduced-motion) { ... }`                                       |
+| 3.5   | `src\routes\+page.svelte`                          | script + transitions | (add logic)      | raw durations                              | conditional `reduceMotion ? 0 : duration`                                       |
+| 3.6   | `src\routes\thanks\+page.svelte`                   | script + transitions | (add logic)      | raw durations                              | conditional `reduceMotion ? 0 : duration`                                       |
+| 3.7   | `src\lib\components\BrainNetworkBackground.svelte` | 67 + style           | inline animation | `style="animation: ..."`                   | class + `prefers-reduced-motion` override                                       |
+| 3.8   | `src\routes\dashboard\+page.svelte`                | 95,99,165,170        | font-variant     | --                                         | `font-variant-numeric: tabular-nums`                                            |
+| 3.9   | `src\lib\components\ScoreStrip.svelte`             | 39,53,66             | font-variant     | --                                         | `style="font-variant-numeric: tabular-nums"`                                    |
+| 3.10  | `src\lib\components\RankRow.svelte`                | 83                   | class            | --                                         | add `tabular-nums`                                                              |
+| 3.11  | `src\lib\components\EvidenceTag.svelte`            | 7,13                 | class            | --                                         | add `min-w-[140px] text-center`                                                 |
+| 3.12  | `src\routes\dashboard\+page.svelte`                | 178                  | animation        | `animate-pulse`                            | custom `breathe-slow` keyframe at 4s                                            |
 
 ---
 
 ## SUMMARY BY DIMENSION
 
-| Dimension | Grade | Key Finding |
-|-----------|-------|-------------|
-| 1. Visual Hierarchy | B | Good on intro/thanks, weak on dashboard lobby (counters compete with QR) |
-| 2. Spacing & Rhythm | C+ | Inconsistent vertical rhythm; `pb-10` / `mb-6` / `mt-8` mix without a scale |
-| 3. Typography | B+ | Two-font system works well; tabular-nums missing on all numbers |
-| 4. Color | B | Palette is restrained; `#8C9EFF` hardcoded 6 times without a variable |
-| 5. Alignment & Grid | B | Feature grid is solid; dashboard sections have subtle horizontal padding drift |
-| 6. Components | B+ | Button, cards, tags are well-factored; disabled state breaks brand |
-| 7. Iconography | B- | Emoji-based; rendering inconsistent (entity vs character); checkmark clashes on thanks |
-| 8. Motion | C | Entry animations are tasteful but zero `prefers-reduced-motion` support anywhere |
-| 9. Empty States | B | Dashboard "Waiting" state exists; voting has no empty state (N/A -- features always present) |
-| 10. Loading States | C- | `isSubmitting` text swap exists; no skeleton/spinner/shimmer patterns |
-| 11. Error States | D | Server errors return raw SvelteKit error page; no styled error component |
-| 12. Dark/Light Mode | B+ | Dark-only by design; tokens hold up; some opacity values borderline |
-| 13. Density | B+ | Cards are compact; dashboard "Next Steps" section could potentially be collapsed |
-| 14. Responsiveness | C+ | Topbar overflows at 320px; QR code tight at 375px; feature grid OK |
-| 15. Accessibility | C | No `aria-label` on inputs, no focus trap on dialog, no reduced-motion support |
+| Dimension           | Grade | Key Finding                                                                                  |
+| ------------------- | ----- | -------------------------------------------------------------------------------------------- |
+| 1. Visual Hierarchy | B     | Good on intro/thanks, weak on dashboard lobby (counters compete with QR)                     |
+| 2. Spacing & Rhythm | C+    | Inconsistent vertical rhythm; `pb-10` / `mb-6` / `mt-8` mix without a scale                  |
+| 3. Typography       | B+    | Two-font system works well; tabular-nums missing on all numbers                              |
+| 4. Color            | B     | Palette is restrained; `#8C9EFF` hardcoded 6 times without a variable                        |
+| 5. Alignment & Grid | B     | Feature grid is solid; dashboard sections have subtle horizontal padding drift               |
+| 6. Components       | B+    | Button, cards, tags are well-factored; disabled state breaks brand                           |
+| 7. Iconography      | B-    | Emoji-based; rendering inconsistent (entity vs character); checkmark clashes on thanks       |
+| 8. Motion           | C     | Entry animations are tasteful but zero `prefers-reduced-motion` support anywhere             |
+| 9. Empty States     | B     | Dashboard "Waiting" state exists; voting has no empty state (N/A -- features always present) |
+| 10. Loading States  | C-    | `isSubmitting` text swap exists; no skeleton/spinner/shimmer patterns                        |
+| 11. Error States    | D     | Server errors return raw SvelteKit error page; no styled error component                     |
+| 12. Dark/Light Mode | B+    | Dark-only by design; tokens hold up; some opacity values borderline                          |
+| 13. Density         | B+    | Cards are compact; dashboard "Next Steps" section could potentially be collapsed             |
+| 14. Responsiveness  | C+    | Topbar overflows at 320px; QR code tight at 375px; feature grid OK                           |
+| 15. Accessibility   | C     | No `aria-label` on inputs, no focus trap on dialog, no reduced-motion support                |

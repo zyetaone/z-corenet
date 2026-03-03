@@ -15,7 +15,7 @@
 <nav class="flex items-center justify-center gap-6 py-6" aria-label="Analytics stages">
 	<button
 		type="button"
-		class="rounded-full border border-[#1a2b3c]/10 bg-[#1a2b3c]/5 p-3 text-[#1a2b3c]/50 transition-all hover:bg-[#1a2b3c]/10 hover:text-[#1a2b3c] disabled:opacity-20 disabled:cursor-default"
+		class="rounded-full border border-[#1a2b3c]/10 bg-[#1a2b3c]/5 p-3 text-[#1a2b3c]/50 transition-all hover:bg-[#1a2b3c]/10 hover:text-[#1a2b3c] disabled:cursor-default disabled:opacity-20"
 		disabled={currentStage === 0}
 		onclick={onprev}
 		aria-label="Previous stage"
@@ -26,17 +26,22 @@
 	</button>
 
 	<!-- Progress dots -->
-	<div class="flex items-center gap-2">
+	<div
+		class="flex items-center gap-2"
+		role="group"
+		aria-label={`Stage ${currentStage + 1} of ${totalStages}`}
+	>
 		{#each Array(totalStages) as _, i (i)}
 			<div
-				class={`h-2.5 rounded-full transition-all duration-300 ${i === currentStage ? 'w-8 bg-[var(--accent)]' : 'w-2.5 bg-[#1a2b3c]/15'}`}
+				class={`h-2.5 rounded-full transition-all duration-300 ${i === currentStage ? 'w-8 bg-(--teal)' : 'w-2.5 bg-[#1a2b3c]/15'}`}
+				aria-label={`Stage ${i + 1}${i === currentStage ? ' (current)' : ''}`}
 			></div>
 		{/each}
 	</div>
 
 	<button
 		type="button"
-		class="rounded-full border border-[#1a2b3c]/10 bg-[#1a2b3c]/5 p-3 text-[#1a2b3c]/50 transition-all hover:bg-[#1a2b3c]/10 hover:text-[#1a2b3c] disabled:opacity-20 disabled:cursor-default"
+		class="rounded-full border border-[#1a2b3c]/10 bg-[#1a2b3c]/5 p-3 text-[#1a2b3c]/50 transition-all hover:bg-[#1a2b3c]/10 hover:text-[#1a2b3c] disabled:cursor-default disabled:opacity-20"
 		disabled={currentStage === totalStages - 1}
 		onclick={onnext}
 		aria-label="Next stage"
