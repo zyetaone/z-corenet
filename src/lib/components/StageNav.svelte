@@ -15,7 +15,7 @@
 <nav class="flex items-center justify-center gap-6 py-6" aria-label="Analytics stages">
 	<button
 		type="button"
-		class="rounded-full border border-[#1a2b3c]/10 bg-[#1a2b3c]/5 p-3 text-[#1a2b3c]/50 transition-all hover:bg-[#1a2b3c]/10 hover:text-[#1a2b3c] disabled:cursor-default disabled:opacity-20"
+		class="rounded-full border border-[#1a2b3c]/10 bg-[#1a2b3c]/5 p-3 text-[#1a2b3c]/50 transition-all hover:bg-[#1a2b3c]/10 hover:text-[#1a2b3c] active:scale-95 active:bg-[#1a2b3c]/15 disabled:cursor-default disabled:opacity-20"
 		disabled={currentStage === 0}
 		onclick={onprev}
 		aria-label="Previous stage"
@@ -41,7 +41,7 @@
 
 	<button
 		type="button"
-		class="rounded-full border border-[#1a2b3c]/10 bg-[#1a2b3c]/5 p-3 text-[#1a2b3c]/50 transition-all hover:bg-[#1a2b3c]/10 hover:text-[#1a2b3c] disabled:cursor-default disabled:opacity-20"
+		class="rounded-full border border-[#1a2b3c]/10 bg-[#1a2b3c]/5 p-3 text-[#1a2b3c]/50 transition-all hover:bg-[#1a2b3c]/10 hover:text-[#1a2b3c] active:scale-95 active:bg-[#1a2b3c]/15 disabled:cursor-default disabled:opacity-20"
 		disabled={currentStage === totalStages - 1}
 		onclick={onnext}
 		aria-label="Next stage"

@@ -2,6 +2,7 @@
 	import CategoryIcon from './CategoryIcon.svelte';
 	import EvidenceTag from './EvidenceTag.svelte';
 	import type { RankedFeature } from '$lib/server/tally';
+	import { useAnimateOnce } from '$lib/utils/use-animate-once.svelte';
 
 	let {
 		features,
@@ -25,16 +26,7 @@
 	// Desktop reveal order: #2 (400ms), #3 (600ms), #1 (900ms) — crescendo
 	const revealDelays = [900, 400, 600];
 
-	let hasAnimated = $state(false);
-
-	$effect(() => {
-		if (!hasAnimated) {
-			const timer = setTimeout(() => {
-				hasAnimated = true;
-			}, 1500);
-			return () => clearTimeout(timer);
-		}
-	});
+	const anim = useAnimateOnce();
 </script>
 
 <div class="podium-grid">
@@ -43,7 +35,7 @@
 		<div
 			class="podium-card rounded-3xl border bg-white/60 p-5 shadow-sm backdrop-blur-sm md:p-6
 				{isFirst ? 'podium-first border-(--accent)/40' : 'border-[#1a2b3c]/10'}"
-			style="{!hasAnimated
+			style="{!anim.done
 				? `animation: podium-reveal 0.6s ease-out both; animation-delay: ${revealDelays[i]}ms;`
 				: ''} {isFirst ? 'order: 2' : i === 1 ? 'order: 1' : 'order: 3'}"
 		>
@@ -109,7 +101,7 @@
 {#if remaining > 0}
 	<p
 		class="mt-6 text-center text-sm font-medium text-[#1a2b3c]/40"
-		style={!hasAnimated
+		style={!anim.done
 			? 'animation: podium-reveal 0.4s ease-out both; animation-delay: 1200ms'
 			: ''}
 	>

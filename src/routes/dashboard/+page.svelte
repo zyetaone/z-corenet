@@ -145,12 +145,12 @@
 
 				<!-- Stat counters -->
 				<div
-					class="flex items-center justify-center gap-8 rounded-2xl border border-[#1a2b3c]/10 bg-white/60 px-8 py-5 shadow-sm backdrop-blur-sm"
+					class="flex flex-wrap items-center justify-center gap-4 rounded-2xl border border-[#1a2b3c]/10 bg-white/60 px-8 py-5 shadow-sm backdrop-blur-sm md:gap-8"
 				>
 					<AnimatedCounter value={s.results.participantCount} label="Participants" />
-					<div class="h-10 w-px bg-[#1a2b3c]/10"></div>
+					<div class="hidden h-10 w-px bg-[#1a2b3c]/10 md:block"></div>
 					<AnimatedCounter value={s.results.voteCount} label="Votes" color="var(--teal)" />
-					<div class="h-10 w-px bg-[#1a2b3c]/10"></div>
+					<div class="hidden h-10 w-px bg-[#1a2b3c]/10 md:block"></div>
 					<AnimatedCounter
 						value={s.overallEvidenceRatio}
 						label="Evidence"
@@ -173,7 +173,7 @@
 					<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 						<!-- TOP: Key Insights -->
 						<div
-							class="col-span-1 border-b border-[#1a2b3c]/10 bg-white/40 p-6 md:p-8 lg:col-span-2"
+							class="col-span-1 rounded-2xl border border-[#1a2b3c]/10 bg-white/40 p-6 md:p-8 lg:col-span-2"
 						>
 							<h3
 								class="font-display mb-4 text-sm font-bold tracking-widest text-[#1a2b3c]/50 uppercase"
@@ -208,14 +208,10 @@
 									</div>
 								{/if}
 								<div class="rounded-2xl bg-white/60 p-5 shadow-sm">
-									<div
-										class="mb-1 text-xs font-bold tracking-wide text-(--indigo-text) uppercase"
-									>
+									<div class="mb-1 text-xs font-bold tracking-wide text-(--indigo-text) uppercase">
 										Alignment Score
 									</div>
-									<div
-										class="mb-2 text-2xl leading-tight font-black text-[#1a2b3c] tabular-nums"
-									>
+									<div class="mb-2 text-2xl leading-tight font-black text-[#1a2b3c] tabular-nums">
 										{s.consensusAlignment}%
 									</div>
 									<p class="text-xs text-[#1a2b3c]/60">
@@ -253,9 +249,7 @@
 						<div
 							class="rounded-2xl border border-[#1a2b3c]/10 bg-white/60 p-5 shadow-sm backdrop-blur-sm"
 						>
-							<h3 class="mb-3 text-center text-sm font-semibold text-[#1a2b3c]/50">
-								Top Features
-							</h3>
+							<h3 class="mb-3 text-center text-sm font-semibold text-[#1a2b3c]/50">Top Features</h3>
 							<Histogram
 								features={s.combinedFeatures}
 								showEvidence={true}
@@ -285,9 +279,7 @@
 						<div
 							class="rounded-2xl border border-[#1a2b3c]/10 bg-white/60 p-5 shadow-sm backdrop-blur-sm"
 						>
-							<h3 class="mb-3 text-center text-sm font-semibold text-[#1a2b3c]/50">
-								By Category
-							</h3>
+							<h3 class="mb-3 text-center text-sm font-semibold text-[#1a2b3c]/50">By Category</h3>
 							<CategoryBreakdown
 								categories={s.categoryStats}
 								maxVotes={s.categoryStats.length > 0 ? s.categoryStats[0].totalVotes : 1}
@@ -353,70 +345,3 @@
 	</div>
 </div>
 
-<style>
-	.show-results-btn {
-		border-color: rgba(26, 43, 60, 0.15);
-		background: rgba(26, 43, 60, 0.03);
-		color: rgba(26, 43, 60, 0.25);
-	}
-
-	.show-results-btn.has-votes {
-		border-color: var(--accent);
-		background: rgba(0, 191, 165, 0.15);
-		color: var(--accent);
-		animation: gentle-pulse 2.5s ease-in-out infinite;
-	}
-
-	.show-results-btn.has-votes:hover {
-		background: rgba(0, 191, 165, 0.25);
-		transform: translateY(-1px);
-	}
-
-	.show-results-btn.has-votes:active {
-		transform: translateY(0);
-	}
-
-	.show-results-btn:disabled {
-		cursor: not-allowed;
-		opacity: 0.3;
-	}
-
-	.show-results-btn:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 3px;
-	}
-
-	.lobby-qr {
-		box-shadow: 0 0 60px rgba(0, 191, 165, 0.08);
-	}
-
-	@keyframes gentle-pulse {
-		0%,
-		100% {
-			box-shadow: 0 0 0 0 rgba(0, 191, 165, 0);
-		}
-		50% {
-			box-shadow: 0 0 20px 4px rgba(0, 191, 165, 0.2);
-		}
-	}
-
-	.breathe-slow-anim {
-		animation: breathe-slow 4s ease-in-out infinite;
-	}
-	@keyframes breathe-slow {
-		0%,
-		100% {
-			opacity: 0.6;
-		}
-		50% {
-			opacity: 1;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.breathe-slow-anim {
-			animation: none;
-			opacity: 0.8;
-		}
-	}
-</style>

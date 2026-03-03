@@ -72,6 +72,9 @@
 				<span class="used-label mt-2 block">Selected individually</span>
 			{/if}
 		</span>
+		<span class="card-evidence" class:has-evidence={feature.hasEvidence}>
+			{#if feature.hasEvidence}&#10003; Evidence-based{:else}&#10007; Limited evidence{/if}
+		</span>
 	</div>
 </button>
 
@@ -311,5 +314,35 @@
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
 		opacity: 0.5;
+	}
+
+	.card-evidence {
+		display: inline-block;
+		margin-top: 0.5rem;
+		padding: 0.125rem 0.5rem;
+		border-radius: 9999px;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		background: rgba(239, 68, 68, 0.08);
+		color: var(--red-text);
+		border: 1px solid rgba(239, 68, 68, 0.15);
+	}
+
+	.card-evidence.has-evidence {
+		background: rgba(0, 200, 83, 0.1);
+		color: var(--green-text);
+		border: 1px solid rgba(0, 200, 83, 0.2);
+	}
+
+	:global(.theme-dark-blue) .card-evidence {
+		background: rgba(239, 68, 68, 0.12);
+		border-color: rgba(239, 68, 68, 0.2);
+	}
+
+	:global(.theme-dark-blue) .card-evidence.has-evidence {
+		background: rgba(0, 200, 83, 0.15);
+		border-color: rgba(0, 200, 83, 0.25);
 	}
 </style>

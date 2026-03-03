@@ -17,7 +17,9 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 	const rows = await db
 		.select({
 			name: sessionFeatures.name,
-			phase: votes.phase
+			phase: votes.phase,
+			hasEvidence: sessionFeatures.hasEvidence,
+			caption: sessionFeatures.caption
 		})
 		.from(votes)
 		.innerJoin(
@@ -29,8 +31,14 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 		)
 		.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)));
 
-	const individual = rows.filter((r) => r.phase === 'individual').map((r) => r.name);
-	const communal = rows.filter((r) => r.phase === 'communal').map((r) => r.name);
+	type PickedFeature = { name: string; hasEvidence: boolean; caption: string | null };
+
+	const individual: PickedFeature[] = rows
+		.filter((r) => r.phase === 'individual')
+		.map((r) => ({ name: r.name, hasEvidence: r.hasEvidence, caption: r.caption }));
+	const communal: PickedFeature[] = rows
+		.filter((r) => r.phase === 'communal')
+		.map((r) => ({ name: r.name, hasEvidence: r.hasEvidence, caption: r.caption }));
 
 	return { individual, communal };
 };

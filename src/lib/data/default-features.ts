@@ -11,6 +11,18 @@ export const FEATURE_GROUPS = [
 
 export type GroupKey = (typeof FEATURE_GROUPS)[number]['key'];
 
+/** Short labels for radar chart axes — one per FEATURE_GROUPS entry, same order. */
+export const RADAR_LABELS = [
+	'Light',
+	'Air',
+	'Sound',
+	'Nature',
+	'Health',
+	'Tech',
+	'Social',
+	'Design'
+];
+
 /** Maps raw category values to display group keys */
 export const CATEGORY_TO_GROUP: Record<string, GroupKey> = {
 	light: 'light',

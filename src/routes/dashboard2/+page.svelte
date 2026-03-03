@@ -80,7 +80,7 @@
 					<div class="h-10 w-px bg-[#1a2b3c]/10"></div>
 					<div class="flex flex-col items-center">
 						<span
-							class="text-5xl font-extrabold text-(--teal) drop-shadow-md"
+							class="text-5xl font-extrabold text-(--accent) drop-shadow-md"
 							style="font-variant-numeric: tabular-nums">{s.results.voteCount}</span
 						>
 						<span class="mt-1 text-sm font-medium tracking-widest text-[#1a2b3c]/40 uppercase"
@@ -144,17 +144,24 @@
 
 				<!-- Stat counters row -->
 				<div
-					class="flex items-center justify-center gap-8 rounded-2xl border border-[#1a2b3c]/10 bg-white/60 px-8 py-5 shadow-sm backdrop-blur-sm"
+					class="flex flex-wrap items-center justify-center gap-4 rounded-2xl border border-[#1a2b3c]/10 bg-white/60 px-8 py-5 shadow-sm backdrop-blur-sm md:gap-8"
 				>
 					<AnimatedCounter value={s.results.participantCount} label="Participants" />
-					<div class="h-10 w-px bg-[#1a2b3c]/10"></div>
+					<div class="hidden h-10 w-px bg-[#1a2b3c]/10 md:block"></div>
 					<AnimatedCounter value={s.totalAll} label="Sorted" color="var(--teal)" />
-					<div class="h-10 w-px bg-[#1a2b3c]/10"></div>
+					<div class="hidden h-10 w-px bg-[#1a2b3c]/10 md:block"></div>
 					<AnimatedCounter
 						value={s.individualPct}
 						label="Individual"
 						suffix="%"
 						color="var(--green)"
+					/>
+					<div class="hidden h-10 w-px bg-[#1a2b3c]/10 md:block"></div>
+					<AnimatedCounter
+						value={s.overallEvidenceRatio}
+						label="Evidence"
+						suffix="%"
+						color="var(--green-text)"
 					/>
 				</div>
 
@@ -171,14 +178,14 @@
 					<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 						<!-- TOP: Key Insights -->
 						<div
-							class="col-span-1 border-b border-[#1a2b3c]/10 bg-white/40 p-6 md:p-8 lg:col-span-2"
+							class="col-span-1 rounded-2xl border border-[#1a2b3c]/10 bg-white/40 p-6 md:p-8 lg:col-span-2"
 						>
 							<h3
 								class="font-display mb-4 text-sm font-bold tracking-widest text-[#1a2b3c]/50 uppercase"
 							>
 								AWA &times; Zyeta Insights
 							</h3>
-							<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+							<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 								{#if s.topCategory}
 									<div class="rounded-2xl bg-white/60 p-5 shadow-sm">
 										<div class="mb-1 text-xs font-bold tracking-wide text-(--accent) uppercase">
@@ -216,8 +223,7 @@
 											{s.topCommunalShift.name}
 										</div>
 										<p class="text-xs text-[#1a2b3c]/60">
-											+{s.topCommunalShift.shift}% increase in support during the Collective
-											phase.
+											+{s.topCommunalShift.shift}% increase in support during the Collective phase.
 										</p>
 									</div>
 								{:else}
@@ -227,9 +233,7 @@
 										>
 											Consensus Alignment
 										</div>
-										<div
-											class="mb-2 text-2xl leading-tight font-black text-[#1a2b3c] tabular-nums"
-										>
+										<div class="mb-2 text-2xl leading-tight font-black text-[#1a2b3c] tabular-nums">
 											High
 										</div>
 										<p class="text-xs text-[#1a2b3c]/60">
@@ -237,6 +241,34 @@
 										</p>
 									</div>
 								{/if}
+								<div class="rounded-2xl bg-white/60 p-5 shadow-sm">
+									<div class="mb-1 text-xs font-bold tracking-wide text-(--green-text) uppercase">
+										Research Alignment
+									</div>
+									<div class="mb-2 flex items-baseline gap-2">
+										<span
+											class="text-2xl leading-tight font-black tabular-nums"
+											style="color: var(--green-text)"
+										>
+											{s.overallEvidenceRatio}%
+										</span>
+									</div>
+									<div class="evidence-bar mb-2 h-2 overflow-hidden rounded-full">
+										<div
+											class="h-full rounded-full transition-all duration-700"
+											style="width: {s.overallEvidenceRatio}%; background: var(--green)"
+										></div>
+									</div>
+									<p class="text-xs text-[#1a2b3c]/60">
+										{#if s.overallEvidenceRatio >= 80}
+											Selections are strongly aligned with workplace research.
+										{:else if s.overallEvidenceRatio >= 50}
+											Good alignment with evidence. Some picks may not have research backing.
+										{:else}
+											Many selections lack research evidence — a common result.
+										{/if}
+									</p>
+								</div>
 							</div>
 						</div>
 
@@ -299,9 +331,7 @@
 							</h3>
 							<CategoryBreakdown
 								categories={s.categorySplitStats}
-								maxVotes={s.categorySplitStats.length > 0
-									? s.categorySplitStats[0].totalVotes
-									: 1}
+								maxVotes={s.categorySplitStats.length > 0 ? s.categorySplitStats[0].totalVotes : 1}
 							/>
 						</div>
 					</div>
@@ -364,69 +394,7 @@
 </div>
 
 <style>
-	.show-results-btn {
-		border-color: rgba(26, 43, 60, 0.15);
-		background: rgba(26, 43, 60, 0.03);
-		color: rgba(26, 43, 60, 0.25);
-	}
-
-	.show-results-btn.has-votes {
-		border-color: var(--accent);
-		background: rgba(0, 191, 165, 0.15);
-		color: var(--accent);
-		animation: gentle-pulse 2.5s ease-in-out infinite;
-	}
-
-	.show-results-btn.has-votes:hover {
-		background: rgba(0, 191, 165, 0.25);
-		transform: translateY(-1px);
-	}
-
-	.show-results-btn.has-votes:active {
-		transform: translateY(0);
-	}
-
-	.show-results-btn:disabled {
-		cursor: not-allowed;
-		opacity: 0.3;
-	}
-
-	.show-results-btn:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 3px;
-	}
-
-	.lobby-qr {
-		box-shadow: 0 0 60px rgba(0, 191, 165, 0.08);
-	}
-
-	@keyframes gentle-pulse {
-		0%,
-		100% {
-			box-shadow: 0 0 0 0 rgba(0, 191, 165, 0);
-		}
-		50% {
-			box-shadow: 0 0 20px 4px rgba(0, 191, 165, 0.2);
-		}
-	}
-
-	.breathe-slow-anim {
-		animation: breathe-slow 4s ease-in-out infinite;
-	}
-	@keyframes breathe-slow {
-		0%,
-		100% {
-			opacity: 0.6;
-		}
-		50% {
-			opacity: 1;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.breathe-slow-anim {
-			animation: none;
-			opacity: 0.8;
-		}
+	.evidence-bar {
+		background: rgba(0, 200, 83, 0.1);
 	}
 </style>

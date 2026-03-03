@@ -16,6 +16,7 @@
 		size?: number;
 	} = $props();
 
+	const uid = Math.random().toString(36).slice(2, 8);
 	const center = $derived(size / 2);
 	const radius = $derived(size * 0.34);
 	const labelRadius = $derived(radius + 22);
@@ -75,7 +76,7 @@
 
 <svg viewBox="0 0 {size} {size}" class="radar-svg overflow-visible">
 	<defs>
-		<filter id="radarGlow" x="-20%" y="-20%" width="140%" height="140%">
+		<filter id="radarGlow-{uid}" x="-20%" y="-20%" width="140%" height="140%">
 			<feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000000" flood-opacity="0.10" />
 		</filter>
 	</defs>
@@ -114,7 +115,7 @@
 			stroke={ds.color}
 			stroke-width="2.5"
 			stroke-linejoin="round"
-			filter="url(#radarGlow)"
+			filter="url(#radarGlow-{uid})"
 			class="radar-polygon"
 		/>
 		{#each ds.values as val, i}

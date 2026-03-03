@@ -6,6 +6,7 @@
 	import { CATEGORY_TO_GROUP } from '$lib/data/default-features';
 	import CategoryIcon from '$lib/components/CategoryIcon.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
+	import EvidenceTag from '$lib/components/EvidenceTag.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -248,12 +249,13 @@
 						<div class="card-group-label">{group}</div>
 						<h2 class="card-title">{currentCard.name}</h2>
 						<p class="card-description">{currentCard.description}</p>
+						<EvidenceTag hasEvidence={currentCard.hasEvidence} />
 					</div>
 				{/if}
 			</div>
 
 			<!-- Action buttons -->
-			<div class="mt-8 flex items-center gap-4">
+			<div class="mt-8 flex items-center gap-5">
 				<button
 					type="button"
 					class="action-btn undo-btn"
@@ -612,7 +614,6 @@
 		max-width: 260px;
 	}
 
-	/* Action buttons */
 	.action-btn {
 		display: flex;
 		align-items: center;
@@ -640,8 +641,8 @@
 	}
 
 	.undo-btn {
-		width: 2.75rem;
-		height: 2.75rem;
+		width: 3rem;
+		height: 3rem;
 		color: rgba(26, 43, 60, 0.4);
 		background: rgba(255, 255, 255, 0.6);
 		backdrop-filter: blur(8px);
@@ -661,8 +662,8 @@
 	}
 
 	.skip-btn {
-		width: 2.75rem;
-		height: 2.75rem;
+		width: 3rem;
+		height: 3rem;
 		color: rgba(26, 43, 60, 0.4);
 		background: rgba(255, 255, 255, 0.6);
 		backdrop-filter: blur(8px);

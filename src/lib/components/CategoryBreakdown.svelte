@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CategoryIcon from './CategoryIcon.svelte';
 	import type { GroupKey } from '$lib/data/default-features';
+	import { useAnimateOnce } from '$lib/utils/use-animate-once.svelte';
 
 	export interface CategoryStat {
 		key: GroupKey;
@@ -32,16 +33,7 @@
 					: ''
 	);
 
-	let hasAnimated = $state(false);
-
-	$effect(() => {
-		if (!hasAnimated) {
-			const timer = setTimeout(() => {
-				hasAnimated = true;
-			}, 1500);
-			return () => clearTimeout(timer);
-		}
-	});
+	const anim = useAnimateOnce();
 </script>
 
 <div class="space-y-3">
@@ -51,7 +43,7 @@
 			0
 				? 'shadow-[0_0_15px_rgba(0,191,165,0.1)] ring-1 ring-(--accent)/20'
 				: ''}"
-			style={!hasAnimated
+			style={!anim.done
 				? `animation: bar-enter 0.5s ease-out both; animation-delay: ${i * 40}ms`
 				: ''}
 		>
@@ -102,31 +94,10 @@
 {#if summary}
 	<p
 		class="mt-6 text-center text-sm font-medium text-[#1a2b3c]/50"
-		style={!hasAnimated
+		style={!anim.done
 			? `animation: bar-enter 0.4s ease-out both; animation-delay: ${categories.length * 60 + 200}ms`
 			: ''}
 	>
 		{summary}
 	</p>
 {/if}
-
-<style>
-	@keyframes bar-enter {
-		from {
-			opacity: 0;
-			transform: translateX(-20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateX(0);
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		:global([style*='bar-enter']) {
-			animation: none !important;
-			opacity: 1;
-			transform: none;
-		}
-	}
-</style>

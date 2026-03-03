@@ -79,7 +79,7 @@
 			</div>
 
 			<div
-				class="grid gap-3.5 sm:gap-2.5"
+				class="grid gap-3 sm:gap-4"
 				style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));"
 			>
 				{#each group.features as feature, j (feature.id)}

@@ -66,18 +66,11 @@
 				Vote on workplace features that matter to you. Takes 2 minutes.
 			</p>
 
-			<p
-				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 400 }}
-				class="mt-4 text-center text-xs font-semibold tracking-widest text-[#1a2b3c]/40 uppercase"
-			>
-				Powered by AWA &times; Zyeta
-			</p>
-
 			<form
 				in:fly={{
 					y: reduceMotion ? 0 : 30,
 					duration: reduceMotion ? 0 : 800,
-					delay: reduceMotion ? 0 : 600
+					delay: reduceMotion ? 0 : 400
 				}}
 				method="POST"
 				use:enhance={() => {
@@ -93,6 +86,13 @@
 					{isSubmitting ? 'Joining...' : 'Begin →'}
 				</Button>
 			</form>
+
+			<p
+				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 600 }}
+				class="mt-6 text-center text-xs font-semibold tracking-widest text-[#1a2b3c]/40 uppercase"
+			>
+				Powered by AWA &times; Zyeta
+			</p>
 		{/if}
 	</div>
 </div>

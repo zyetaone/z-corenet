@@ -3,7 +3,9 @@
 	import { onMount } from 'svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 
-	let { data } = $props();
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
 	let mounted = $state(false);
 	let reduceMotion = $state(false);
 	let name = $state('');
@@ -14,10 +16,42 @@
 	const topIndividual = $derived(data.individual);
 	const topCommunal = $derived(data.communal);
 
-	// Features that appear in BOTH phases
+	// Evidence scoring
+	const indEvidenceCount = $derived(topIndividual.filter((f) => f.hasEvidence).length);
+	const comEvidenceCount = $derived(topCommunal.filter((f) => f.hasEvidence).length);
+	const totalCorrect = $derived(indEvidenceCount + comEvidenceCount);
+	const totalPicks = $derived(topIndividual.length + topCommunal.length);
+	const literacyPct = $derived(totalPicks > 0 ? Math.round((totalCorrect / totalPicks) * 100) : 0);
+
+	// Three-tier scoring message from original HTML
+	const scoreMessage = $derived.by(() => {
+		if (totalPicks === 0) return { title: '', text: '', tone: '' as const };
+		const ratio = totalPicks > 0 ? totalCorrect / totalPicks : 0;
+		if (ratio >= 0.8) {
+			return {
+				title: 'Outstanding!',
+				text: 'Your picks are strongly aligned with workplace research. You have excellent instincts for what actually works.',
+				tone: 'excellent' as const
+			};
+		}
+		if (ratio >= 0.5) {
+			return {
+				title: 'Good instincts!',
+				text: 'Most of your picks are backed by research. A few choices might surprise you when you see the evidence.',
+				tone: 'good' as const
+			};
+		}
+		return {
+			title: 'A common result',
+			text: "Workplace design assumptions often don't match the research. That's exactly why this exercise matters.",
+			tone: 'common' as const
+		};
+	});
+
+	// Features that appear in BOTH phases (compare by name)
 	const shared = $derived.by(() => {
-		const indSet = new Set(data.individual);
-		return data.communal.filter((f) => indSet.has(f));
+		const indSet = new Set(topIndividual.map((f) => f.name));
+		return topCommunal.filter((f) => indSet.has(f.name));
 	});
 
 	onMount(() => {
@@ -87,37 +121,124 @@
 				</p>
 			</div>
 
-			<!-- Top 3 Individual + Top 3 Collective side by side -->
+			<!-- Evidence Literacy Score -->
+			{#if totalPicks > 0}
+				{@const borderColor =
+					scoreMessage.tone === 'excellent'
+						? 'border-color: rgba(0,200,83,0.3)'
+						: scoreMessage.tone === 'good'
+							? 'border-color: rgba(245,158,11,0.3)'
+							: 'border-color: rgba(26,43,60,0.15)'}
+				{@const textColor =
+					scoreMessage.tone === 'excellent'
+						? 'color: var(--green)'
+						: scoreMessage.tone === 'good'
+							? 'color: rgb(217,119,6)'
+							: 'color: rgba(26,43,60,0.7)'}
+				{@const barColor =
+					scoreMessage.tone === 'excellent'
+						? 'var(--green)'
+						: scoreMessage.tone === 'good'
+							? 'rgb(217,119,6)'
+							: 'rgba(26,43,60,0.3)'}
+				<div
+					in:scale={{
+						start: 0.9,
+						duration: reduceMotion ? 0 : 700,
+						delay: reduceMotion ? 0 : 300
+					}}
+					class="literacy-card mb-6 rounded-2xl border p-5"
+					style={borderColor}
+				>
+					<div class="mb-2 text-xs font-bold tracking-widest uppercase" style={textColor}>
+						Workplace Literacy
+					</div>
+					<div class="mb-1 text-4xl font-black tabular-nums" style={textColor}>
+						{literacyPct}%
+					</div>
+					<!-- Progress bar -->
+					<div
+						class="literacy-bar mx-auto mb-3 h-2.5 w-full max-w-[200px] overflow-hidden rounded-full"
+					>
+						<div
+							class="h-full rounded-full transition-all duration-1000 ease-out"
+							style="width: {literacyPct}%; background: {barColor}"
+						></div>
+					</div>
+					<div class="mb-2 text-lg font-bold text-[#1a2b3c]">{scoreMessage.title}</div>
+					<p class="text-xs leading-relaxed text-[#1a2b3c]/60">{scoreMessage.text}</p>
+					<div class="mt-3 flex items-center justify-center gap-6">
+						<div class="flex flex-col items-center">
+							<span class="text-lg font-black text-(--green) tabular-nums"
+								>{indEvidenceCount}<span class="text-sm font-bold text-[#1a2b3c]/30"
+									>/{topIndividual.length}</span
+								></span
+							>
+							<span class="text-[10px] font-bold tracking-wider text-[#1a2b3c]/40 uppercase"
+								>individual</span
+							>
+						</div>
+						<div class="h-8 w-px bg-[#1a2b3c]/10"></div>
+						<div class="flex flex-col items-center">
+							<span class="text-lg font-black text-(--indigo-text) tabular-nums"
+								>{comEvidenceCount}<span class="text-sm font-bold text-[#1a2b3c]/30"
+									>/{topCommunal.length}</span
+								></span
+							>
+							<span class="text-[10px] font-bold tracking-wider text-[#1a2b3c]/40 uppercase"
+								>collective</span
+							>
+						</div>
+					</div>
+				</div>
+			{/if}
+
+			<!-- Top Individual + Top Collective side by side -->
 			<div
 				in:fly={{
 					y: reduceMotion ? 0 : 20,
 					duration: reduceMotion ? 0 : 800,
-					delay: reduceMotion ? 0 : 350
+					delay: reduceMotion ? 0 : 450
 				}}
-				class="mb-6 grid grid-cols-2 gap-4"
+				class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2"
 			>
 				<!-- Individual column -->
 				<div class="rounded-2xl border border-(--green)/20 bg-(--green)/5 p-5">
 					<div class="mb-3 text-2xl">&#x1F9E0;</div>
 					<h3 class="font-display mb-1 text-sm font-bold text-(--green)">Individual Brain</h3>
 					<p class="mb-3 text-[10px] font-medium tracking-wider text-[#1a2b3c]/40 uppercase">
-						Your picks
+						{indEvidenceCount}/{topIndividual.length} evidence-based
 					</p>
-					<ol class="space-y-2 text-left">
-						{#each topIndividual as feature, i (feature)}
+					<ol class="space-y-3 text-left">
+						{#each topIndividual as feature, i (feature.name)}
 							<li
 								in:fly={{
 									x: reduceMotion ? 0 : -12,
 									duration: reduceMotion ? 0 : 400,
-									delay: reduceMotion ? 0 : 450 + i * 80
+									delay: reduceMotion ? 0 : 550 + i * 80
 								}}
 								class="flex items-start gap-2"
 							>
 								<span
-									class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--green)/15 text-[10px] font-bold text-(--green)"
-									>{i + 1}</span
+									class="evidence-badge mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+									class:evidence-yes={feature.hasEvidence}
+									class:evidence-no={!feature.hasEvidence}
+									class:evidence-green={feature.hasEvidence}
 								>
-								<span class="text-xs leading-relaxed font-medium text-[#1a2b3c]/80">{feature}</span>
+									{#if feature.hasEvidence}&#10003;{:else}{i + 1}{/if}
+								</span>
+								<div class="min-w-0">
+									<span
+										class="text-xs leading-relaxed font-medium {feature.hasEvidence
+											? 'text-[#1a2b3c]'
+											: 'text-[#1a2b3c]/50'}">{feature.name}</span
+									>
+									{#if feature.caption}
+										<p class="mt-0.5 text-[10px] leading-snug text-(--green-text)/70 italic">
+											{feature.caption}
+										</p>
+									{/if}
+								</div>
 							</li>
 						{/each}
 					</ol>
@@ -128,23 +249,38 @@
 					<div class="mb-3 text-2xl">&#x1F91D;</div>
 					<h3 class="font-display mb-1 text-sm font-bold text-(--indigo-text)">Collective Brain</h3>
 					<p class="mb-3 text-[10px] font-medium tracking-wider text-[#1a2b3c]/40 uppercase">
-						Your picks
+						{comEvidenceCount}/{topCommunal.length} evidence-based
 					</p>
-					<ol class="space-y-2 text-left">
-						{#each topCommunal as feature, i (feature)}
+					<ol class="space-y-3 text-left">
+						{#each topCommunal as feature, i (feature.name)}
 							<li
 								in:fly={{
 									x: reduceMotion ? 0 : 12,
 									duration: reduceMotion ? 0 : 400,
-									delay: reduceMotion ? 0 : 450 + i * 80
+									delay: reduceMotion ? 0 : 550 + i * 80
 								}}
 								class="flex items-start gap-2"
 							>
 								<span
-									class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-(--indigo-text)/15 text-[10px] font-bold text-(--indigo-text)"
-									>{i + 1}</span
+									class="evidence-badge mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+									class:evidence-yes={feature.hasEvidence}
+									class:evidence-no={!feature.hasEvidence}
+									class:evidence-indigo={feature.hasEvidence}
 								>
-								<span class="text-xs leading-relaxed font-medium text-[#1a2b3c]/80">{feature}</span>
+									{#if feature.hasEvidence}&#10003;{:else}{i + 1}{/if}
+								</span>
+								<div class="min-w-0">
+									<span
+										class="text-xs leading-relaxed font-medium {feature.hasEvidence
+											? 'text-[#1a2b3c]'
+											: 'text-[#1a2b3c]/50'}">{feature.name}</span
+									>
+									{#if feature.caption}
+										<p class="mt-0.5 text-[10px] leading-snug text-(--indigo-text)/70 italic">
+											{feature.caption}
+										</p>
+									{/if}
+								</div>
 							</li>
 						{/each}
 					</ol>
@@ -154,7 +290,7 @@
 			<!-- Intersection / Overlap -->
 			{#if shared.length > 0}
 				<div
-					in:scale={{ start: 0.9, duration: reduceMotion ? 0 : 600, delay: reduceMotion ? 0 : 700 }}
+					in:scale={{ start: 0.9, duration: reduceMotion ? 0 : 600, delay: reduceMotion ? 0 : 800 }}
 					class="venn-card mb-6 rounded-2xl border border-(--teal)/25 p-5"
 				>
 					<div class="mb-2 flex items-center justify-center gap-2">
@@ -176,80 +312,42 @@
 						{shared.length} feature{shared.length !== 1 ? 's' : ''} in both rounds
 					</p>
 					<div class="flex flex-wrap items-center justify-center gap-2">
-						{#each shared as feature, i (feature)}
+						{#each shared as feature, i (feature.name)}
 							<span
 								in:scale={{
 									start: 0.8,
 									duration: reduceMotion ? 0 : 300,
-									delay: reduceMotion ? 0 : 800 + i * 60
+									delay: reduceMotion ? 0 : 900 + i * 60
 								}}
-								class="inline-flex items-center gap-1.5 rounded-full border border-(--teal)/20 bg-(--teal)/8 px-3 py-1 text-xs font-semibold text-(--teal)"
+								class="shared-pill inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold"
+								class:shared-evidence={feature.hasEvidence}
+								class:shared-no-evidence={!feature.hasEvidence}
 							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="h-3 w-3"
-									viewBox="0 0 20 20"
-									fill="currentColor"
-								>
-									<path
-										fill-rule="evenodd"
-										d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-										clip-rule="evenodd"
-									/>
-								</svg>
-								{feature}
+								{#if feature.hasEvidence}
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="h-3 w-3"
+										viewBox="0 0 20 20"
+										fill="currentColor"
+									>
+										<path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"
+										/>
+									</svg>
+								{/if}
+								{feature.name}
 							</span>
 						{/each}
 					</div>
 				</div>
 			{/if}
 
-			<!-- Visualise your workspace CTA -->
-			<div
-				in:fly={{
-					y: reduceMotion ? 0 : 15,
-					duration: reduceMotion ? 0 : 600,
-					delay: reduceMotion ? 0 : 1000
-				}}
-				class="mb-6"
-			>
-				<a
-					href="/visualise"
-					class="visualise-btn group inline-flex items-center gap-3 rounded-2xl border border-(--teal)/30 bg-linear-to-r from-(--teal)/10 to-(--accent)/10 px-8 py-4 text-base font-bold text-(--teal) shadow-sm transition-all hover:-translate-y-0.5 hover:from-(--teal)/15 hover:to-(--accent)/15 hover:shadow-lg"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-5 w-5 transition-transform group-hover:scale-110"
-						viewBox="0 0 20 20"
-						fill="currentColor"
-					>
-						<path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-						<path
-							fill-rule="evenodd"
-							d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-					Visualise Your Workspace
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						class="h-4 w-4 transition-transform group-hover:translate-x-1"
-						viewBox="0 0 20 20"
-						fill="currentColor"
-					>
-						<path
-							fill-rule="evenodd"
-							d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-							clip-rule="evenodd"
-						/>
-					</svg>
-				</a>
-			</div>
-
 			<!-- Download prompt -->
 			{#if !showDownload}
 				<button
-					in:fade={{ duration: reduceMotion ? 0 : 600, delay: reduceMotion ? 0 : 1100 }}
+					in:fade={{ duration: reduceMotion ? 0 : 600, delay: reduceMotion ? 0 : 1200 }}
 					onclick={() => (showDownload = true)}
 					class="mb-6 min-h-[44px] rounded-full border border-[#1a2b3c]/10 bg-white/50 px-6 py-2.5 text-sm font-semibold text-[#1a2b3c]/70 shadow-sm transition-colors hover:bg-white hover:text-(--teal)"
 				>
@@ -293,7 +391,7 @@
 
 			<!-- Footer prompt -->
 			<p
-				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 1300 }}
+				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 1400 }}
 				class="text-sm font-medium tracking-wide text-[#1a2b3c]/60"
 			>
 				Look up at the screen for the group results!
@@ -312,10 +410,39 @@
 		);
 	}
 
-	.visualise-btn {
-		box-shadow: 0 4px 20px rgba(0, 191, 165, 0.1);
+	.literacy-card {
+		background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.6) 100%);
+		backdrop-filter: blur(8px);
 	}
-	.visualise-btn:hover {
-		box-shadow: 0 8px 30px rgba(0, 191, 165, 0.2);
+
+	.literacy-bar {
+		background: rgba(26, 43, 60, 0.08);
 	}
+
+	/* Evidence badge colors */
+	.evidence-yes.evidence-green {
+		background: rgba(0, 200, 83, 0.15);
+		color: var(--green);
+	}
+	.evidence-yes.evidence-indigo {
+		background: rgba(92, 107, 192, 0.15);
+		color: var(--indigo-text);
+	}
+	.evidence-no {
+		background: rgba(239, 68, 68, 0.1);
+		color: var(--red-text);
+	}
+
+	/* Shared pills */
+	.shared-evidence {
+		border-color: rgba(0, 191, 165, 0.2);
+		background: rgba(0, 191, 165, 0.08);
+		color: var(--teal);
+	}
+	.shared-no-evidence {
+		border-color: rgba(239, 68, 68, 0.2);
+		background: rgba(239, 68, 68, 0.05);
+		color: rgba(26, 43, 60, 0.6);
+	}
+
 </style>

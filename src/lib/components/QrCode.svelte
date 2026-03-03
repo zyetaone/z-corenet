@@ -3,43 +3,33 @@
 
 	let { url, size = 200 }: { url: string; size?: number } = $props();
 
-	let svgString = $state('');
-	let error = $state(false);
-
-	$effect(() => {
+	const qrSvg = $derived(
 		QRCode.toString(url, {
 			type: 'svg',
 			width: size,
 			margin: 1,
 			color: { dark: '#1a2b3c', light: '#ffffff' }
 		})
-			.then((svg) => {
-				svgString = svg;
-				error = false;
-			})
-			.catch(() => {
-				error = true;
-			});
-	});
+	);
 </script>
 
-{#if svgString}
+{#await qrSvg}
+	<div
+		class="rounded-xl bg-[#1a2b3c]/10 motion-safe:animate-pulse"
+		style="width: {size}px; height: {size}px"
+	></div>
+{:then svgString}
 	<div class="qr-container" style="width: {size}px; height: {size}px">
 		{@html svgString}
 	</div>
-{:else if error}
+{:catch}
 	<div
 		class="flex items-center justify-center rounded-xl bg-white p-4"
 		style="width: {size}px; height: {size}px"
 	>
 		<code class="text-center font-mono text-xs break-all text-[#1a2b3c]">{url}</code>
 	</div>
-{:else}
-	<div
-		class="animate-pulse rounded-xl bg-[#1a2b3c]/10"
-		style="width: {size}px; height: {size}px"
-	></div>
-{/if}
+{/await}
 
 <style>
 	.qr-container :global(svg) {

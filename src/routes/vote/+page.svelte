@@ -88,7 +88,7 @@
 						placeholder="Any thoughts on workplace design? (optional)"
 						aria-label="Comments on workplace design"
 						rows="3"
-						class="w-full rounded-xl border border-white/12 bg-white/6 px-5 py-3.5 text-base text-white placeholder-white/30 transition-colors outline-none focus:border-(--accent)"
+						class="w-full rounded-xl border border-white/12 bg-white/10 px-5 py-3.5 text-base text-white placeholder-white/50 transition-colors outline-none focus:border-(--accent) focus:bg-white/15 focus:ring-1 focus:ring-(--accent)/50"
 					></textarea>
 
 					<Button type="submit" disabled={!engine.canContinue || engine.isSubmitting}>

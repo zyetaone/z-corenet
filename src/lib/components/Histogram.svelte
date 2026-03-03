@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CategoryIcon from './CategoryIcon.svelte';
 	import type { RankedFeature } from '$lib/server/tally';
+	import { useAnimateOnce } from '$lib/utils/use-animate-once.svelte';
 
 	let {
 		features,
@@ -20,16 +21,7 @@
 
 	const visibleFeatures = $derived(features.slice(0, maxBars));
 
-	let hasAnimated = $state(false);
-
-	$effect(() => {
-		if (!hasAnimated) {
-			const timer = setTimeout(() => {
-				hasAnimated = true;
-			}, 1500);
-			return () => clearTimeout(timer);
-		}
-	});
+	const anim = useAnimateOnce();
 </script>
 
 <div class="space-y-2.5">
@@ -41,7 +33,7 @@
 				: 'border-[#1a2b3c]/5 bg-white/70 hover:border-[#1a2b3c]/15 hover:bg-white/95'} {i === 0
 				? 'shadow-[0_0_15px_rgba(0,191,165,0.1)] ring-1 ring-(--accent)/20'
 				: ''}"
-			style={animateIn && !hasAnimated
+			style={animateIn && !anim.done
 				? `animation: bar-enter 0.5s ease-out both; animation-delay: ${i * 60}ms`
 				: ''}
 		>
@@ -103,23 +95,3 @@
 		</div>
 	{/each}
 </div>
-
-<style>
-	@keyframes bar-enter {
-		from {
-			opacity: 0;
-			transform: translateX(-20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateX(0);
-		}
-	}
-	@media (prefers-reduced-motion: reduce) {
-		:global([style*='bar-enter']) {
-			animation: none !important;
-			opacity: 1;
-			transform: none;
-		}
-	}
-</style>

@@ -22,6 +22,7 @@
 	const chartRadius = $derived(size * 0.38);
 	const circumference = $derived(2 * Math.PI * chartRadius);
 
+	const uid = Math.random().toString(36).slice(2, 8);
 	const total = $derived(segments.reduce((s, seg) => s + seg.value, 0));
 
 	const segmentArcs = $derived(() => {
@@ -45,10 +46,10 @@
 
 <svg viewBox="0 0 {size} {size}" class="donut-svg overflow-visible">
 	<defs>
-		<filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+		<filter id="glow-{uid}" x="-20%" y="-20%" width="140%" height="140%">
 			<feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#1a2b3c" flood-opacity="0.15" />
 		</filter>
-		<filter id="innerGlow" x="-20%" y="-20%" width="140%" height="140%">
+		<filter id="innerGlow-{uid}" x="-20%" y="-20%" width="140%" height="140%">
 			<feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.1" />
 		</filter>
 	</defs>
@@ -62,13 +63,13 @@
 		stroke="#1a2b3c"
 		stroke-opacity="0.04"
 		stroke-width={strokeWidth}
-		filter="url(#innerGlow)"
+		filter="url(#innerGlow-{uid})"
 	/>
 
 	<!-- Segments -->
 	{#each segmentArcs() as arc}
 		<!-- We wrap the visible circle in a group to apply the drop shadow cleanly -->
-		<g filter="url(#glow)">
+		<g filter="url(#glow-{uid})">
 			<circle
 				cx={center}
 				cy={center}

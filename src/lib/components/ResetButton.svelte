@@ -71,14 +71,14 @@
 				<button
 					bind:this={cancelBtn}
 					type="button"
-					class="flex-1 cursor-pointer rounded-xl border border-(--dark2)/50 bg-white px-4 py-2.5 text-sm font-semibold text-[#1a2b3c]/70 transition-colors hover:bg-(--dark2)/30"
+					class="min-h-[44px] flex-1 cursor-pointer rounded-xl border border-(--dark2)/50 bg-white px-4 py-3 text-sm font-semibold text-[#1a2b3c]/70 transition-colors hover:bg-(--dark2)/30"
 					onclick={() => (showConfirm = false)}
 				>
 					Cancel
 				</button>
 				<button
 					type="button"
-					class="flex-1 cursor-pointer rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+					class="min-h-[44px] flex-1 cursor-pointer rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700"
 					onclick={() => {
 						showConfirm = false;
 						onreset();

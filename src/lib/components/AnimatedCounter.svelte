@@ -17,6 +17,15 @@
 	let currentValue = 0;
 
 	$effect(() => {
+		const reduceMotion =
+			typeof window !== 'undefined' &&
+			window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (reduceMotion) {
+			displayValue = value;
+			currentValue = value;
+			return;
+		}
+
 		const start = currentValue;
 		const end = value;
 		const startTime = performance.now();
