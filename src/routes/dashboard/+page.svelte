@@ -13,9 +13,9 @@
 
 	let { data }: { data: PageData } = $props();
 
-	const s = new DashboardState();
+	const s = new DashboardState(data);
 
-	// Keep data in sync with props (handles initial load + SvelteKit invalidation)
+	// Keep data in sync when SvelteKit invalidates (client-side navigation)
 	$effect(() => {
 		s.data = data;
 	});

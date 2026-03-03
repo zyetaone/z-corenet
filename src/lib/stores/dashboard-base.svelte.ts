@@ -11,6 +11,10 @@ export class DashboardBaseState {
 	polling = $state(false);
 	showResults = $state(false);
 
+	constructor(initialData: TallyResult) {
+		this.data = initialData;
+	}
+
 	readonly results = $derived(this.polledResults ?? this.data);
 	readonly baseUrl = $derived(typeof window !== 'undefined' ? window.location.origin : '');
 
