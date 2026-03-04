@@ -25,7 +25,7 @@
 	.btn-primary {
 		position: relative;
 		overflow: hidden;
-		background: linear-gradient(135deg, var(--teal), var(--accent));
+		background: linear-gradient(135deg, var(--color-teal), var(--color-accent));
 		color: #fff;
 		border: 1px solid rgba(255, 255, 255, 0.15);
 		border-radius: 1rem;
@@ -87,7 +87,7 @@
 	}
 
 	.btn-primary:focus-visible {
-		outline: 2px solid var(--accent);
+		outline: 2px solid var(--color-accent);
 		outline-offset: 4px;
 	}
 

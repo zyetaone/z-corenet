@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { SessionFeature } from '$lib/server/db/schema';
 	import CategoryIcon from './CategoryIcon.svelte';
+	import { Check } from 'lucide-svelte';
 	import { CATEGORY_TO_GROUP } from '$lib/data/default-features';
 
 	let {
@@ -24,7 +25,7 @@
 
 <button
 	type="button"
-	class="feature-card"
+	class="feature-card glass-panel-interactive"
 	class:selected-a={selected && phase === 'individual'}
 	class:selected-b={selected && phase === 'communal'}
 	class:disabled={disabled && !used}
@@ -47,18 +48,7 @@
 		</span>
 		<span class="card-check {checkClass}">
 			{#if selected}
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="h-4 w-4 stroke-[3px]"
-					viewBox="0 0 20 20"
-					fill="currentColor"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-						clip-rule="evenodd"
-					/>
-				</svg>
+				<Check size={16} strokeWidth={3} />
 			{/if}
 		</span>
 	</div>
@@ -72,9 +62,6 @@
 				<span class="used-label mt-2 block">Selected individually</span>
 			{/if}
 		</span>
-		<span class="card-evidence" class:has-evidence={feature.hasEvidence}>
-			{#if feature.hasEvidence}&#10003; Evidence-based{:else}&#10007; Limited evidence{/if}
-		</span>
 	</div>
 </button>
 
@@ -86,20 +73,11 @@
 		width: 100%;
 		height: 100%;
 		padding: 1.25rem;
-		background: rgba(15, 25, 35, 0.06);
-		border: 1px solid rgba(15, 25, 35, 0.12);
-
-		:global(.theme-dark-blue) & {
-			background: rgba(255, 255, 255, 0.03);
-			border: 1px solid rgba(255, 255, 255, 0.06);
-		}
-
 		border-radius: 1.25rem;
 		cursor: pointer;
 		user-select: none;
 		text-align: left;
-		font-family: 'DM Sans', sans-serif;
-		transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+		font-family: var(--font-sans);
 		position: relative;
 		overflow: hidden;
 		color: currentColor;
@@ -119,36 +97,19 @@
 		transition: opacity 0.3s;
 	}
 
+	/* Interactive state visual handles are now mostly covered globally via .glass-panel-interactive,
+	   except for the specific gradient overlay and border adjustments here. */
 	.feature-card:hover:not(.disabled):not(.used) {
-		border-color: rgba(15, 25, 35, 0.15);
 		background: rgba(15, 25, 35, 0.05);
 
 		:global(.theme-dark-blue) & {
-			border-color: rgba(255, 255, 255, 0.2);
-			background: rgba(255, 255, 255, 0.06);
-			box-shadow:
-				0 12px 32px rgba(0, 0, 0, 0.2),
-				inset 0 1px 0 rgba(255, 255, 255, 0.1);
+			background: rgba(255, 255, 255, 0.08);
 		}
-
-		transform: translateY(-4px);
-		box-shadow:
-			0 12px 32px rgba(15, 25, 35, 0.08),
-			inset 0 1px 0 rgba(255, 255, 255, 0.5);
-	}
-
-	.feature-card:hover:not(.disabled):not(.used)::before {
-		opacity: 1;
-	}
-
-	.feature-card:active:not(.disabled):not(.used) {
-		transform: scale(0.98) translateY(-1px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	}
 
 	.feature-card.selected-a {
 		background: rgba(0, 200, 83, 0.08);
-		border-color: rgba(0, 200, 83, 0.3);
+		border-color: var(--color-green);
 		box-shadow:
 			0 4px 20px rgba(0, 200, 83, 0.1),
 			inset 0 0 0 1px rgba(0, 200, 83, 0.2);
@@ -162,7 +123,7 @@
 
 	.feature-card.selected-b {
 		background: rgba(92, 107, 192, 0.08);
-		border-color: rgba(92, 107, 192, 0.3);
+		border-color: var(--color-indigo);
 		box-shadow:
 			0 4px 20px rgba(92, 107, 192, 0.15),
 			inset 0 0 0 1px rgba(92, 107, 192, 0.2);
@@ -220,7 +181,7 @@
 	.feature-card.selected-a .card-icon-wrapper {
 		background: rgba(0, 200, 83, 0.15);
 		border-color: rgba(0, 200, 83, 0.3);
-		color: var(--green);
+		color: var(--color-green);
 	}
 
 	.feature-card.selected-b .card-icon-wrapper {
@@ -262,16 +223,16 @@
 	}
 
 	.card-check.on-a {
-		background: var(--green);
-		border: 2px solid var(--green);
+		background: var(--color-green);
+		border: 2px solid var(--color-green);
 		color: #fff;
 		box-shadow: 0 0 10px rgba(0, 200, 83, 0.3);
 		transform: scale(1.1);
 	}
 
 	.card-check.on-b {
-		background: var(--indigo);
-		border: 2px solid var(--indigo);
+		background: var(--color-indigo);
+		border: 2px solid var(--color-indigo);
 		color: #fff;
 		box-shadow: 0 0 10px rgba(92, 107, 192, 0.4);
 		transform: scale(1.1);
@@ -286,7 +247,7 @@
 	}
 
 	.card-name {
-		font-family: 'DM Sans', sans-serif;
+		font-family: var(--font-sans);
 		font-weight: 700;
 		font-size: 1rem;
 		line-height: 1.3;
@@ -295,7 +256,7 @@
 	}
 
 	.feature-card.selected-a .card-name {
-		color: var(--green-dim);
+		color: var(--color-green-dim);
 	}
 
 	.feature-card.selected-b .card-name {
@@ -314,35 +275,5 @@
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
 		opacity: 0.5;
-	}
-
-	.card-evidence {
-		display: inline-block;
-		margin-top: 0.5rem;
-		padding: 0.125rem 0.5rem;
-		border-radius: 9999px;
-		font-size: 0.6875rem;
-		font-weight: 700;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
-		background: rgba(239, 68, 68, 0.08);
-		color: var(--red-text);
-		border: 1px solid rgba(239, 68, 68, 0.15);
-	}
-
-	.card-evidence.has-evidence {
-		background: rgba(0, 200, 83, 0.1);
-		color: var(--green-text);
-		border: 1px solid rgba(0, 200, 83, 0.2);
-	}
-
-	:global(.theme-dark-blue) .card-evidence {
-		background: rgba(239, 68, 68, 0.12);
-		border-color: rgba(239, 68, 68, 0.2);
-	}
-
-	:global(.theme-dark-blue) .card-evidence.has-evidence {
-		background: rgba(0, 200, 83, 0.15);
-		border-color: rgba(0, 200, 83, 0.25);
 	}
 </style>

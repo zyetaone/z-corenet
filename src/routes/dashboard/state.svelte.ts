@@ -50,7 +50,7 @@ export class DashboardState extends DashboardBaseState {
 		const totalVotes = this.results.individual.totalPicks + this.results.communal.totalPicks;
 		const nonEvidence = totalVotes - evidenceVotes;
 		return [
-			{ value: evidenceVotes, color: 'var(--green)', label: 'Evidence-backed' },
+			{ value: evidenceVotes, color: 'var(--color-green)', label: 'Evidence-backed' },
 			{ value: Math.max(nonEvidence, 0), color: '#1a2b3c20', label: 'Not evidence-backed' }
 		];
 	});

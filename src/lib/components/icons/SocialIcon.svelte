@@ -3,39 +3,40 @@
 </script>
 
 <svg width={size} height={size} viewBox="0 0 24 24" fill="none" class="category-icon">
-	<circle cx="8" cy="7" r="2.5" fill="currentColor" opacity="0.8" />
-	<path d="M4 17c0-2.2 1.8-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-	<circle cx="16" cy="7" r="2.5" fill="currentColor" opacity="0.8" />
-	<path d="M20 17c0-2.2-1.8-4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-	<path
-		d="M8 13c1.5-1 6.5-1 8 0"
-		stroke="currentColor"
-		stroke-width="1.5"
-		stroke-linecap="round"
-		class:reach={animated}
-	/>
+	<g class:social-breathe={animated}>
+		<!-- Left person -->
+		<circle cx="9" cy="7" r="3" fill="currentColor" opacity="0.8" />
+		<path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="currentColor" opacity="0.35" />
+	</g>
+	<g class:social-breathe-delay={animated}>
+		<!-- Right person -->
+		<circle cx="17" cy="7" r="3" fill="currentColor" opacity="0.8" />
+		<path d="M11 20c0-3.3 2.7-6 6-6s6 2.7 6 6" fill="currentColor" opacity="0.35" />
+	</g>
 </svg>
 
 <style>
-	.reach {
-		animation: reach-connect 3s ease-in-out infinite;
-		transform-origin: center;
+	.social-breathe {
+		animation: social-breathe 3s ease-in-out infinite;
 	}
-	@keyframes reach-connect {
+	.social-breathe-delay {
+		animation: social-breathe 3s ease-in-out infinite;
+		animation-delay: 0.5s;
+	}
+	@keyframes social-breathe {
 		0%,
 		100% {
-			opacity: 0.3;
-			transform: scaleX(0.9);
+			opacity: 0.7;
 		}
 		50% {
-			opacity: 0.9;
-			transform: scaleX(1);
+			opacity: 1;
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.reach {
+		.social-breathe,
+		.social-breathe-delay {
 			animation: none;
-			opacity: 0.6;
+			opacity: 0.85;
 		}
 	}
 </style>

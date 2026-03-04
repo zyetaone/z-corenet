@@ -11,20 +11,14 @@
 	const engine = untrack(() => new VotingEngine(data.features));
 
 	let disabledIds = $derived(
-		engine.atSoftCap
+		engine.atMax
 			? new Set(
-					engine.features
-						.filter(
-							(f) =>
-								!engine.currentSelection.has(f.featureId) &&
-								!engine.isFromUncoveredGroup(f.featureId)
-						)
+					engine.availableFeatures
+						.filter((f) => !engine.currentSelection.has(f.featureId))
 						.map((f) => f.featureId)
 				)
 			: new Set<number>()
 	);
-
-	let displayFeatures = $derived(engine.features);
 
 	let usedIds = $derived(
 		engine.phase === 'communal' ? engine.selectedIndividual : new Set<number>()
@@ -41,21 +35,16 @@
 		: ''}"
 >
 	<div class="animated-grid-bg"></div>
-	<VoteTopbar
-		phase={engine.phase}
-		completedGroups={engine.completedGroups}
-		totalPicks={engine.count}
-	/>
+	<VoteTopbar phase={engine.phase} totalPicks={engine.count} maxPicks={5} />
 
 	<main class="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6">
 		<FeatureGrid
-			features={displayFeatures}
+			features={engine.availableFeatures}
 			selectedIds={engine.currentSelection}
 			{disabledIds}
 			{usedIds}
 			phase={engine.phase}
 			ontoggle={(id) => engine.toggle(id)}
-			completedGroups={engine.completedGroups}
 		/>
 
 		<div class="mt-6 flex flex-col items-center gap-6 pb-8">
@@ -81,15 +70,6 @@
 					{#each [...engine.selectedCommunal] as id}
 						<input type="hidden" name="communalIds" value={id} />
 					{/each}
-
-					<textarea
-						name="comment"
-						bind:value={engine.freeText}
-						placeholder="Any thoughts on workplace design? (optional)"
-						aria-label="Comments on workplace design"
-						rows="3"
-						class="w-full rounded-xl border border-white/12 bg-white/10 px-5 py-3.5 text-base text-white placeholder-white/50 transition-colors outline-none focus:border-(--accent) focus:bg-white/15 focus:ring-1 focus:ring-(--accent)/50"
-					></textarea>
 
 					<Button type="submit" disabled={!engine.canContinue || engine.isSubmitting}>
 						{engine.isSubmitting ? 'Submitting...' : engine.buttonText}

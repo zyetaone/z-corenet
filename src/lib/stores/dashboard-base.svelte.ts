@@ -5,20 +5,38 @@ import { FEATURE_GROUPS, CATEGORY_TO_GROUP } from '$lib/data/default-features';
 import type { GroupKey } from '$lib/data/default-features';
 
 export class DashboardBaseState {
+	static readonly TOTAL_STAGES = 2;
+
 	data = $state.raw<TallyResult>(null!);
 	polledResults = $state.raw<TallyResult | null>(null);
 	justUpdated = $state(false);
 	polling = $state(false);
 	showResults = $state(false);
+	stage = $state(1);
+	direction = $state<'forward' | 'backward'>('forward');
 
 	constructor(initialData: TallyResult) {
 		this.data = initialData;
 	}
 
+	nextStage() {
+		if (this.stage < DashboardBaseState.TOTAL_STAGES) {
+			this.direction = 'forward';
+			this.stage++;
+		}
+	}
+
+	prevStage() {
+		if (this.stage > 1) {
+			this.direction = 'backward';
+			this.stage--;
+		}
+	}
+
 	readonly results = $derived(this.polledResults ?? this.data);
 	readonly baseUrl = $derived(typeof window !== 'undefined' ? window.location.origin : '');
 
-	// Merge both phases into one sorted list (used commonly, dashboard2 may augment)
+	// Merge both phases into one sorted list
 	readonly combinedFeatures = $derived.by(() => {
 		const map = new Map<
 			string,
@@ -79,13 +97,13 @@ export class DashboardBaseState {
 			{
 				label: 'Individual',
 				values: keys.map((k) => Math.round(((indGroup.get(k) ?? 0) / maxVal) * 100)),
-				color: 'var(--green)',
+				color: 'var(--color-green)',
 				fillOpacity: 0.2
 			},
 			{
 				label: 'Communal',
 				values: keys.map((k) => Math.round(((commGroup.get(k) ?? 0) / maxVal) * 100)),
-				color: 'var(--indigo-text)',
+				color: 'var(--color-indigo-text)',
 				fillOpacity: 0.15
 			}
 		];
@@ -93,6 +111,8 @@ export class DashboardBaseState {
 
 	handleShowResults() {
 		this.showResults = true;
+		this.stage = 1;
+		this.direction = 'forward';
 	}
 
 	async handleReset() {
@@ -101,6 +121,8 @@ export class DashboardBaseState {
 			if (res.ok) {
 				this.showResults = false;
 				this.polledResults = null;
+				this.stage = 1;
+				this.direction = 'forward';
 			}
 		} catch {
 			// silently ignore reset errors

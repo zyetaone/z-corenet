@@ -1,13 +1,16 @@
 <script lang="ts">
 	import type { GroupKey } from '$lib/data/default-features';
-	import LightIcon from './icons/LightIcon.svelte';
-	import AirIcon from './icons/AirIcon.svelte';
-	import AcousticIcon from './icons/AcousticIcon.svelte';
-	import BiophilicIcon from './icons/BiophilicIcon.svelte';
-	import WellnessIcon from './icons/WellnessIcon.svelte';
-	import TechIcon from './icons/TechIcon.svelte';
-	import SocialIcon from './icons/SocialIcon.svelte';
-	import FurnitureIcon from './icons/FurnitureIcon.svelte';
+	import {
+		Sun,
+		Wind,
+		AudioWaveform,
+		Leaf,
+		HeartPulse,
+		Monitor,
+		Users,
+		Armchair,
+		CircleDashed
+	} from 'lucide-svelte';
 
 	let {
 		group,
@@ -21,23 +24,21 @@
 </script>
 
 {#if group === 'light'}
-	<LightIcon {size} {animated} />
+	<Sun {size} class={animated ? 'motion-safe:animate-[spin_8s_linear_infinite]' : ''} />
 {:else if group === 'air'}
-	<AirIcon {size} {animated} />
+	<Wind {size} class={animated ? 'motion-safe:animate-pulse' : ''} />
 {:else if group === 'acoustic'}
-	<AcousticIcon {size} {animated} />
+	<AudioWaveform {size} class={animated ? 'motion-safe:animate-bounce' : ''} />
 {:else if group === 'biophilic'}
-	<BiophilicIcon {size} {animated} />
+	<Leaf {size} class={animated ? 'motion-safe:animate-pulse' : ''} />
 {:else if group === 'wellness'}
-	<WellnessIcon {size} {animated} />
+	<HeartPulse {size} class={animated ? 'motion-safe:animate-pulse' : ''} />
 {:else if group === 'tech'}
-	<TechIcon {size} {animated} />
+	<Monitor {size} class={animated ? 'motion-safe:animate-pulse' : ''} />
 {:else if group === 'social'}
-	<SocialIcon {size} {animated} />
+	<Users {size} class={animated ? 'motion-safe:animate-bounce' : ''} />
 {:else if group === 'furniture'}
-	<FurnitureIcon {size} {animated} />
+	<Armchair {size} class={animated ? 'motion-safe:animate-pulse' : ''} />
 {:else}
-	<svg width={size} height={size} viewBox="0 0 24 24"
-		><circle cx="12" cy="12" r="4" fill="currentColor" /></svg
-	>
+	<CircleDashed {size} />
 {/if}

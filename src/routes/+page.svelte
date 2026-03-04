@@ -18,18 +18,29 @@
 	<title>Join — CoreNet</title>
 </svelte:head>
 
-<div class="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
-	<div class="animated-grid-bg"></div>
-
-	<!-- Subtle ambient glow instead of heavy SVG -->
+<div
+	class="relative flex min-h-screen items-center justify-center overflow-hidden px-6"
+	style="background: linear-gradient(160deg, var(--color-teal) 0%, var(--color-accent) 100%)"
+>
+	<!-- Subtle grid overlay for texture -->
 	<div
-		class="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-30 mix-blend-multiply transition-opacity duration-1000"
+		class="animated-grid-bg"
+		style="
+		background-image:
+			linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+			linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
+	"
+	></div>
+
+	<!-- Ambient glow -->
+	<div
+		class="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-30 mix-blend-soft-light transition-opacity duration-1000"
 	>
 		<div
-			class="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(0,191,165,0.08),transparent_50%)]"
+			class="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.15),transparent_50%)]"
 		></div>
 		<div
-			class="absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,rgba(0,139,139,0.08),transparent_50%)]"
+			class="absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,rgba(0,0,0,0.1),transparent_50%)]"
 		></div>
 	</div>
 
@@ -42,7 +53,7 @@
 					delay: reduceMotion ? 0 : 100
 				}}
 				class="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl text-5xl shadow-2xl"
-				style="background: linear-gradient(135deg, var(--teal), var(--accent)); box-shadow: 0 10px 40px rgba(0,139,139,0.2)"
+				style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); box-shadow: 0 10px 40px rgba(0,0,0,0.15)"
 			>
 				🧠
 			</div>
@@ -53,17 +64,17 @@
 					duration: reduceMotion ? 0 : 800,
 					delay: reduceMotion ? 0 : 200
 				}}
-				class="font-display mb-3 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl"
-				style="background-image: linear-gradient(to right, #1a2b3c, #334155); line-height: 1.15"
+				class="mb-3 font-display text-4xl font-bold tracking-tight text-white md:text-5xl"
+				style="line-height: 1.15; text-shadow: 0 2px 20px rgba(0,0,0,0.1)"
 			>
 				Designing Workplaces<br />That Think
 			</h1>
 
 			<p
 				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 300 }}
-				class="mb-8 text-base text-[#1a2b3c]/60"
+				class="mb-8 text-base text-white/80"
 			>
-				Vote on workplace features that matter to you. Takes 2 minutes.
+				Vote on workplace features that matter to you and your brain.
 			</p>
 
 			<form
@@ -82,14 +93,19 @@
 				}}
 				class="mx-auto max-w-sm"
 			>
-				<Button type="submit" disabled={isSubmitting} fullWidth>
+				<button
+					type="submit"
+					disabled={isSubmitting}
+					class="w-full cursor-pointer rounded-2xl border-2 border-white/30 bg-white px-8 py-4 text-lg font-bold tracking-wide shadow-xl transition-all hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+					style="color: var(--color-teal)"
+				>
 					{isSubmitting ? 'Joining...' : 'Begin →'}
-				</Button>
+				</button>
 			</form>
 
 			<p
 				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 600 }}
-				class="mt-6 text-center text-xs font-semibold tracking-widest text-[#1a2b3c]/40 uppercase"
+				class="mt-6 text-center text-xs font-semibold tracking-widest text-white/50 uppercase"
 			>
 				Powered by AWA &times; Zyeta
 			</p>

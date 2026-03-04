@@ -63,7 +63,7 @@
 			class="mx-4 w-full max-w-sm rounded-2xl border border-(--dark2)/30 bg-white p-8 text-center shadow-2xl"
 		>
 			<div class="mb-4 text-4xl">&#9888;&#65039;</div>
-			<h3 class="font-display mb-2 text-xl font-bold text-[#1a2b3c]">Reset Exercise?</h3>
+			<h3 class="mb-2 font-display text-xl font-bold text-[#1a2b3c]">Reset Exercise?</h3>
 			<p class="mb-6 text-sm leading-relaxed text-[#1a2b3c]/60">
 				Reset all votes and start fresh? This cannot be undone.
 			</p>

@@ -1,16 +1,13 @@
 import { SvelteSet } from 'svelte/reactivity';
 import type { SessionFeature } from '$lib/server/db/schema';
-import { FEATURE_GROUPS, CATEGORY_TO_GROUP, type GroupKey } from '$lib/data/default-features';
 
-const SOFT_CAP = 12;
-const GROUP_COUNT = FEATURE_GROUPS.length; // 8
+const MAX_PICKS = 5;
 
 export class VotingEngine {
 	features = $state<SessionFeature[]>([]);
 	phase = $state<'individual' | 'communal'>('individual');
 	selectedIndividual = new SvelteSet<number>();
 	selectedCommunal = new SvelteSet<number>();
-	freeText = $state('');
 	isSubmitting = $state(false);
 	error = $state('');
 
@@ -20,67 +17,18 @@ export class VotingEngine {
 
 	readonly count = $derived(this.currentSelection.size);
 
-	readonly availableFeatures = $derived(
-		this.phase === 'communal'
-			? this.features.filter((f) => !this.selectedIndividual.has(f.featureId))
-			: this.features
-	);
+	readonly availableFeatures = $derived(this.features);
 
-	// How many groups actually have selectable (non-used) features in the current phase
-	readonly selectableGroupCount = $derived.by(() => {
-		const groups = new Set<GroupKey>();
-		for (const f of this.availableFeatures) {
-			const group = this.featureGroupMap.get(f.featureId);
-			if (group) groups.add(group);
-		}
-		return groups.size;
-	});
+	readonly atMax = $derived(this.count >= MAX_PICKS);
 
-	// Map featureId -> group key for quick lookup
-	private readonly featureGroupMap = $derived(
-		new Map(
-			this.features.map((f) => [
-				f.featureId,
-				(CATEGORY_TO_GROUP[f.category] ?? f.category) as GroupKey
-			])
-		)
-	);
-
-	// Which groups have at least one pick in the current phase
-	readonly completedGroups = $derived.by(() => {
-		const groups = new Set<GroupKey>();
-		for (const id of this.currentSelection) {
-			const group = this.featureGroupMap.get(id);
-			if (group) groups.add(group);
-		}
-		return groups;
-	});
-
-	readonly completedGroupCount = $derived(this.completedGroups.size);
-
-	readonly allGroupsCovered = $derived(this.completedGroupCount >= this.selectableGroupCount);
-
-	readonly atSoftCap = $derived(this.count >= SOFT_CAP);
-
-	// Groups that have NO picks yet in the current phase
-	readonly uncoveredGroups = $derived.by(() => {
-		const all = new Set<GroupKey>();
-		for (const f of this.availableFeatures) {
-			const group = this.featureGroupMap.get(f.featureId);
-			if (group) all.add(group);
-		}
-		for (const g of this.completedGroups) all.delete(g);
-		return all;
-	});
-
-	readonly canContinue = $derived(this.allGroupsCovered);
+	readonly canContinue = $derived(this.count === MAX_PICKS);
 
 	readonly buttonText = $derived(
-		this.allGroupsCovered
+		this.canContinue
 			? this.phase === 'individual'
 				? 'Continue →'
 				: 'Submit & See Results →'
-			: `${this.completedGroupCount} of ${this.selectableGroupCount} sections`
+			: `${this.count} of ${MAX_PICKS} selected`
 	);
 
 	constructor(features: SessionFeature[]) {
@@ -88,26 +36,19 @@ export class VotingEngine {
 	}
 
 	toggle(featureId: number) {
+		if (this.phase === 'communal' && this.selectedIndividual.has(featureId)) return;
 		const sel = this.currentSelection;
 		if (sel.has(featureId)) {
 			sel.delete(featureId);
-		} else if (!this.atSoftCap || this.isFromUncoveredGroup(featureId)) {
+		} else if (!this.atMax) {
 			sel.add(featureId);
 		}
 	}
 
-	isFromUncoveredGroup(featureId: number): boolean {
-		const group = this.featureGroupMap.get(featureId);
-		return group ? this.uncoveredGroups.has(group) : false;
-	}
-
-	isGroupComplete(groupKey: GroupKey): boolean {
-		return this.completedGroups.has(groupKey);
-	}
-
 	advancePhase() {
-		if (this.phase === 'individual' && this.allGroupsCovered) {
+		if (this.phase === 'individual' && this.canContinue) {
 			this.phase = 'communal';
+			if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
 	}
 }

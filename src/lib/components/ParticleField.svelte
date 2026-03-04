@@ -101,17 +101,16 @@
 				// Draw particle
 				ctx.beginPath();
 				ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-				ctx.fillStyle = phase === 'communal' ? 'rgba(79, 70, 229, 0.4)' : 'rgba(0, 191, 165, 0.4)';
+				ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
 				ctx.shadowBlur = 10;
-				ctx.shadowColor =
-					phase === 'communal' ? 'rgba(79, 70, 229, 0.5)' : 'rgba(0, 191, 165, 0.5)';
+				ctx.shadowColor = 'rgba(255, 255, 255, 0.4)';
 				ctx.fill();
 			}
 
 			// Draw connections
 			if (!reduceMotion) {
 				ctx.shadowBlur = 0; // Reset shadow for lines
-				const connectionColor = phase === 'communal' ? '79, 70, 229' : '0, 191, 165';
+				const connectionColor = '255, 255, 255';
 
 				// Optional: In individual phase, connect slightly less aggressively
 				const currentConnectionDist =

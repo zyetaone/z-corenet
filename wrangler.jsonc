@@ -3,13 +3,7 @@
 	"name": "corenet",
 	"compatibility_date": "2026-03-02",
 	"compatibility_flags": ["nodejs_compat"],
-	"main": ".svelte-kit/cloudflare/_worker.js",
-	"assets": {
-		"binding": "ASSETS",
-		"directory": ".svelte-kit/cloudflare"
-	},
-	"workers_dev": true,
-	"preview_urls": true,
+	"pages_build_output_dir": ".svelte-kit/cloudflare",
 	"d1_databases": [
 		{
 			"binding": "DB",

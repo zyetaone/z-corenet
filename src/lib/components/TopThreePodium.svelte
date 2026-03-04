@@ -3,6 +3,7 @@
 	import EvidenceTag from './EvidenceTag.svelte';
 	import type { RankedFeature } from '$lib/server/tally';
 	import { useAnimateOnce } from '$lib/utils/use-animate-once.svelte';
+	import { Trophy } from 'lucide-svelte';
 
 	let {
 		features,
@@ -33,8 +34,8 @@
 	{#each top3 as feature, i (feature.name)}
 		{@const isFirst = i === 0}
 		<div
-			class="podium-card rounded-3xl border bg-white/60 p-5 shadow-sm backdrop-blur-sm md:p-6
-				{isFirst ? 'podium-first border-(--accent)/40' : 'border-[#1a2b3c]/10'}"
+			class="podium-card rounded-3xl border bg-white/95 p-5 shadow-sm backdrop-blur-sm md:p-6
+				{isFirst ? 'podium-first border-accent/40' : 'border-black/5'}"
 			style="{!anim.done
 				? `animation: podium-reveal 0.6s ease-out both; animation-delay: ${revealDelays[i]}ms;`
 				: ''} {isFirst ? 'order: 2' : i === 1 ? 'order: 1' : 'order: 3'}"
@@ -48,19 +49,24 @@
 				>
 					{i + 1}
 				</span>
-				<span class="text-xs font-bold tracking-widest text-[#1a2b3c]/40 uppercase">
+				<span class="text-xs font-bold tracking-widest text-slate-500 uppercase">
 					{medalLabels[i]}
 				</span>
 			</div>
 
 			<!-- Icon -->
-			<div class="mb-3 {isFirst ? 'text-(--accent)' : 'text-[#1a2b3c]/50'}">
+			<div
+				class="mb-3 flex flex-col items-center gap-2 {isFirst ? 'text-accent' : 'text-slate-500'}"
+			>
 				<CategoryIcon group={feature.group} size={isFirst ? 40 : 32} animated={true} />
+				{#if i === 0}
+					<Trophy class="h-6 w-6 text-yellow-500" />
+				{/if}
 			</div>
 
 			<!-- Feature name -->
 			<h3
-				class="font-display mb-3 leading-tight font-bold text-[#1a2b3c]
+				class="mb-3 font-display leading-tight font-bold text-slate-900
 					{isFirst ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'}"
 			>
 				{feature.name}
@@ -71,17 +77,17 @@
 				<div class="mb-1 flex items-baseline justify-between">
 					<span
 						class="text-3xl font-extrabold tabular-nums {isFirst
-							? 'text-(--accent)'
-							: 'text-[#1a2b3c]/70'}"
+							? 'text-accent'
+							: 'text-slate-700'}"
 					>
 						{feature.percentage}%
 					</span>
 				</div>
-				<div class="h-2.5 overflow-hidden rounded-full bg-[#1a2b3c]/8">
+				<div class="h-2.5 overflow-hidden rounded-full bg-black/10">
 					<div
 						class="h-full rounded-full transition-all duration-1000 ease-out {isFirst
-							? 'bg-(--accent)'
-							: 'bg-(--teal)'}"
+							? 'bg-accent'
+							: 'bg-teal'}"
 						style="width: {feature.percentage}%; transition-delay: {revealDelays[i] + 300}ms"
 					></div>
 				</div>
@@ -90,7 +96,7 @@
 			<!-- Evidence tag + caption -->
 			<EvidenceTag hasEvidence={feature.hasEvidence} />
 			{#if feature.caption}
-				<p class="mt-2 text-xs leading-relaxed text-[#1a2b3c]/50 italic">
+				<p class="mt-2 text-xs leading-relaxed text-slate-500 italic">
 					{feature.caption}
 				</p>
 			{/if}
@@ -100,10 +106,8 @@
 
 {#if remaining > 0}
 	<p
-		class="mt-6 text-center text-sm font-medium text-[#1a2b3c]/40"
-		style={!anim.done
-			? 'animation: podium-reveal 0.4s ease-out both; animation-delay: 1200ms'
-			: ''}
+		class="mt-6 text-center text-sm font-medium text-white/40"
+		style={!anim.done ? 'animation: podium-reveal 0.4s ease-out both; animation-delay: 1200ms' : ''}
 	>
 		{remaining} more features ranked below &rarr;
 	</p>
@@ -114,18 +118,21 @@
 		display: grid;
 		grid-template-columns: 1fr;
 		gap: 1rem;
-		align-items: end;
+		align-items: center;
 	}
 
 	@media (min-width: 1024px) {
 		.podium-grid {
-			grid-template-columns: 1fr 1.2fr 1fr;
+			grid-template-columns: 1fr 1.3fr 1fr;
+			align-items: end;
+			gap: 1.5rem;
 		}
 
 		/* First place (order: 2, center column) gets extra height */
 		.podium-first {
-			box-shadow: 0 0 30px rgba(0, 191, 165, 0.15);
-			min-height: 320px;
+			box-shadow: 0 10px 40px rgba(0, 191, 165, 0.2);
+			transform: translateY(-1rem);
+			min-height: 360px;
 		}
 	}
 
@@ -133,6 +140,10 @@
 	@media (max-width: 1023px) {
 		.podium-card {
 			order: unset !important;
+		}
+
+		.podium-first {
+			box-shadow: 0 8px 30px rgba(0, 191, 165, 0.15);
 		}
 	}
 

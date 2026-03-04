@@ -49,7 +49,7 @@
 					>
 					{#if f.hasEvidence}
 						<span
-							class="shrink-0 text-[10px] font-bold tracking-wider text-(--green-text) uppercase opacity-80"
+							class="shrink-0 text-[10px] font-bold tracking-wider text-green-text uppercase opacity-80"
 							title="Evidence-Backed">✓ Evidence-Backed</span
 						>
 					{/if}
@@ -60,13 +60,13 @@
 				>
 					{#if f.individualPct > 0}
 						<div
-							class="h-full bg-linear-to-r from-(--green) to-(--green) transition-all duration-700 ease-out"
+							class="h-full bg-linear-to-r from-green to-green transition-all duration-700 ease-out"
 							style="width: {f.individualPct}%; box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);"
 						></div>
 					{/if}
 					{#if f.communalPct > 0}
 						<div
-							class="h-full bg-linear-to-r from-(--teal) to-(--accent) transition-all duration-700 ease-out"
+							class="h-full bg-linear-to-r from-teal to-accent transition-all duration-700 ease-out"
 							style="width: {f.communalPct}%; box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);"
 						></div>
 					{/if}
@@ -75,10 +75,10 @@
 
 			<!-- Bucket counts -->
 			<div class="flex shrink-0 flex-col items-end gap-0.5 text-xs font-bold tabular-nums">
-				<span class="text-(--green) opacity-80 transition-colors group-hover:opacity-100">
+				<span class="text-green opacity-80 transition-colors group-hover:opacity-100">
 					Indiv: {f.individualVotes}
 				</span>
-				<span class="text-(--indigo-text) opacity-80 transition-colors group-hover:opacity-100">
+				<span class="text-indigo-text opacity-80 transition-colors group-hover:opacity-100">
 					Comm: {f.communalVotes}
 				</span>
 			</div>

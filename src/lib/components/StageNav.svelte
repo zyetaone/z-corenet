@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
 	let {
 		currentStage,
 		totalStages,
@@ -15,14 +16,12 @@
 <nav class="flex items-center justify-center gap-6 py-6" aria-label="Analytics stages">
 	<button
 		type="button"
-		class="rounded-full border border-[#1a2b3c]/10 bg-[#1a2b3c]/5 p-3 text-[#1a2b3c]/50 transition-all hover:bg-[#1a2b3c]/10 hover:text-[#1a2b3c] active:scale-95 active:bg-[#1a2b3c]/15 disabled:cursor-default disabled:opacity-20"
+		class="rounded-full border border-white/10 bg-white/5 p-3 text-white/50 transition-all hover:bg-white/10 hover:text-white active:scale-95 active:bg-white/15 disabled:cursor-default disabled:opacity-20"
 		disabled={currentStage === 0}
 		onclick={onprev}
 		aria-label="Previous stage"
 	>
-		<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-			<path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-		</svg>
+		<ChevronLeft class="h-5 w-5" strokeWidth={2.5} />
 	</button>
 
 	<!-- Progress dots -->
@@ -33,7 +32,7 @@
 	>
 		{#each Array(totalStages) as _, i (i)}
 			<div
-				class={`h-2.5 rounded-full transition-all duration-300 ${i === currentStage ? 'w-8 bg-(--teal)' : 'w-2.5 bg-[#1a2b3c]/15'}`}
+				class={`h-2.5 rounded-full transition-all duration-300 ${i === currentStage ? 'w-8 bg-teal' : 'w-2.5 bg-white/15'}`}
 				aria-label={`Stage ${i + 1}${i === currentStage ? ' (current)' : ''}`}
 			></div>
 		{/each}
@@ -41,13 +40,11 @@
 
 	<button
 		type="button"
-		class="rounded-full border border-[#1a2b3c]/10 bg-[#1a2b3c]/5 p-3 text-[#1a2b3c]/50 transition-all hover:bg-[#1a2b3c]/10 hover:text-[#1a2b3c] active:scale-95 active:bg-[#1a2b3c]/15 disabled:cursor-default disabled:opacity-20"
+		class="rounded-full border border-white/10 bg-white/5 p-3 text-white/50 transition-all hover:bg-white/10 hover:text-white active:scale-95 active:bg-white/15 disabled:cursor-default disabled:opacity-20"
 		disabled={currentStage === totalStages - 1}
 		onclick={onnext}
 		aria-label="Next stage"
 	>
-		<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-			<path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-		</svg>
+		<ChevronRight class="h-5 w-5" strokeWidth={2.5} />
 	</button>
 </nav>

@@ -1,65 +1,52 @@
 <script lang="ts">
-	import type { GroupKey } from '$lib/data/default-features';
-	import { FEATURE_GROUPS } from '$lib/data/default-features';
-
 	let {
 		phase,
-		completedGroups,
-		totalPicks
+		totalPicks,
+		maxPicks
 	}: {
 		phase: 'individual' | 'communal';
-		completedGroups: Set<GroupKey>;
 		totalPicks: number;
+		maxPicks: number;
 	} = $props();
 
 	const isIndividual = $derived(phase === 'individual');
-	const allDone = $derived(completedGroups.size === FEATURE_GROUPS.length);
+	const allDone = $derived(totalPicks === maxPicks);
+	import { Brain, UsersRound } from 'lucide-svelte';
 </script>
 
 <header class="vote-topbar">
 	<!-- Left: phase context -->
 	<div class="flex min-w-0 items-center gap-3">
-		<span class="shrink-0 text-2xl">{isIndividual ? '\u{1F9E0}' : '\u{1F91D}'}</span>
+		<span class="shrink-0 text-white/50">
+			{#if isIndividual}
+				<Brain size={28} />
+			{:else}
+				<UsersRound size={28} />
+			{/if}
+		</span>
 		<div class="min-w-0">
 			<div
-				class="font-display truncate text-base font-bold md:text-lg"
-				style="color: {isIndividual ? 'var(--green)' : 'var(--indigo-text)'}"
+				class="truncate font-display text-base font-bold md:text-lg"
+				style="color: {isIndividual ? 'var(--color-green)' : 'var(--color-indigo-text)'}"
 			>
 				{isIndividual ? 'The Individual Brain' : 'The Collective Brain'}
 			</div>
 			<div class="truncate text-sm font-medium text-white/60 md:text-base">
-				{isIndividual ? 'Pick at least 1 from each section' : 'Now think as a team'}
+				{isIndividual ? 'Pick your top 5 personal features' : 'Now pick 5 for the team'}
 			</div>
 		</div>
 	</div>
 
-	<!-- Right: progress -->
+	<!-- Right: counter -->
 	<div class="flex shrink-0 items-center gap-4">
-		<!-- Section dots -->
-		<div class="hidden items-center gap-1.5 sm:flex">
-			{#each FEATURE_GROUPS as group (group.key)}
-				<div
-					class="h-2.5 w-2.5 rounded-full transition-all duration-300 {completedGroups.has(
-						group.key
-					)
-						? isIndividual
-							? 'scale-125 bg-(--green)'
-							: 'scale-125 bg-(--indigo-text)'
-						: 'bg-white/15'}"
-					title="{group.label}{completedGroups.has(group.key) ? ' ✓' : ''}"
-				></div>
-			{/each}
-		</div>
-
-		<!-- Counter pill -->
 		<div
 			class="rounded-full px-4 py-1.5 text-sm font-bold transition-all duration-300 {allDone
 				? isIndividual
-					? 'bg-(--green)/20 text-(--green)'
-					: 'bg-(--indigo-text)/20 text-(--indigo-text)'
+					? 'bg-green/20 text-green'
+					: 'bg-indigo-text/20 text-indigo-text'
 				: 'bg-white/8 text-white/60'}"
 		>
-			<span style="font-variant-numeric: tabular-nums">{totalPicks}</span> picks
+			<span style="font-variant-numeric: tabular-nums">{totalPicks}</span>/{maxPicks}
 		</div>
 	</div>
 
@@ -86,7 +73,6 @@
 		top: 0;
 		z-index: 50;
 		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-		/* needed so .phase-accent can position relative to this element */
 		isolation: isolate;
 	}
 
@@ -106,10 +92,10 @@
 	}
 
 	.phase-accent--individual {
-		background-color: var(--green);
+		background-color: var(--color-green);
 	}
 
 	.phase-accent--communal {
-		background-color: var(--indigo-text);
+		background-color: var(--color-indigo-text);
 	}
 </style>

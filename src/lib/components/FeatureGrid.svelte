@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { SessionFeature } from '$lib/server/db/schema';
-	import { FEATURE_GROUPS, CATEGORY_TO_GROUP, type GroupKey } from '$lib/data/default-features';
+	import { FEATURE_GROUPS, CATEGORY_TO_GROUP } from '$lib/data/default-features';
 	import FeatureCard from './FeatureCard.svelte';
 	import CategoryIcon from './CategoryIcon.svelte';
 	import { fly } from 'svelte/transition';
@@ -11,8 +11,7 @@
 		disabledIds,
 		usedIds,
 		phase,
-		ontoggle,
-		completedGroups
+		ontoggle
 	}: {
 		features: SessionFeature[];
 		selectedIds: Set<number>;
@@ -20,7 +19,6 @@
 		usedIds: Set<number>;
 		phase: 'individual' | 'communal';
 		ontoggle: (featureId: number) => void;
-		completedGroups: Set<GroupKey>;
 	} = $props();
 
 	let grouped = $derived(
@@ -42,31 +40,12 @@
 		>
 			<div class="mb-5 flex items-center gap-3">
 				<div
-					class="flex h-10 w-10 items-center justify-center rounded-2xl text-xl shadow-inner backdrop-blur-md transition-colors duration-300 {completedGroups.has(
-						group.key
-					)
-						? phase === 'individual'
-							? 'bg-(--green)/15'
-							: 'bg-(--indigo-text)/15'
-						: phase === 'individual'
-							? 'bg-white/80'
-							: 'bg-white/10'}"
+					class="flex h-10 w-10 items-center justify-center rounded-2xl text-xl shadow-inner backdrop-blur-md transition-colors duration-300 {phase ===
+					'individual'
+						? 'bg-white/80'
+						: 'bg-white/10'}"
 				>
-					{#if completedGroups.has(group.key)}
-						<svg
-							class="h-5 w-5 {phase === 'individual' ? 'text-(--green)' : 'text-(--indigo-text)'}"
-							viewBox="0 0 20 20"
-							fill="currentColor"
-						>
-							<path
-								fill-rule="evenodd"
-								d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-					{:else}
-						<CategoryIcon group={group.key} size={22} />
-					{/if}
+					<CategoryIcon group={group.key} size={22} />
 				</div>
 				<h3
 					class="font-display text-base font-bold tracking-wide uppercase transition-colors duration-700 {phase ===
