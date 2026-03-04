@@ -8,7 +8,6 @@ import { generateCode } from '$lib/server/utils';
 import { eq } from 'drizzle-orm';
 
 export const POST: RequestHandler = async ({ platform, request }) => {
-	// Simple security check
 	const ADMIN_PIN = (platform?.env as any)?.ADMIN_PIN || '1234';
 	const pin = request.headers.get('x-admin-pin');
 

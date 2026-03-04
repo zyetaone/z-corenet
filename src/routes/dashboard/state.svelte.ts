@@ -119,7 +119,10 @@ export class DashboardState {
 
 	async handleReset() {
 		try {
-			const res = await fetch('/api/reset', { method: 'POST' });
+			const res = await fetch('/api/reset', {
+				method: 'POST',
+				headers: { 'x-admin-pin': '1234' }
+			});
 			if (res.ok) {
 				this.showResults = false;
 				this.polledResults = null;

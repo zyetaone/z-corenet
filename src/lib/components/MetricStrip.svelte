@@ -89,7 +89,7 @@
 		width: 2.5rem;
 		height: 2.5rem;
 		border-radius: 0.75rem;
-		background: rgba(255, 255, 255, 0.05);
+		background: rgba(0, 128, 128, 0.08);
 	}
 
 	.content {
@@ -102,13 +102,13 @@
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
-		color: rgba(255, 255, 255, 0.4);
+		color: rgba(26, 43, 60, 0.45);
 	}
 
 	.value {
 		font-size: 1.25rem;
 		font-weight: 800;
-		color: #fff;
+		color: #004d40;
 		font-variant-numeric: tabular-nums;
 	}
 </style>

@@ -76,51 +76,51 @@
 	<title>Results Dashboard — CoreNet</title>
 </svelte:head>
 
-<div class="bg-teal-gradient theme-dark-blue relative min-h-screen">
+<div class="bg-teal-gradient theme-dark-blue relative min-h-dvh">
 	<div class="animated-grid-bg"></div>
 	<ParticleField participantCount={s.results.participantCount} phase="individual" />
 
-	<div class="relative z-10 px-4 py-10 md:px-8">
+	<div class="relative z-10 h-full px-4 py-4 md:px-8">
 		<div class="mx-auto max-w-6xl">
 			{#if !s.showResults}
 				<!-- ===== LOBBY ===== -->
-				<div class="flex min-h-[90vh] flex-col items-center justify-center text-center">
-					<div class="mb-6 text-xs font-bold tracking-[0.25em] text-white/40 uppercase">
+				<div class="flex h-dvh flex-col items-center justify-center text-center">
+					<div class="mb-3 text-xs font-bold tracking-[0.25em] text-white/40 uppercase">
 						Powered by AWA &times; Zyeta
 					</div>
 
 					<h1
-						class="mb-4 font-display text-5xl font-bold text-white md:text-6xl lg:text-7xl"
+						class="mb-2 font-display text-4xl font-bold text-white md:text-5xl lg:text-6xl"
 						style="line-height: 1.1"
 					>
 						{s.results.session.title}
 					</h1>
 
-					<p class="mb-10 max-w-lg text-lg text-white/60">
+					<p class="mb-6 max-w-lg text-lg text-white/60">
 						Scan the code below to join from your phone
 					</p>
 
 					{#if s.baseUrl}
-						<div class="lobby-qr mb-4 rounded-3xl border border-white/15 bg-white p-8 shadow-2xl">
-							<QrCode url={s.baseUrl} size={260} />
+						<div class="lobby-qr mb-3 rounded-3xl border border-white/15 bg-white p-6 shadow-2xl">
+							<QrCode url={s.baseUrl} size={220} />
 						</div>
-						<p class="mb-10 font-mono text-base font-semibold tracking-wider text-white/50">
+						<p class="mb-6 font-mono text-sm font-semibold tracking-wider text-white/50">
 							{s.baseUrl}
 						</p>
 					{/if}
 
-					<div class="mb-12 flex flex-col items-center">
-						<span class="text-6xl font-extrabold text-white tabular-nums drop-shadow-md"
+					<div class="mb-6 flex items-baseline gap-3">
+						<span class="text-2xl font-bold text-white/70 tabular-nums"
 							>{s.results.voteCount}</span
 						>
-						<span class="mt-1 text-sm font-medium tracking-widest text-white/40 uppercase"
+						<span class="text-xs font-medium tracking-widest text-white/40 uppercase"
 							>voted</span
 						>
 					</div>
 
 					<button
 						type="button"
-						class="show-results-btn cursor-pointer rounded-2xl border px-12 py-5 text-xl font-bold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-30"
+						class="show-results-btn cursor-pointer rounded-2xl border px-10 py-4 text-lg font-bold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-30"
 						class:has-votes={s.results.voteCount > 0}
 						disabled={s.results.voteCount === 0}
 						onclick={() => s.handleShowResults()}
@@ -128,11 +128,13 @@
 						Reveal Results
 					</button>
 
-					<ResetButton onreset={() => s.handleReset()} />
+					<div class="fixed right-4 bottom-4 z-20 opacity-40 transition-opacity hover:opacity-100">
+						<ResetButton onreset={() => s.handleReset()} />
+					</div>
 				</div>
 			{:else}
 				<!-- ===== PAGED ANALYTICS (2 pages) ===== -->
-				<div class="flex min-h-[90vh] flex-col gap-6">
+				<div class="flex h-dvh flex-col gap-6">
 					<!-- Header -->
 					<header class="relative flex items-center justify-between pt-4">
 						<div>
