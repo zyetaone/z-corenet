@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Palette, MessageSquareText } from 'lucide-svelte';
+	import { Palette, MessageSquareText } from '@lucide/svelte';
 	let {
 		features,
 		hidden = true

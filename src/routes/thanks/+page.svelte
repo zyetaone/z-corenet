@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { fly, fade, scale } from 'svelte/transition';
-	import { CheckCircle2, Brain, UsersRound, Check } from 'lucide-svelte';
+	import { CheckCircle2, Brain, UsersRound, Check } from '@lucide/svelte';
 	import type { PageData } from './$types';
 	import { useMount } from '$lib/utils/use-mount.svelte';
 

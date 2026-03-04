@@ -10,7 +10,7 @@
 		Users,
 		Armchair,
 		CircleDashed
-	} from 'lucide-svelte';
+	} from '@lucide/svelte';
 
 	let {
 		group,

@@ -33,7 +33,7 @@
 		"wrangler": "^4.70.0"
 	},
 	"dependencies": {
-		"lucide-svelte": "^0.577.0",
+		"@lucide/svelte": "^0.577.0",
 		"qrcode": "^1.5.4"
 	}
 }

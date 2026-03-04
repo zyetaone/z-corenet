@@ -3,7 +3,7 @@
 	import EvidenceTag from './EvidenceTag.svelte';
 	import type { RankedFeature } from '$lib/server/tally';
 	import { useAnimateOnce } from '$lib/utils/use-animate-once.svelte';
-	import { Trophy } from 'lucide-svelte';
+	import { Trophy } from '@lucide/svelte';
 
 	let {
 		features,

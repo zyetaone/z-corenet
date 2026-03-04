@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { Brain, UsersRound } from '@lucide/svelte';
+
 	let {
 		phase,
 		totalPicks,
@@ -11,7 +13,6 @@
 
 	const isIndividual = $derived(phase === 'individual');
 	const allDone = $derived(totalPicks === maxPicks);
-	import { Brain, UsersRound } from 'lucide-svelte';
 </script>
 
 <header class="vote-topbar">

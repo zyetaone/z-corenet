@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { SessionFeature } from '$lib/server/db/schema';
 	import CategoryIcon from './CategoryIcon.svelte';
-	import { Check } from 'lucide-svelte';
+	import { Check } from '@lucide/svelte';
 	import { CATEGORY_TO_GROUP } from '$lib/data/default-features';
 
 	let {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
+	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
 	let {
 		currentPage,
 		totalPages,
