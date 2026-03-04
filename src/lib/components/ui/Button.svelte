@@ -4,6 +4,7 @@
 	let {
 		children,
 		disabled = false,
+		loading = false,
 		fullWidth = false,
 		onclick,
 		type = 'button',
@@ -11,14 +12,31 @@
 	}: {
 		children: Snippet;
 		disabled?: boolean;
+		loading?: boolean;
 		fullWidth?: boolean;
 		onclick?: () => void;
 		type?: 'button' | 'submit';
+		class?: string;
+		style?: string;
+		[key: string]: any;
 	} = $props();
 </script>
 
-<button {type} {disabled} {onclick} class="btn-primary" class:full-width={fullWidth} {...rest}>
-	{@render children()}
+<button
+	{type}
+	disabled={disabled || loading}
+	{onclick}
+	class="btn-primary"
+	class:full-width={fullWidth}
+	class:is-loading={loading}
+	{...rest}
+>
+	{#if loading}
+		<span class="loading-spinner"></span>
+	{/if}
+	<span class:opacity-0={loading}>
+		{@render children()}
+	</span>
 </button>
 
 <style>
@@ -95,5 +113,31 @@
 		width: 100%;
 		padding: 1.125rem 2rem;
 		font-size: 1.125rem;
+	}
+	.btn-primary.is-loading {
+		cursor: wait;
+	}
+
+	.loading-spinner {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		width: 1.25rem;
+		height: 1.25rem;
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-radius: 50%;
+		border-top-color: #fff;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: translate(-50%, -50%) rotate(360deg);
+		}
+	}
+
+	.opacity-0 {
+		opacity: 0;
 	}
 </style>

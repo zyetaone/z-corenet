@@ -16,7 +16,7 @@
 
 <div class="metrics-grid">
 	<div class="metric-card glass-panel">
-		<div class="icon-box text-blue-400">
+		<div class="icon-box text-teal-400">
 			<Users size={20} />
 		</div>
 		<div class="content">
@@ -26,17 +26,19 @@
 	</div>
 
 	<div class="metric-card glass-panel">
-		<div class="icon-box text-emerald-400">
+		<div class="icon-box text-emerald-300">
 			<Brain size={20} />
 		</div>
 		<div class="content">
 			<span class="label">Brain Fuel</span>
-			<span class="value">{totalVotes} <small class="text-xs opacity-50 font-normal">votes</small></span>
+			<span class="value"
+				>{totalVotes} <small class="text-xs font-normal opacity-50">votes</small></span
+			>
 		</div>
 	</div>
 
 	<div class="metric-card glass-panel">
-		<div class="icon-box text-teal-400">
+		<div class="icon-box text-teal-300">
 			<ShieldCheck size={20} />
 		</div>
 		<div class="content">
@@ -46,7 +48,7 @@
 	</div>
 
 	<div class="metric-card glass-panel">
-		<div class="icon-box text-pink-400">
+		<div class="icon-box text-lime-400">
 			<Target size={20} />
 		</div>
 		<div class="content">

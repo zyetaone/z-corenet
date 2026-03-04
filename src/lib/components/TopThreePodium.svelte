@@ -34,7 +34,7 @@
 	{#each top3 as feature, i (feature.name)}
 		{@const isFirst = i === 0}
 		<div
-			class="podium-card rounded-3xl border bg-white/95 p-5 shadow-sm backdrop-blur-sm md:p-6
+			class="podium-card rounded-3xl border bg-white p-5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] md:p-6
 				{isFirst ? 'podium-first border-accent/40' : 'border-black/5'}"
 			style="{!anim.done
 				? `animation: podium-reveal 0.6s ease-out both; animation-delay: ${revealDelays[i]}ms;`

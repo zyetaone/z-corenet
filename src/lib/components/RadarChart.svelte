@@ -4,158 +4,142 @@
 	let {
 		datasets,
 		labels,
-		size = 300
+		size = 400
 	}: {
 		datasets: RadarDataset[];
 		labels: string[];
 		size?: number;
 	} = $props();
 
-	const uid = Math.random().toString(36).slice(2, 8);
+	const padding = 60;
 	const center = $derived(size / 2);
-	const radius = $derived(size * 0.34);
-	const labelRadius = $derived(radius + 22);
-	const levels = [25, 50, 75, 100];
+	const radius = $derived((size - padding * 2) / 2);
+	const angleStep = $derived((Math.PI * 2) / labels.length);
 
-	const angleStep = $derived((2 * Math.PI) / labels.length);
-
-	function getPoint(index: number, value: number): { x: number; y: number } {
-		const angle = index * angleStep - Math.PI / 2;
-		const r = (value / 100) * radius;
-		return {
-			x: center + r * Math.cos(angle),
-			y: center + r * Math.sin(angle)
-		};
+	// Helper to get coordinates
+	function getPoint(index: number, value: number, max = 100) {
+		const r = (value / max) * radius;
+		const x = center + r * Math.sin(index * angleStep);
+		const y = center - r * Math.cos(index * angleStep);
+		return `${x},${y}`;
 	}
 
-	function getLabelPos(index: number): { x: number; y: number } {
-		const angle = index * angleStep - Math.PI / 2;
-		return {
-			x: center + labelRadius * Math.cos(angle),
-			y: center + labelRadius * Math.sin(angle)
-		};
-	}
+	// Grid paths
+	const gridLevels = [0.2, 0.4, 0.6, 0.8, 1];
+	const gridCircles = $derived(
+		gridLevels.map((level) => {
+			return labels.map((_, i) => getPoint(i, level * 100)).join(' ');
+		})
+	);
 
-	function gridPoints(level: number): string {
-		return labels
-			.map((_, i) => {
-				const p = getPoint(i, level);
-				return `${p.x},${p.y}`;
-			})
-			.join(' ');
-	}
+	// Axis paths
+	const axes = $derived(
+		labels.map((_, i) => {
+			const x2 = center + radius * Math.sin(i * angleStep);
+			const y2 = center - radius * Math.cos(i * angleStep);
+			return { x1: center, y1: center, x2, y2 };
+		})
+	);
 
-	function dataPoints(values: number[]): string {
-		return values
-			.map((v, i) => {
-				const p = getPoint(i, v);
-				return `${p.x},${p.y}`;
-			})
-			.join(' ');
-	}
+	// Data paths
+	const polyPaths = $derived(
+		datasets.map((ds) => {
+			return ds.values.map((v, i) => getPoint(i, v)).join(' ');
+		})
+	);
 
-	function textAnchor(index: number): string {
-		const angle = index * angleStep - Math.PI / 2;
-		const cos = Math.cos(angle);
-		if (Math.abs(cos) < 0.15) return 'middle';
-		return cos > 0 ? 'start' : 'end';
-	}
-
-	function baselineShift(index: number): string {
-		const angle = index * angleStep - Math.PI / 2;
-		const sin = Math.sin(angle);
-		if (Math.abs(sin) < 0.15) return 'middle';
-		return sin > 0 ? 'hanging' : 'auto';
-	}
+	// Label positions
+	const labelOffsets = $derived(
+		labels.map((label, i) => {
+			const textRadius = radius + 25;
+			const x = center + textRadius * Math.sin(i * angleStep);
+			const y = center - textRadius * Math.cos(i * angleStep);
+			return { x, y, label };
+		})
+	);
 </script>
 
-<svg viewBox="0 0 {size} {size}" class="radar-svg overflow-visible">
-	<defs>
-		<filter id="radarGlow-{uid}" x="-20%" y="-20%" width="140%" height="140%">
-			<feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000000" flood-opacity="0.10" />
-		</filter>
-	</defs>
-
-	<!-- Grid polygons -->
-	{#each levels as level}
-		<polygon
-			points={gridPoints(level)}
-			fill="none"
-			stroke="var(--color-navy)"
-			stroke-opacity={level === 100 ? 0.12 : 0.06}
-			stroke-width="1"
-		/>
-	{/each}
-
-	<!-- Spokes -->
-	{#each labels as _, i}
-		{@const tip = getPoint(i, 100)}
-		<line
-			x1={center}
-			y1={center}
-			x2={tip.x}
-			y2={tip.y}
-			stroke="var(--color-navy)"
-			stroke-opacity="0.06"
-			stroke-width="1"
-		/>
-	{/each}
-
-	<!-- Dataset polygons -->
-	{#each datasets as ds}
-		<polygon
-			points={dataPoints(ds.values)}
-			fill={ds.color}
-			fill-opacity={ds.fillOpacity ?? 0.15}
-			stroke={ds.color}
-			stroke-width="2.5"
-			stroke-linejoin="round"
-			filter="url(#radarGlow-{uid})"
-			class="radar-polygon"
-		/>
-		{#each ds.values as val, i}
-			{@const p = getPoint(i, val)}
-			<circle cx={p.x} cy={p.y} r="3.5" fill={ds.color} class="radar-dot" />
+<div class="radar-container" style="--size: {size}px">
+	<svg viewBox="0 0 {size} {size}" class="h-full w-full">
+		<!-- Grid -->
+		{#each gridCircles as points}
+			<polygon {points} class="grid-line" fill="none" stroke="rgba(255,255,255,0.08)" />
 		{/each}
-	{/each}
 
-	<!-- Labels -->
-	{#each labels as label, i}
-		{@const pos = getLabelPos(i)}
-		<text
-			x={pos.x}
-			y={pos.y}
-			text-anchor={textAnchor(i)}
-			dominant-baseline={baselineShift(i)}
-			fill="var(--color-navy)"
-			fill-opacity="0.55"
-			font-size="11"
-			font-weight="600"
-		>
-			{label}
-		</text>
-	{/each}
-</svg>
+		<!-- Axes -->
+		{#each axes as axis}
+			<line
+				x1={axis.x1}
+				y1={axis.y1}
+				x2={axis.x2}
+				y2={axis.y2}
+				stroke="rgba(255,255,255,0.08)"
+				stroke-dasharray="2 4"
+			/>
+		{/each}
+
+		<!-- Data -->
+		{#each polyPaths as points, i}
+			<polygon
+				{points}
+				fill={datasets[i].color}
+				stroke={datasets[i].color}
+				stroke-width="2"
+				fill-opacity={datasets[i].fillOpacity || 0.2}
+				class="data-poly"
+			/>
+			<!-- Dots -->
+			{#each points.split(' ') as point}
+				{@const [px, py] = point.split(',')}
+				<circle cx={px} cy={py} r="3" fill={datasets[i].color} />
+			{/each}
+		{/each}
+
+		<!-- Labels -->
+		{#each labelOffsets as lo}
+			<text
+				x={lo.x}
+				y={lo.y}
+				text-anchor="middle"
+				dominant-baseline="middle"
+				class="radar-label"
+				fill="rgba(255,255,255,0.5)"
+			>
+				{lo.label}
+			</text>
+		{/each}
+	</svg>
+
+	<!-- Legend -->
+	<div class="legend mt-4 flex justify-center gap-6">
+		{#each datasets as ds}
+			<div class="flex items-center gap-2">
+				<div class="h-3 w-3 rounded-full" style="background: {ds.color}"></div>
+				<span class="text-xs font-bold tracking-wider text-white/60 uppercase">{ds.label}</span>
+			</div>
+		{/each}
+	</div>
+</div>
 
 <style>
-	.radar-svg {
+	.radar-container {
 		width: 100%;
-		height: 100%;
-		filter: drop-shadow(0 4px 12px rgba(26, 43, 60, 0.04));
+		max-width: var(--size);
+		margin: 0 auto;
 	}
 
-	.radar-polygon {
-		transition: all 0.8s ease-out;
+	.radar-label {
+		font-size: 10px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
-	.radar-dot {
-		transition: all 0.6s ease-out;
+	.grid-line {
+		transition: all 0.3s ease;
 	}
 
-	@media (prefers-reduced-motion: reduce) {
-		.radar-polygon,
-		.radar-dot {
-			transition: none;
-		}
+	.data-poly {
+		transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 </style>

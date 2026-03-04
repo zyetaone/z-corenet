@@ -26,7 +26,7 @@
 {#if group === 'light'}
 	<Sun {size} class={animated ? 'motion-safe:animate-[spin_8s_linear_infinite]' : ''} />
 {:else if group === 'air'}
-	<Wind {size} class={animated ? 'motion-safe:animate-pulse' : ''} />
+	<Wind {size} class={animated ? 'motion-safe:animate-wind-blow' : ''} />
 {:else if group === 'acoustic'}
 	<AudioWaveform {size} class={animated ? 'motion-safe:animate-bounce' : ''} />
 {:else if group === 'biophilic'}

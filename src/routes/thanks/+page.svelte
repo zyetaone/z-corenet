@@ -65,7 +65,7 @@
 				class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10"
 			>
 				<div
-					class="flex flex-col rounded-3xl border border-white/50 bg-white/95 p-6 text-left shadow-2xl backdrop-blur-md transition-transform duration-500 hover:-translate-y-1 md:p-8"
+					class="flex flex-col rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-transform duration-500 hover:-translate-y-1 md:p-8"
 				>
 					<div class="mb-6 flex items-center gap-5">
 						<div
@@ -117,7 +117,7 @@
 				</div>
 
 				<div
-					class="flex flex-col rounded-3xl border border-white/50 bg-white/95 p-6 text-left shadow-2xl backdrop-blur-md transition-transform duration-500 hover:-translate-y-1 md:p-8"
+					class="flex flex-col rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-transform duration-500 hover:-translate-y-1 md:p-8"
 				>
 					<div class="mb-6 flex items-center gap-5">
 						<div
