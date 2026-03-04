@@ -100,10 +100,16 @@ body {
 
 .bg-teal-gradient {
 	background: linear-gradient(160deg, #004d40 0%, var(--color-teal) 50%, var(--color-accent) 100%);
+	color: #fff;
 }
 
 .theme-teal-green {
 	background: linear-gradient(160deg, #004d40 0%, #00796b 100%);
+	color: #fff;
+}
+
+.theme-dark-blue {
+	background: linear-gradient(160deg, var(--color-blue-grad-start) 0%, var(--color-blue-grad-end) 100%);
 	color: #fff;
 }
 
@@ -158,6 +164,7 @@ body {
 	color: rgba(26, 43, 60, 0.25);
 }
 
+.bg-teal-gradient .show-results-btn,
 .theme-teal-green .show-results-btn,
 .theme-dark-blue .show-results-btn {
 	border-color: rgba(255, 255, 255, 0.3);
@@ -262,6 +269,7 @@ body {
 		0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
+.bg-teal-gradient .glass-panel,
 .theme-teal-green .glass-panel,
 .theme-dark-blue .glass-panel {
 	background: rgba(255, 255, 255, 0.08);
@@ -280,6 +288,7 @@ body {
 	border-color: rgba(26, 43, 60, 0.2);
 }
 
+.bg-teal-gradient .glass-panel-interactive:hover,
 .theme-teal-green .glass-panel-interactive:hover,
 .theme-dark-blue .glass-panel-interactive:hover {
 	background: rgba(255, 255, 255, 0.12);
@@ -294,6 +303,7 @@ body {
 		0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
+.bg-teal-gradient .glass-panel-interactive:active,
 .theme-teal-green .glass-panel-interactive:active,
 .theme-dark-blue .glass-panel-interactive:active {
 	box-shadow:

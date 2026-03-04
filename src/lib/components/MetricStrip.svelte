@@ -13,7 +13,7 @@
 <div class="metrics-grid">
 	<div class="metric-card glass-panel">
 		<div class="icon-box text-emerald-300">
-			<Brain size={20} />
+			<Brain size={16} />
 		</div>
 		<div class="content">
 			<span class="label">Brain Fuel</span>
@@ -25,7 +25,7 @@
 
 	<div class="metric-card glass-panel">
 		<div class="icon-box text-teal-300">
-			<ShieldCheck size={20} />
+			<ShieldCheck size={16} />
 		</div>
 		<div class="content">
 			<span class="label">Evidence Score</span>
@@ -39,15 +39,15 @@
 		display: grid;
 		grid-template-columns: repeat(2, 1fr);
 		gap: 0.75rem;
-		margin-bottom: 1.5rem;
+		margin-bottom: 0.75rem;
 	}
 
 	.metric-card {
 		display: flex;
 		align-items: center;
-		gap: 1rem;
-		padding: 1rem 1.25rem;
-		border-radius: 1.25rem;
+		gap: 0.75rem;
+		padding: 0.625rem 1rem;
+		border-radius: 1rem;
 		border-color: rgba(255, 255, 255, 0.08);
 	}
 
@@ -55,9 +55,9 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 2.5rem;
-		height: 2.5rem;
-		border-radius: 0.75rem;
+		width: 2rem;
+		height: 2rem;
+		border-radius: 0.5rem;
 		background: rgba(0, 128, 128, 0.08);
 	}
 
@@ -67,17 +67,17 @@
 	}
 
 	.label {
-		font-size: 0.75rem;
+		font-size: 0.625rem;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
-		color: rgba(26, 43, 60, 0.45);
+		color: rgba(255, 255, 255, 0.45);
 	}
 
 	.value {
-		font-size: 1.25rem;
+		font-size: 1rem;
 		font-weight: 800;
-		color: #004d40;
+		color: var(--color-accent);
 		font-variant-numeric: tabular-nums;
 	}
 </style>

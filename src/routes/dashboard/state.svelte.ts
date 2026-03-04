@@ -196,7 +196,7 @@ export class DashboardState {
 			};
 		})
 			.filter((c) => c.featureCount > 0)
-			.sort((a, b) => b.totalVotes - a.totalVotes);
+			.sort((a, b) => b.evidenceRatio - a.evidenceRatio || b.totalVotes - a.totalVotes);
 	});
 
 	readonly evidenceSegments = $derived.by(() => {

@@ -27,37 +27,37 @@
 	}
 </script>
 
-<div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+<div class="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
 	<!-- Left: Radar -->
-	<div class="summary-card flex flex-col items-center rounded-3xl p-6">
-		<h3 class="mb-1 self-start font-display text-base font-bold text-slate-800">Focus Comparison</h3>
-		<p class="mb-4 self-start text-xs text-slate-400">
+	<div class="summary-card flex flex-col items-center justify-center rounded-2xl px-4 py-4">
+		<h3 class="mb-0.5 self-start font-display text-sm font-bold text-slate-800">Focus Comparison</h3>
+		<p class="mb-1 self-start text-[10px] text-slate-400">
 			Individual vs. Collective priorities
 		</p>
-		<RadarChart datasets={radarDatasets} labels={RADAR_LABELS} size={300} />
+		<RadarChart datasets={radarDatasets} labels={RADAR_LABELS} size={280} />
 	</div>
 
 	<!-- Right: Evidence Heatmap -->
-	<div class="summary-card flex flex-col rounded-3xl p-6">
-		<h3 class="mb-1 font-display text-base font-bold text-slate-800">Evidence Heatmap</h3>
-		<p class="mb-4 text-xs text-slate-400">
+	<div class="summary-card flex flex-col rounded-2xl px-4 py-4">
+		<h3 class="mb-0.5 font-display text-sm font-bold text-slate-800">Evidence Heatmap</h3>
+		<p class="mb-2 text-[10px] text-slate-400">
 			How evidence-backed are votes per area?
 		</p>
 
-		<div class="flex flex-col gap-2">
+		<div class="flex flex-1 flex-col justify-between gap-1">
 			{#each categoryStats as cat}
-				<div class="flex items-center gap-3">
-					<div class="w-5 shrink-0 text-slate-400">
-						<CategoryIcon group={cat.key} size={16} />
+				<div class="flex items-center gap-2">
+					<div class="w-4 shrink-0 text-slate-400">
+						<CategoryIcon group={cat.key} size={14} />
 					</div>
-					<span class="w-20 shrink-0 truncate text-xs font-semibold text-slate-600">{cat.label}</span>
+					<span class="w-16 shrink-0 truncate text-[11px] font-semibold text-slate-600">{cat.label}</span>
 					<div class="heatmap-bar relative h-5 flex-1 overflow-hidden rounded-full {evidenceBarBg(cat.evidenceRatio)}">
 						<div
 							class="absolute inset-y-0 left-0 rounded-full {evidenceColor(cat.evidenceRatio)}"
 							style="width: {cat.evidenceRatio}%"
 						></div>
 					</div>
-					<span class="w-10 shrink-0 text-right text-xs font-bold tabular-nums text-slate-700">
+					<span class="w-9 shrink-0 text-right text-[11px] font-bold tabular-nums text-slate-700">
 						{cat.evidenceRatio}%
 					</span>
 				</div>
@@ -65,7 +65,7 @@
 		</div>
 
 		<!-- Legend -->
-		<div class="mt-4 flex items-center gap-4 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+		<div class="mt-auto flex items-center gap-3 pt-2 text-[9px] font-semibold tracking-wider text-slate-400 uppercase">
 			<span class="flex items-center gap-1"><span class="inline-block h-2 w-2 rounded-full bg-green-400"></span> 80%+</span>
 			<span class="flex items-center gap-1"><span class="inline-block h-2 w-2 rounded-full bg-lime-400"></span> 50–79%</span>
 			<span class="flex items-center gap-1"><span class="inline-block h-2 w-2 rounded-full bg-amber-400"></span> 25–49%</span>

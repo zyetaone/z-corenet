@@ -77,11 +77,11 @@
 	<title>Results Dashboard — CoreNet</title>
 </svelte:head>
 
-<div class="bg-teal-gradient theme-dark-blue relative min-h-dvh">
+<div class="bg-teal-gradient relative min-h-dvh">
 	<div class="animated-grid-bg"></div>
 	<ParticleField participantCount={s.results.participantCount} phase="individual" />
 
-	<div class="relative z-10 h-full px-4 py-4 md:px-8">
+	<div class="relative z-10 h-full px-4 py-2 md:px-8">
 		<div class="mx-auto max-w-6xl">
 			{#if !s.showResults}
 				<!-- ===== LOBBY ===== -->
@@ -135,9 +135,9 @@
 				</div>
 			{:else}
 				<!-- ===== PAGED ANALYTICS (3 pages) ===== -->
-				<div class="flex min-h-dvh flex-col gap-4 pb-4">
+				<div class="flex min-h-dvh flex-col gap-2 pb-2">
 					<!-- Compact top bar -->
-					<header class="flex items-center justify-between pt-3 pb-1">
+					<header class="flex items-center justify-between pt-2 pb-2">
 						<button
 							type="button"
 							class="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-white/50 transition-colors hover:bg-white/10 hover:text-white/80"
@@ -165,10 +165,10 @@
 					{:else}
 						<!-- Hero page title -->
 						<div class="text-center">
-							<h2 class="font-display text-3xl font-black tracking-tight text-white md:text-4xl">
+							<h2 class="font-display text-2xl font-black tracking-tight text-white md:text-3xl">
 								{currentMeta.title}
 							</h2>
-							<p class="mt-1 text-sm font-medium tracking-wide text-white/50 italic">
+							<p class="text-xs font-medium tracking-wide text-white/50 italic">
 								{currentMeta.subtitle}
 							</p>
 						</div>
@@ -242,11 +242,11 @@
 						/>
 
 						<!-- Keyboard hint -->
-						<p class="text-center text-xs text-white/25">Use arrow keys or spacebar to navigate</p>
+						<p class="text-center text-[10px] text-white/20">Use arrow keys or spacebar to navigate</p>
 					{/if}
 
 					<!-- Research footer -->
-					<div class="flex items-center justify-center gap-4 py-4 text-xs text-white/30">
+					<div class="flex items-center justify-center gap-4 py-1 text-[10px] text-white/25">
 						<span>Based on AWA &times; CEBMa research</span>
 						<span>&middot;</span>
 						<a

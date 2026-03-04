@@ -33,7 +33,7 @@
 <div
 	class="flex min-h-screen flex-col transition-colors duration-700 {engine.phase === 'communal'
 		? 'theme-dark-blue'
-		: ''}"
+		: 'bg-teal-gradient'}"
 >
 	<div class="animated-grid-bg"></div>
 	<VoteTopbar phase={engine.phase} totalPicks={engine.count} maxPicks={MAX_PICKS} />

@@ -11,7 +11,7 @@
 		size?: number;
 	} = $props();
 
-	const padding = 60;
+	const padding = 50;
 	const center = $derived(size / 2);
 	const radius = $derived((size - padding * 2) / 2);
 	const angleStep = $derived((Math.PI * 2) / labels.length);
@@ -63,7 +63,7 @@
 	<svg viewBox="0 0 {size} {size}" class="h-full w-full">
 		<!-- Grid -->
 		{#each gridCircles as points}
-			<polygon {points} class="grid-line" fill="none" stroke="rgba(255,255,255,0.08)" />
+			<polygon {points} class="grid-line" fill="none" stroke="rgba(0,0,0,0.08)" />
 		{/each}
 
 		<!-- Axes -->
@@ -73,7 +73,7 @@
 				y1={axis.y1}
 				x2={axis.x2}
 				y2={axis.y2}
-				stroke="rgba(255,255,255,0.08)"
+				stroke="rgba(0,0,0,0.08)"
 				stroke-dasharray="2 4"
 			/>
 		{/each}
@@ -103,7 +103,7 @@
 				text-anchor="middle"
 				dominant-baseline="middle"
 				class="radar-label"
-				fill="rgba(255,255,255,0.5)"
+				fill="rgba(0,0,0,0.4)"
 			>
 				{lo.label}
 			</text>
@@ -111,11 +111,11 @@
 	</svg>
 
 	<!-- Legend -->
-	<div class="legend mt-4 flex justify-center gap-6">
+	<div class="mt-1 flex justify-center gap-4">
 		{#each datasets as ds}
-			<div class="flex items-center gap-2">
-				<div class="h-3 w-3 rounded-full" style="background: {ds.color}"></div>
-				<span class="text-xs font-bold tracking-wider text-white/60 uppercase">{ds.label}</span>
+			<div class="flex items-center gap-1.5">
+				<div class="h-2 w-2 rounded-full" style="background: {ds.color}"></div>
+				<span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">{ds.label}</span>
 			</div>
 		{/each}
 	</div>
