@@ -114,24 +114,13 @@
 						</p>
 					{/if}
 
-					<div class="mb-12 flex items-center gap-8">
-						<div class="flex flex-col items-center">
-							<span class="text-5xl font-extrabold tabular-nums text-white"
-								>{s.results.participantCount}</span
-							>
-							<span class="mt-1 text-sm font-medium tracking-widest text-white/40 uppercase"
-								>joined</span
-							>
-						</div>
-						<div class="h-10 w-px bg-white/15"></div>
-						<div class="flex flex-col items-center">
-							<span class="text-5xl font-extrabold tabular-nums text-white drop-shadow-md"
-								>{s.results.voteCount}</span
-							>
-							<span class="mt-1 text-sm font-medium tracking-widest text-white/40 uppercase"
-								>voted</span
-							>
-						</div>
+					<div class="mb-12 flex flex-col items-center">
+						<span class="text-6xl font-extrabold tabular-nums text-white drop-shadow-md"
+							>{s.results.voteCount}</span
+						>
+						<span class="mt-1 text-sm font-medium tracking-widest text-white/40 uppercase"
+							>voted</span
+						>
 					</div>
 
 					<button
