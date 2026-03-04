@@ -1,10 +1,5 @@
 <script lang="ts">
-	export interface RadarDataset {
-		label: string;
-		values: number[];
-		color: string;
-		fillOpacity?: number;
-	}
+	import type { RadarDataset } from '$lib/types/dashboard';
 
 	let {
 		datasets,

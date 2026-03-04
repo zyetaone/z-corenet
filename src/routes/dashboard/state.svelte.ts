@@ -1,4 +1,4 @@
-import type { CategoryStat } from '$lib/components/CategoryBreakdown.svelte';
+import type { CategoryStat } from '$lib/types/dashboard';
 import { FEATURE_GROUPS, CATEGORY_TO_GROUP, RADAR_LABELS } from '$lib/data/default-features';
 import type { GroupKey } from '$lib/data/default-features';
 import { DashboardBaseState } from '$lib/stores/dashboard-base.svelte';

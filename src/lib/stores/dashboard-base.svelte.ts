@@ -1,8 +1,6 @@
 import type { TallyResult } from '$lib/server/tally';
-import type { RadarDataset } from '$lib/components/RadarChart.svelte';
-import type { CategoryStat } from '$lib/components/CategoryBreakdown.svelte';
+import type { RadarDataset } from '$lib/types/dashboard';
 import { FEATURE_GROUPS, CATEGORY_TO_GROUP } from '$lib/data/default-features';
-import type { GroupKey } from '$lib/data/default-features';
 
 export class DashboardBaseState {
 	static readonly TOTAL_PAGES = 2;
@@ -50,11 +48,12 @@ export class DashboardBaseState {
 			}
 		>();
 		for (const f of [...this.results.individual.features, ...this.results.communal.features]) {
-			const existing = map.get(f.name);
+			const key = `${f.group}::${f.name}`;
+			const existing = map.get(key);
 			if (existing) {
 				existing.voteCount += f.voteCount;
 			} else {
-				map.set(f.name, { ...f });
+				map.set(key, { ...f });
 			}
 		}
 		const merged = [...map.values()].sort((a, b) => b.voteCount - a.voteCount);

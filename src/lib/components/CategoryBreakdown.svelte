@@ -1,16 +1,7 @@
 <script lang="ts">
 	import CategoryIcon from './CategoryIcon.svelte';
-	import type { GroupKey } from '$lib/data/default-features';
+	import type { CategoryStat } from '$lib/types/dashboard';
 	import { useAnimateOnce } from '$lib/utils/use-animate-once.svelte';
-
-	export interface CategoryStat {
-		key: GroupKey;
-		label: string;
-		totalVotes: number;
-		percentage: number;
-		evidenceCount: number;
-		featureCount: number;
-	}
 
 	let {
 		categories,

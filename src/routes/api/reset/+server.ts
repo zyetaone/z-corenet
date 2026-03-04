@@ -4,13 +4,18 @@ import { getDb } from '$lib/server/db';
 import { sessions } from '$lib/server/db/schema';
 import { createSession, copyDefaultFeatures } from '$lib/server/db/queries';
 import { DEFAULT_FEATURES } from '$lib/data/default-features';
+import { generateCode } from '$lib/server/utils';
 import { eq } from 'drizzle-orm';
 
-function generateCode(): string {
-	return crypto.randomUUID().slice(0, 6).toUpperCase();
-}
+export const POST: RequestHandler = async ({ platform, request }) => {
+	// Simple security check
+	const ADMIN_PIN = (platform?.env as any)?.ADMIN_PIN || '1234';
+	const pin = request.headers.get('x-admin-pin');
 
-export const POST: RequestHandler = async ({ platform }) => {
+	if (pin !== ADMIN_PIN) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
+
 	const db = getDb(platform);
 
 	// Close all open sessions

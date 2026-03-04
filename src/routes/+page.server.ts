@@ -8,10 +8,7 @@ import {
 	createParticipant
 } from '$lib/server/db/queries';
 import { DEFAULT_FEATURES } from '$lib/data/default-features';
-
-function generateCode(): string {
-	return crypto.randomUUID().slice(0, 6).toUpperCase();
-}
+import { generateCode } from '$lib/server/utils';
 
 async function getOrCreateSession(db: ReturnType<typeof getDb>) {
 	const existing = await getLatestOpenSession(db);
