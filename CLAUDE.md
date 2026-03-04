@@ -42,10 +42,8 @@ bunx wrangler deploy                                                            
 ```
 /                → Landing page (join session form) — +page.server.ts creates participant + sets cookies
 /vote            → Two-phase voting UI (individual → communal)
-/vote2           → Alternate voting UI design (A/B variant, same server logic)
 /thanks          → Post-vote confirmation
-/dashboard       → Facilitator live dashboard (design variant 1)
-/dashboard2      → Facilitator live dashboard (design variant 2)
+/dashboard       → Facilitator live dashboard
 /api/votes       → GET: returns TallyResult JSON for current session
 /api/reset       → POST: clears all votes for current session
 ```
@@ -74,7 +72,6 @@ State is encapsulated in classes using Svelte 5 runes (not stores):
 - **`VotingEngine`** (`src/lib/stores/voting.svelte.ts`) — manages two-phase voting, group coverage constraint (must pick from all 8 feature groups), soft cap of 12 per phase
 - **`DashboardBaseState`** (`src/lib/stores/dashboard-base.svelte.ts`) — base class with polling (`/api/votes`), combined feature rankings, radar chart data, evidence ratio
 - **`DashboardState`** (`src/routes/dashboard/state.svelte.ts`) — extends base with category breakdowns, evidence segments, consensus alignment
-- **`DashboardState`** (`src/routes/dashboard2/state.svelte.ts`) — alternate dashboard extension
 
 Classes use `$state`, `$derived`, `$derived.by` as class fields. Instantiate by passing `initialData` from `+page.server.ts` load function.
 
