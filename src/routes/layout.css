@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
-@plugin '@tailwindcss/typography';
 
 @theme {
 	--color-teal: #008b8b;
@@ -20,6 +19,7 @@
 	--color-blue-l1: #29b6f6;
 	--color-blue-l2: #0288d1;
 	--color-gold: #ffd54f;
+	--color-navy: #1a2b3c;
 
 	/* Text-safe contrast colors */
 	--color-text-primary: #1a2b3c;
@@ -85,6 +85,10 @@ body {
 	}
 }
 
+.bg-teal-gradient {
+	background: linear-gradient(160deg, var(--color-teal) 0%, var(--color-accent) 100%);
+}
+
 .theme-dark-blue {
 	background: linear-gradient(
 		160deg,
@@ -147,23 +151,27 @@ body {
 
 .theme-dark-blue .show-results-btn {
 	border-color: rgba(255, 255, 255, 0.4);
-	background: rgba(255, 255, 255, 0.12);
-	color: rgba(255, 255, 255, 0.9);
+	background: rgba(255, 255, 255, 0.15);
+	color: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(8px);
 }
 
 .show-results-btn.has-votes {
-	border-color: var(--color-accent);
-	background: var(--color-accent);
-	color: #051412; /* dark contrasted text */
-	box-shadow: 0 4px 20px rgba(0, 191, 165, 0.3);
+	border-color: rgba(255, 255, 255, 0.8);
+	background: rgba(255, 255, 255, 0.95);
+	color: var(--color-blue-grad-start);
+	box-shadow:
+		0 10px 30px rgba(0, 0, 0, 0.3),
+		0 0 20px rgba(0, 191, 165, 0.4);
 	animation: var(--animate-gentle-pulse);
 }
 
 .show-results-btn.has-votes:hover {
-	background: #1de9b6; /* a slightly brighter accent color */
-	border-color: #1de9b6;
+	background: #ffffff;
 	transform: translateY(-2px);
-	box-shadow: 0 6px 25px rgba(0, 191, 165, 0.5);
+	box-shadow:
+		0 15px 40px rgba(0, 0, 0, 0.4),
+		0 0 30px rgba(0, 191, 165, 0.6);
 }
 
 .show-results-btn.has-votes:active {
