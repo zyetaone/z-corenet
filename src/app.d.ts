@@ -25,6 +25,7 @@ declare global {
 
 	interface Env {
 		DB: D1Database;
+		FAL_API_KEY: string;
 	}
 
 	namespace App {
