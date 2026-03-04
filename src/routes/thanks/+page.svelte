@@ -1,17 +1,11 @@
 <script lang="ts">
 	import { fly, fade, scale } from 'svelte/transition';
-	import { onMount } from 'svelte';
 	import { CheckCircle2, Brain, UsersRound, Check } from 'lucide-svelte';
 	import type { PageData } from './$types';
+	import { useMount } from '$lib/utils/use-mount.svelte';
 
 	let { data }: { data: PageData } = $props();
-	let mounted = $state(false);
-	let reduceMotion = $state(false);
-
-	onMount(() => {
-		reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		mounted = true;
-	});
+	const { mounted, reduceMotion } = useMount();
 </script>
 
 <svelte:head>
@@ -19,8 +13,7 @@
 </svelte:head>
 
 <div
-	class="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-10"
-	style="background: linear-gradient(160deg, var(--color-teal) 0%, var(--color-accent) 100%)"
+	class="bg-teal-gradient relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-10"
 >
 	<div
 		class="pointer-events-none absolute inset-0 z-0 overflow-hidden opacity-30 mix-blend-soft-light transition-opacity duration-1000"

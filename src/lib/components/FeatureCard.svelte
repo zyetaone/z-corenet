@@ -25,7 +25,7 @@
 
 <button
 	type="button"
-	class="feature-card glass-panel-interactive"
+	class="feature-card glass-panel glass-panel-interactive"
 	class:selected-a={selected && phase === 'individual'}
 	class:selected-b={selected && phase === 'communal'}
 	class:disabled={disabled && !used}
@@ -81,18 +81,13 @@
 		position: relative;
 		overflow: hidden;
 		color: currentColor;
-
-		background: rgba(255, 255, 255, 0.6);
-		backdrop-filter: blur(12px);
-		-webkit-backdrop-filter: blur(12px);
-		border: 1px solid rgba(26, 43, 60, 0.15);
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+		/* glass-panel provides background, backdrop-filter, border, box-shadow */
 	}
 
 	:global(.theme-dark-blue) .feature-card {
+		/* glass-panel dark-blue provides base; override for slightly more visible cards */
 		background: rgba(255, 255, 255, 0.12);
 		border-color: rgba(255, 255, 255, 0.2);
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 	}
 
 	.feature-card::before {

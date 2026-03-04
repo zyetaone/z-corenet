@@ -1,4 +1,4 @@
-import { and, count, eq, sql } from 'drizzle-orm';
+import { count, eq, sql } from 'drizzle-orm';
 import type { DbClient } from './index';
 import { comments, participants, sessionFeatures, sessions, votes } from './schema';
 import type { Comment, Participant, Session, SessionFeature } from './schema';
@@ -29,10 +29,6 @@ export async function getLatestOpenSession(db: DbClient): Promise<Session | unde
 		.orderBy(sql`${sessions.createdAt} desc`)
 		.limit(1);
 	return session;
-}
-
-export async function closeSession(db: DbClient, sessionId: string): Promise<void> {
-	await db.update(sessions).set({ status: 'closed' }).where(eq(sessions.id, sessionId));
 }
 
 // ── Session Features ──
@@ -68,41 +64,6 @@ export async function getSessionFeatures(
 		.from(sessionFeatures)
 		.where(eq(sessionFeatures.sessionId, sessionId))
 		.orderBy(sessionFeatures.featureId);
-}
-
-export async function updateSessionFeature(
-	db: DbClient,
-	id: number,
-	data: Partial<
-		Pick<SessionFeature, 'name' | 'description' | 'category' | 'hasEvidence' | 'level' | 'caption'>
-	>
-): Promise<void> {
-	await db.update(sessionFeatures).set(data).where(eq(sessionFeatures.id, id));
-}
-
-export async function deleteSessionFeature(db: DbClient, id: number): Promise<void> {
-	await db.delete(sessionFeatures).where(eq(sessionFeatures.id, id));
-}
-
-export async function addSessionFeature(
-	db: DbClient,
-	sessionId: string,
-	feature: Omit<DefaultFeature, 'featureId'> & { featureId: number }
-): Promise<SessionFeature> {
-	const [row] = await db
-		.insert(sessionFeatures)
-		.values({
-			sessionId,
-			featureId: feature.featureId,
-			name: feature.name,
-			description: feature.description,
-			category: feature.category,
-			hasEvidence: feature.hasEvidence,
-			level: feature.level,
-			caption: feature.caption
-		})
-		.returning();
-	return row;
 }
 
 // ── Participants ──

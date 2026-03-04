@@ -2,14 +2,14 @@
 export const MAX_PICKS = 5;
 
 export const FEATURE_GROUPS = [
-	{ key: 'light', label: 'Light & Daylight', icon: '💡' },
-	{ key: 'air', label: 'Air & Thermal', icon: '🌡️' },
-	{ key: 'acoustic', label: 'Acoustic', icon: '🔇' },
-	{ key: 'biophilic', label: 'Biophilic & Nature', icon: '🌿' },
-	{ key: 'wellness', label: 'Movement & Wellness', icon: '🏃' },
-	{ key: 'tech', label: 'Technology', icon: '📱' },
-	{ key: 'social', label: 'Social & Spatial', icon: '🤝' },
-	{ key: 'furniture', label: 'Furniture & Aesthetics', icon: '🪑' }
+	{ key: 'light', label: 'Light & Daylight' },
+	{ key: 'air', label: 'Air & Thermal' },
+	{ key: 'acoustic', label: 'Acoustic' },
+	{ key: 'biophilic', label: 'Biophilic & Nature' },
+	{ key: 'wellness', label: 'Movement & Wellness' },
+	{ key: 'tech', label: 'Technology' },
+	{ key: 'social', label: 'Social & Spatial' },
+	{ key: 'furniture', label: 'Furniture & Aesthetics' }
 ] as const;
 
 export type GroupKey = (typeof FEATURE_GROUPS)[number]['key'];

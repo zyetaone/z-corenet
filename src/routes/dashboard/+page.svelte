@@ -3,7 +3,6 @@
 	import { fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { DashboardState } from './state.svelte';
-	import { DashboardBaseState } from '$lib/stores/dashboard-base.svelte';
 	import QrCode from '$lib/components/QrCode.svelte';
 	import ResetButton from '$lib/components/ResetButton.svelte';
 	import ParticleField from '$lib/components/ParticleField.svelte';
@@ -20,7 +19,7 @@
 		const pageParam = new URL(window.location.href).searchParams.get('page');
 		if (pageParam) {
 			const parsed = parseInt(pageParam, 10);
-			if (parsed >= 1 && parsed <= DashboardBaseState.TOTAL_PAGES) {
+			if (parsed >= 1 && parsed <= DashboardState.TOTAL_PAGES) {
 				s.showResults = true;
 				s.page = parsed;
 			}
@@ -81,8 +80,7 @@
 </svelte:head>
 
 <div
-	class="theme-dark-blue relative min-h-screen"
-	style="background: linear-gradient(160deg, var(--color-teal) 0%, var(--color-accent) 100%)"
+	class="bg-teal-gradient theme-dark-blue relative min-h-screen"
 >
 	<div class="animated-grid-bg"></div>
 	<ParticleField participantCount={s.results.participantCount} phase="individual" />
@@ -118,9 +116,8 @@
 
 					<div class="mb-12 flex items-center gap-8">
 						<div class="flex flex-col items-center">
-							<span
-								class="text-5xl font-extrabold text-white"
-								style="font-variant-numeric: tabular-nums">{s.results.participantCount}</span
+							<span class="text-5xl font-extrabold tabular-nums text-white"
+								>{s.results.participantCount}</span
 							>
 							<span class="mt-1 text-sm font-medium tracking-widest text-white/40 uppercase"
 								>joined</span
@@ -128,9 +125,8 @@
 						</div>
 						<div class="h-10 w-px bg-white/15"></div>
 						<div class="flex flex-col items-center">
-							<span
-								class="text-5xl font-extrabold text-white drop-shadow-md"
-								style="font-variant-numeric: tabular-nums">{s.results.voteCount}</span
+							<span class="text-5xl font-extrabold tabular-nums text-white drop-shadow-md"
+								>{s.results.voteCount}</span
 							>
 							<span class="mt-1 text-sm font-medium tracking-widest text-white/40 uppercase"
 								>voted</span
@@ -186,6 +182,7 @@
 								</span>
 								Live
 							</div>
+							<ResetButton onreset={() => s.handleReset()} />
 						</div>
 					</header>
 
@@ -258,7 +255,7 @@
 						<!-- Page Navigation -->
 						<StageNav
 							currentPage={s.page - 1}
-							totalPages={DashboardBaseState.TOTAL_PAGES}
+							totalPages={DashboardState.TOTAL_PAGES}
 							onprev={() => s.prevPage()}
 							onnext={() => s.nextPage()}
 						/>

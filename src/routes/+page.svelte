@@ -2,16 +2,10 @@
 	import { enhance } from '$app/forms';
 	import Button from '$lib/components/ui/Button.svelte';
 	import { fade, fly } from 'svelte/transition';
-	import { onMount } from 'svelte';
+	import { useMount } from '$lib/utils/use-mount.svelte';
 
 	let isSubmitting = $state(false);
-	let mounted = $state(false);
-	let reduceMotion = $state(false);
-
-	onMount(() => {
-		reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		mounted = true;
-	});
+	const { mounted, reduceMotion } = useMount();
 </script>
 
 <svelte:head>
@@ -19,8 +13,7 @@
 </svelte:head>
 
 <div
-	class="relative flex min-h-screen items-center justify-center overflow-hidden px-6"
-	style="background: linear-gradient(160deg, var(--color-teal) 0%, var(--color-accent) 100%)"
+	class="bg-teal-gradient relative flex min-h-screen items-center justify-center overflow-hidden px-6"
 >
 	<!-- Subtle grid overlay for texture -->
 	<div
@@ -98,14 +91,14 @@
 				}}
 				class="mx-auto max-w-sm"
 			>
-				<button
+				<Button
 					type="submit"
-					disabled={isSubmitting}
-					class="w-full cursor-pointer rounded-2xl border-2 border-white/30 bg-white px-8 py-4 text-lg font-bold tracking-wide shadow-xl transition-all hover:scale-[1.02] hover:shadow-2xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-					style="color: var(--color-teal)"
+					loading={isSubmitting}
+					fullWidth={true}
+					style="color: var(--color-teal); background: #fff; border-color: rgba(255,255,255,0.3); border-radius: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.15)"
 				>
-					{isSubmitting ? 'Joining...' : 'Begin →'}
-				</button>
+					Begin →
+				</Button>
 			</form>
 
 			<p

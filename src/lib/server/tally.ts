@@ -1,6 +1,5 @@
 import type { DbClient } from './db';
 import {
-	getSessionByCode,
 	getSessionById,
 	getSessionFeatures,
 	tallyVotes,
@@ -76,46 +75,6 @@ export async function buildTallyResultById(
 	sessionId: string
 ): Promise<TallyResult | null> {
 	const session = await getSessionById(db, sessionId);
-	if (!session) return null;
-
-	const [sessionFeatures, tallies, participantCount, voteCount, rawComments] = await Promise.all([
-		getSessionFeatures(db, session.id),
-		tallyVotes(db, session.id),
-		getParticipantCount(db, session.id),
-		getVoteCount(db, session.id),
-		getComments(db, session.id)
-	]);
-
-	const featuresMap = new Map(
-		sessionFeatures.map((f) => [
-			f.featureId,
-			{
-				name: f.name,
-				category: f.category,
-				group: CATEGORY_TO_GROUP[f.category] ?? f.category,
-				hasEvidence: f.hasEvidence,
-				caption: f.caption
-			}
-		])
-	);
-
-	const individual = buildPhaseResult('individual', tallies, featuresMap, participantCount);
-	const communal = buildPhaseResult('communal', tallies, featuresMap, participantCount);
-
-	const comments = rawComments.map((c) => ({ id: c.id, text: c.text }));
-
-	return {
-		session: { code: session.code, title: session.title, status: session.status },
-		participantCount,
-		voteCount,
-		individual,
-		communal,
-		comments
-	};
-}
-
-export async function buildTallyResult(db: DbClient, code: string): Promise<TallyResult | null> {
-	const session = await getSessionByCode(db, code);
 	if (!session) return null;
 
 	const [sessionFeatures, tallies, participantCount, voteCount, rawComments] = await Promise.all([

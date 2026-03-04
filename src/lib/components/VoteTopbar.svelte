@@ -55,7 +55,7 @@
 					: 'bg-indigo-text/20 text-indigo-text'
 				: 'bg-white/8 text-white/60'}"
 		>
-			<span style="font-variant-numeric: tabular-nums">{totalPicks}</span>/{maxPicks}
+			<span class="tabular-nums">{totalPicks}</span>/{maxPicks}
 		</div>
 	</div>
 

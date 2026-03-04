@@ -1,18 +1,14 @@
-import { redirect, error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { eq, and } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
 import { getSessionById, getSessionFeatures, saveVotes, saveComment } from '$lib/server/db/queries';
 import { votes } from '$lib/server/db/schema';
 import { MAX_PICKS } from '$lib/data/default-features';
+import { requireParticipant } from '$lib/server/session';
 
 export const load: PageServerLoad = async ({ platform, cookies }) => {
-	const participantId = cookies.get('participant_id');
-	const sessionId = cookies.get('session_id');
-
-	if (!participantId || !sessionId) {
-		redirect(303, '/');
-	}
+	const { participantId, sessionId } = requireParticipant(cookies);
 
 	const db = getDb(platform);
 	const session = await getSessionById(db, sessionId);
@@ -28,12 +24,7 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 
 export const actions: Actions = {
 	default: async ({ request, platform, cookies }) => {
-		const participantId = cookies.get('participant_id');
-		const sessionId = cookies.get('session_id');
-
-		if (!participantId || !sessionId) {
-			return { error: 'Not registered' };
-		}
+		const { participantId, sessionId } = requireParticipant(cookies);
 
 		const formData = await request.formData();
 		const individualIds = formData
