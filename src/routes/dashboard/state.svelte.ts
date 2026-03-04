@@ -6,9 +6,9 @@ import type { GroupKey } from '$lib/data/default-features';
 export { RADAR_LABELS };
 
 export class DashboardState {
-	static readonly TOTAL_PAGES = 2;
+	static readonly TOTAL_PAGES = 3;
 
-	data = $state.raw<TallyResult>(null!);
+	#getData: () => TallyResult = null!;
 	polledResults = $state.raw<TallyResult | null>(null);
 	justUpdated = $state(false);
 	polling = $state(false);
@@ -16,8 +16,8 @@ export class DashboardState {
 	page = $state(1);
 	direction = $state<'forward' | 'backward'>('forward');
 
-	constructor(initialData: TallyResult) {
-		this.data = initialData;
+	constructor(getData: () => TallyResult) {
+		this.#getData = getData;
 	}
 
 	nextPage() {
@@ -34,7 +34,7 @@ export class DashboardState {
 		}
 	}
 
-	readonly results = $derived(this.polledResults ?? this.data);
+	readonly results = $derived(this.polledResults ?? this.#getData());
 	readonly baseUrl = $derived(typeof window !== 'undefined' ? window.location.origin : '');
 
 	// Merge both phases into one sorted list

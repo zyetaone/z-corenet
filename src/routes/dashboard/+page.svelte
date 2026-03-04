@@ -9,12 +9,13 @@
 	import TopThreePodium from '$lib/components/TopThreePodium.svelte';
 	import StageNav from '$lib/components/StageNav.svelte';
 	import AiPrompt from '$lib/components/AiPrompt.svelte';
+	import MetricStrip from '$lib/components/MetricStrip.svelte';
+	import ConsensusView from '$lib/components/ConsensusView.svelte';
 
 	let { data }: { data: PageData } = $props();
+	const s = new DashboardState(() => data);
 
-	const s = new DashboardState(data);
-
-	// Restore page from URL on first load (e.g. bookmark /dashboard?page=2)
+	// Restore page from URL on first load
 	if (typeof window !== 'undefined') {
 		const pageParam = new URL(window.location.href).searchParams.get('page');
 		if (pageParam) {
@@ -26,7 +27,7 @@
 		}
 	}
 
-	// Sync page state → URL query param (?page=1, ?page=2, or none for lobby)
+	// Sync page state → URL query param
 	$effect(() => {
 		const url = new URL(window.location.href);
 		if (s.showResults) {
@@ -35,11 +36,6 @@
 			url.searchParams.delete('page');
 		}
 		history.replaceState(history.state, '', url);
-	});
-
-	// Keep data in sync when SvelteKit invalidates (client-side navigation)
-	$effect(() => {
-		s.data = data;
 	});
 
 	// Poll for live updates
@@ -66,7 +62,8 @@
 
 	const PAGE_META = [
 		{ title: 'Fuelling the Individual Brain', subtitle: 'Your top 3 personal priorities' },
-		{ title: 'Fuelling the Collective Brain', subtitle: 'Your top 3 team priorities' }
+		{ title: 'Fuelling the Collective Brain', subtitle: 'Your top 3 team priorities' },
+		{ title: 'Consensus & Alignment', subtitle: 'Comparing focus areas and collective weight' }
 	] as const;
 
 	const flyX = $derived(s.direction === 'forward' ? 300 : -300);
@@ -79,9 +76,7 @@
 	<title>Results Dashboard — CoreNet</title>
 </svelte:head>
 
-<div
-	class="bg-teal-gradient theme-dark-blue relative min-h-screen"
->
+<div class="bg-teal-gradient theme-dark-blue relative min-h-screen">
 	<div class="animated-grid-bg"></div>
 	<ParticleField participantCount={s.results.participantCount} phase="individual" />
 
@@ -115,7 +110,7 @@
 					{/if}
 
 					<div class="mb-12 flex flex-col items-center">
-						<span class="text-6xl font-extrabold tabular-nums text-white drop-shadow-md"
+						<span class="text-6xl font-extrabold text-white tabular-nums drop-shadow-md"
 							>{s.results.voteCount}</span
 						>
 						<span class="mt-1 text-sm font-medium tracking-widest text-white/40 uppercase"
@@ -185,14 +180,32 @@
 							<p class="text-white/60">Results will appear here as votes come in</p>
 						</div>
 					{:else}
-						<!-- Page title with brain emoji -->
-						<div class="text-center">
-							<div class="mb-3 text-5xl">&#129504;</div>
-							<h2 class="font-display text-xl font-bold text-white md:text-2xl">
+						<!-- Page title with badge -->
+						<div class="mb-2 text-center">
+							<div class="mb-3 flex justify-center">
+								<div class="rounded-2xl bg-white/5 p-4 text-4xl shadow-inner backdrop-blur-md">
+									{#if s.page === 3}
+										🎯
+									{:else}
+										🧠
+									{/if}
+								</div>
+							</div>
+							<h2 class="font-display text-2xl font-black tracking-tight text-white md:text-3xl">
 								{currentMeta.title}
 							</h2>
-							<p class="mt-1 text-sm text-white/50">{currentMeta.subtitle}</p>
+							<p class="mt-1 text-sm font-medium tracking-wide text-white/40 italic">
+								{currentMeta.subtitle}
+							</p>
 						</div>
+
+						<!-- Persistent Metric Strip -->
+						<MetricStrip
+							participantCount={s.results.participantCount}
+							totalVotes={s.results.voteCount}
+							evidenceScore={s.overallEvidenceRatio}
+							consensusScore={s.consensusAlignment}
+						/>
 
 						<!-- Page content with slide transitions -->
 						<div class="stage-slide-container flex-1">
@@ -217,6 +230,12 @@
 										{:else if s.page === 2}
 											<!-- PAGE 2 — Collective Top 3 -->
 											<TopThreePodium features={s.results.communal.features} totalCount={0} />
+										{:else if s.page === 3}
+											<!-- PAGE 3 — Consensus & Alignment -->
+											<ConsensusView
+												radarDatasets={s.radarDatasets}
+												categoryStats={s.categoryStats}
+											/>
 										{/if}
 									</div>
 								{/key}
