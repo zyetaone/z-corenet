@@ -39,6 +39,7 @@ export const participants = sqliteTable(
 			.$defaultFn(() => crypto.randomUUID()),
 		sessionId: text('session_id').notNull(),
 		name: text('name'),
+		email: text('email'),
 		createdAt: text('created_at')
 			.notNull()
 			.$defaultFn(() => new Date().toISOString())
@@ -76,8 +77,34 @@ export const comments = sqliteTable(
 	(table) => [index('comments_session_idx').on(table.sessionId)]
 );
 
+export const workspaceImages = sqliteTable(
+	'workspace_images',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		sessionId: text('session_id').notNull(),
+		participantId: text('participant_id'),
+		participantName: text('participant_name'),
+		participantEmail: text('participant_email'),
+		imageData: text('image_data').notNull(),
+		prompt: text('prompt').notNull(),
+		generationNum: integer('generation_num').notNull().default(1),
+		type: text('type').notNull().default('individual'),
+		featureNames: text('feature_names'),
+		createdAt: text('created_at')
+			.notNull()
+			.$defaultFn(() => new Date().toISOString())
+	},
+	(table) => [
+		index('idx_wi_session').on(table.sessionId),
+		index('idx_wi_participant').on(table.participantId)
+	]
+);
+
 export type Session = typeof sessions.$inferSelect;
 export type SessionFeature = typeof sessionFeatures.$inferSelect;
 export type Participant = typeof participants.$inferSelect;
 export type Vote = typeof votes.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
+export type WorkspaceImage = typeof workspaceImages.$inferSelect;
