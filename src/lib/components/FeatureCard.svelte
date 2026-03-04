@@ -81,6 +81,18 @@
 		position: relative;
 		overflow: hidden;
 		color: currentColor;
+
+		background: rgba(255, 255, 255, 0.6);
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		border: 1px solid rgba(26, 43, 60, 0.15);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+	}
+
+	:global(.theme-dark-blue) .feature-card {
+		background: rgba(255, 255, 255, 0.12);
+		border-color: rgba(255, 255, 255, 0.2);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 	}
 
 	.feature-card::before {
@@ -100,10 +112,12 @@
 	/* Interactive state visual handles are now mostly covered globally via .glass-panel-interactive,
 	   except for the specific gradient overlay and border adjustments here. */
 	.feature-card:hover:not(.disabled):not(.used) {
-		background: rgba(15, 25, 35, 0.05);
+		background: rgba(255, 255, 255, 0.8);
+		border-color: rgba(26, 43, 60, 0.25);
 
 		:global(.theme-dark-blue) & {
-			background: rgba(255, 255, 255, 0.08);
+			background: rgba(255, 255, 255, 0.16);
+			border-color: rgba(255, 255, 255, 0.3);
 		}
 	}
 

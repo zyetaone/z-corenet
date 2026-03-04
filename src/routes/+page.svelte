@@ -72,10 +72,15 @@
 
 			<p
 				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 300 }}
-				class="mb-8 text-base text-white/80"
+				class="mb-6 text-base text-white/80 italic md:whitespace-nowrap"
 			>
 				Vote on workplace features that matter to you and your brain.
 			</p>
+
+			<hr
+				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 350 }}
+				class="mx-auto mb-8 w-16 border-t border-white/20"
+			/>
 
 			<form
 				in:fly={{

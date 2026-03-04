@@ -31,8 +31,17 @@
 			>
 				{isIndividual ? 'The Individual Brain' : 'The Collective Brain'}
 			</div>
-			<div class="truncate text-sm font-medium text-white/60 md:text-base">
-				{isIndividual ? 'Pick your top 5 personal features' : 'Now pick 5 for the team'}
+			<div class="flex flex-col">
+				<div class="truncate text-sm font-medium text-white/80 md:text-base">
+					{isIndividual
+						? 'Select 5 features for your personal productivity'
+						: "Select 5 different features for your team's success"}
+				</div>
+				<div class="truncate text-[11px] text-white/50 italic md:text-xs">
+					{isIndividual
+						? '(These cannot be reused for the team)'
+						: '(Your personal picks are disabled)'}
+				</div>
 			</div>
 		</div>
 	</div>

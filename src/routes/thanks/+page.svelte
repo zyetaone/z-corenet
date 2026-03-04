@@ -41,9 +41,10 @@
 					duration: reduceMotion ? 0 : 800,
 					delay: reduceMotion ? 0 : 100
 				}}
-				class="mx-auto mb-6 flex h-[88px] w-[88px] items-center justify-center rounded-3xl border border-pink-500/30 bg-linear-to-br from-pink-500/20 to-pink-500/5 shadow-[0_0_40px_rgba(236,72,153,0.3)] backdrop-blur-md"
+				class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl text-5xl shadow-2xl"
+				style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); box-shadow: 0 10px 40px rgba(0,0,0,0.15)"
 			>
-				<Brain size={44} class="text-pink-400" strokeWidth={2.5} />
+				🧠
 			</div>
 
 			<div
