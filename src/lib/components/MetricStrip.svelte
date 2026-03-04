@@ -1,13 +1,11 @@
 <script lang="ts">
-	import { Users, Brain, Target, ShieldCheck } from '@lucide/svelte';
+	import { Brain, Target, ShieldCheck } from '@lucide/svelte';
 
 	let {
-		participantCount,
 		evidenceScore,
 		consensusScore,
 		totalVotes
 	}: {
-		participantCount: number;
 		evidenceScore: number;
 		consensusScore: number;
 		totalVotes: number;
@@ -15,16 +13,6 @@
 </script>
 
 <div class="metrics-grid">
-	<div class="metric-card glass-panel">
-		<div class="icon-box text-teal-400">
-			<Users size={20} />
-		</div>
-		<div class="content">
-			<span class="label">Participants</span>
-			<span class="value">{participantCount}</span>
-		</div>
-	</div>
-
 	<div class="metric-card glass-panel">
 		<div class="icon-box text-emerald-300">
 			<Brain size={20} />
@@ -68,7 +56,7 @@
 
 	@media (min-width: 768px) {
 		.metrics-grid {
-			grid-template-columns: repeat(4, 1fr);
+			grid-template-columns: repeat(3, 1fr);
 			gap: 1rem;
 		}
 	}

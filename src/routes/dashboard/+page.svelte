@@ -201,13 +201,13 @@
 							</p>
 						</div>
 
-						<!-- Persistent Metric Strip -->
-						<MetricStrip
-							participantCount={s.results.participantCount}
-							totalVotes={s.results.voteCount}
-							evidenceScore={s.overallEvidenceRatio}
-							consensusScore={s.consensusAlignment}
-						/>
+						{#if s.page === 3}
+							<MetricStrip
+								totalVotes={s.results.voteCount}
+								evidenceScore={s.overallEvidenceRatio}
+								consensusScore={s.consensusAlignment}
+							/>
+						{/if}
 
 						<!-- Page content with slide transitions -->
 						<div class="stage-slide-container flex-1">
