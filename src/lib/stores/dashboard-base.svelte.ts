@@ -5,31 +5,31 @@ import { FEATURE_GROUPS, CATEGORY_TO_GROUP } from '$lib/data/default-features';
 import type { GroupKey } from '$lib/data/default-features';
 
 export class DashboardBaseState {
-	static readonly TOTAL_STAGES = 2;
+	static readonly TOTAL_PAGES = 2;
 
 	data = $state.raw<TallyResult>(null!);
 	polledResults = $state.raw<TallyResult | null>(null);
 	justUpdated = $state(false);
 	polling = $state(false);
 	showResults = $state(false);
-	stage = $state(1);
+	page = $state(1);
 	direction = $state<'forward' | 'backward'>('forward');
 
 	constructor(initialData: TallyResult) {
 		this.data = initialData;
 	}
 
-	nextStage() {
-		if (this.stage < DashboardBaseState.TOTAL_STAGES) {
+	nextPage() {
+		if (this.page < DashboardBaseState.TOTAL_PAGES) {
 			this.direction = 'forward';
-			this.stage++;
+			this.page++;
 		}
 	}
 
-	prevStage() {
-		if (this.stage > 1) {
+	prevPage() {
+		if (this.page > 1) {
 			this.direction = 'backward';
-			this.stage--;
+			this.page--;
 		}
 	}
 
@@ -111,7 +111,7 @@ export class DashboardBaseState {
 
 	handleShowResults() {
 		this.showResults = true;
-		this.stage = 1;
+		this.page = 1;
 		this.direction = 'forward';
 	}
 
@@ -121,7 +121,7 @@ export class DashboardBaseState {
 			if (res.ok) {
 				this.showResults = false;
 				this.polledResults = null;
-				this.stage = 1;
+				this.page = 1;
 				this.direction = 'forward';
 			}
 		} catch {

@@ -15,6 +15,29 @@
 
 	const s = new DashboardState(data);
 
+	// Restore page from URL on first load (e.g. bookmark /dashboard?page=2)
+	if (typeof window !== 'undefined') {
+		const pageParam = new URL(window.location.href).searchParams.get('page');
+		if (pageParam) {
+			const parsed = parseInt(pageParam, 10);
+			if (parsed >= 1 && parsed <= DashboardBaseState.TOTAL_PAGES) {
+				s.showResults = true;
+				s.page = parsed;
+			}
+		}
+	}
+
+	// Sync page state → URL query param (?page=1, ?page=2, or none for lobby)
+	$effect(() => {
+		const url = new URL(window.location.href);
+		if (s.showResults) {
+			url.searchParams.set('page', String(s.page));
+		} else {
+			url.searchParams.delete('page');
+		}
+		history.replaceState(history.state, '', url);
+	});
+
 	// Keep data in sync when SvelteKit invalidates (client-side navigation)
 	$effect(() => {
 		s.data = data;
@@ -27,7 +50,7 @@
 		return () => clearInterval(interval);
 	});
 
-	// Keyboard navigation for stages
+	// Keyboard navigation for pages
 	function handleKeydown(e: KeyboardEvent) {
 		if (!s.showResults || s.results.voteCount === 0) return;
 		const tag = document.activeElement?.tagName;
@@ -35,20 +58,20 @@
 
 		if (e.key === 'ArrowRight' || e.key === ' ') {
 			e.preventDefault();
-			s.nextStage();
+			s.nextPage();
 		} else if (e.key === 'ArrowLeft') {
 			e.preventDefault();
-			s.prevStage();
+			s.prevPage();
 		}
 	}
 
-	const STAGE_META = [
+	const PAGE_META = [
 		{ title: 'Fuelling the Individual Brain', subtitle: 'Your top 3 personal priorities' },
 		{ title: 'Fuelling the Collective Brain', subtitle: 'Your top 3 team priorities' }
 	] as const;
 
 	const flyX = $derived(s.direction === 'forward' ? 300 : -300);
-	const currentMeta = $derived(STAGE_META[s.stage - 1]);
+	const currentMeta = $derived(PAGE_META[s.page - 1]);
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -124,9 +147,11 @@
 					>
 						Reveal Results
 					</button>
+
+					<ResetButton onreset={() => s.handleReset()} />
 				</div>
 			{:else}
-				<!-- ===== STAGED ANALYTICS (2 stages) ===== -->
+				<!-- ===== PAGED ANALYTICS (2 pages) ===== -->
 				<div class="flex min-h-[90vh] flex-col gap-6">
 					<!-- Header -->
 					<header class="relative flex items-center justify-between pt-4">
@@ -161,7 +186,6 @@
 								</span>
 								Live
 							</div>
-							<ResetButton onreset={() => s.handleReset()} />
 						</div>
 					</header>
 
@@ -175,7 +199,7 @@
 							<p class="text-white/60">Results will appear here as votes come in</p>
 						</div>
 					{:else}
-						<!-- Stage title with brain emoji -->
+						<!-- Page title with brain emoji -->
 						<div class="text-center">
 							<div class="mb-3 text-5xl">&#129504;</div>
 							<h2 class="font-display text-xl font-bold text-white md:text-2xl">
@@ -184,10 +208,10 @@
 							<p class="mt-1 text-sm text-white/50">{currentMeta.subtitle}</p>
 						</div>
 
-						<!-- Stage content with slide transitions -->
+						<!-- Page content with slide transitions -->
 						<div class="stage-slide-container flex-1">
 							<svelte:boundary>
-								{#key s.stage}
+								{#key s.page}
 									<div
 										in:fly={{
 											x: flyX,
@@ -201,11 +225,11 @@
 											easing: cubicOut
 										}}
 									>
-										{#if s.stage === 1}
-											<!-- STAGE 1 — Individual Top 3 -->
+										{#if s.page === 1}
+											<!-- PAGE 1 — Individual Top 3 -->
 											<TopThreePodium features={s.results.individual.features} totalCount={0} />
-										{:else if s.stage === 2}
-											<!-- STAGE 2 — Collective Top 3 -->
+										{:else if s.page === 2}
+											<!-- PAGE 2 — Collective Top 3 -->
 											<TopThreePodium features={s.results.communal.features} totalCount={0} />
 										{/if}
 									</div>
@@ -214,7 +238,7 @@
 								{#snippet failed(error, reset)}
 									<div class="glass-panel rounded-2xl p-8 text-center">
 										<p class="mb-2 text-lg font-semibold text-white/70">
-											Something went wrong rendering this stage.
+											Something went wrong rendering this page.
 										</p>
 										<p class="mb-4 text-sm text-white/40">
 											{error instanceof Error ? error.message : 'Unknown error'}
@@ -231,12 +255,12 @@
 							</svelte:boundary>
 						</div>
 
-						<!-- Stage Navigation -->
+						<!-- Page Navigation -->
 						<StageNav
-							currentStage={s.stage - 1}
-							totalStages={DashboardBaseState.TOTAL_STAGES}
-							onprev={() => s.prevStage()}
-							onnext={() => s.nextStage()}
+							currentPage={s.page - 1}
+							totalPages={DashboardBaseState.TOTAL_PAGES}
+							onprev={() => s.prevPage()}
+							onnext={() => s.nextPage()}
 						/>
 
 						<!-- Keyboard hint -->
