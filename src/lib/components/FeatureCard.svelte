@@ -84,8 +84,9 @@
 		/* glass-panel provides background, backdrop-filter, border, box-shadow */
 	}
 
-	:global(.theme-dark-blue) .feature-card {
-		/* glass-panel dark-blue provides base; override for slightly more visible cards */
+	:global(.theme-dark-blue) .feature-card,
+	:global(.bg-teal-gradient) .feature-card {
+		/* glass-panel dark provides base; override for slightly more visible cards */
 		background: rgba(255, 255, 255, 0.12);
 		border-color: rgba(255, 255, 255, 0.2);
 	}
@@ -96,7 +97,8 @@
 		inset: 0;
 		background: linear-gradient(135deg, rgba(15, 25, 35, 0.03) 0%, transparent 100%);
 
-		:global(.theme-dark-blue) & {
+		:global(.theme-dark-blue) &,
+		:global(.bg-teal-gradient) & {
 			background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
 		}
 
@@ -110,7 +112,8 @@
 		background: rgba(255, 255, 255, 0.8);
 		border-color: rgba(26, 43, 60, 0.25);
 
-		:global(.theme-dark-blue) & {
+		:global(.theme-dark-blue) &,
+		:global(.bg-teal-gradient) & {
 			background: rgba(255, 255, 255, 0.16);
 			border-color: rgba(255, 255, 255, 0.3);
 		}
@@ -172,7 +175,8 @@
 		transition: all 0.3s ease;
 	}
 
-	:global(.theme-dark-blue) .card-icon-wrapper {
+	:global(.theme-dark-blue) .card-icon-wrapper,
+	:global(.bg-teal-gradient) .card-icon-wrapper {
 		background: rgba(255, 255, 255, 0.06);
 		border: 1px solid rgba(255, 255, 255, 0.08);
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -183,7 +187,8 @@
 		background: rgba(15, 25, 35, 0.1);
 	}
 
-	:global(.theme-dark-blue) .feature-card:hover:not(.disabled):not(.used) .card-icon-wrapper {
+	:global(.theme-dark-blue) .feature-card:hover:not(.disabled):not(.used) .card-icon-wrapper,
+	:global(.bg-teal-gradient) .feature-card:hover:not(.disabled):not(.used) .card-icon-wrapper {
 		background: rgba(255, 255, 255, 0.1);
 	}
 
@@ -191,6 +196,11 @@
 		background: rgba(0, 200, 83, 0.15);
 		border-color: rgba(0, 200, 83, 0.3);
 		color: var(--color-green);
+	}
+
+	:global(.bg-teal-gradient) .feature-card.selected-a .card-icon-wrapper {
+		background: rgba(0, 200, 83, 0.25);
+		color: #fff;
 	}
 
 	.feature-card.selected-b .card-icon-wrapper {
@@ -218,7 +228,8 @@
 		background: transparent;
 		border: 2px solid rgba(15, 25, 35, 0.2);
 
-		:global(.theme-dark-blue) & {
+		:global(.theme-dark-blue) &,
+		:global(.bg-teal-gradient) & {
 			border: 2px solid rgba(255, 255, 255, 0.15);
 		}
 	}
@@ -226,7 +237,8 @@
 	.feature-card:hover:not(.disabled):not(.used) .card-check.off {
 		border-color: rgba(15, 25, 35, 0.4);
 
-		:global(.theme-dark-blue) & {
+		:global(.theme-dark-blue) &,
+		:global(.bg-teal-gradient) & {
 			border-color: rgba(255, 255, 255, 0.3);
 		}
 	}
@@ -265,7 +277,11 @@
 	}
 
 	.feature-card.selected-a .card-name {
-		color: var(--color-green-dim);
+		color: var(--color-green);
+	}
+
+	:global(.bg-teal-gradient) .feature-card.selected-a .card-name {
+		color: #fff;
 	}
 
 	.feature-card.selected-b .card-name {

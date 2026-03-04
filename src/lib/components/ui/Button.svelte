@@ -125,9 +125,9 @@
 		transform: translate(-50%, -50%);
 		width: 1.25rem;
 		height: 1.25rem;
-		border: 2px solid rgba(255, 255, 255, 0.3);
+		border: 2px solid color-mix(in srgb, currentColor 25%, transparent);
 		border-radius: 50%;
-		border-top-color: #fff;
+		border-top-color: currentColor;
 		animation: spin 0.8s linear infinite;
 	}
 

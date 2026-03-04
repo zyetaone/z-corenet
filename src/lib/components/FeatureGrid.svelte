@@ -42,8 +42,8 @@
 				<div
 					class="flex h-10 w-10 items-center justify-center rounded-2xl text-xl shadow-inner backdrop-blur-md transition-colors duration-300 {phase ===
 					'individual'
-						? 'bg-white/80'
-						: 'bg-white/10'}"
+						? 'bg-white/80 text-teal'
+						: 'bg-white/10 text-white/80'}"
 				>
 					<CategoryIcon group={group.key} size={22} />
 				</div>

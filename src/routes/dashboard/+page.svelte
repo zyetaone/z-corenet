@@ -3,6 +3,8 @@
 	import { fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { DashboardState } from './state.svelte';
+	import AppBackground from '$lib/components/AppBackground.svelte';
+	import BrandFooter from '$lib/components/BrandFooter.svelte';
 	import QrCode from '$lib/components/QrCode.svelte';
 	import ResetButton from '$lib/components/ResetButton.svelte';
 	import ParticleField from '$lib/components/ParticleField.svelte';
@@ -77,18 +79,15 @@
 	<title>Results Dashboard — CoreNet</title>
 </svelte:head>
 
-<div class="bg-teal-gradient relative min-h-dvh">
-	<div class="animated-grid-bg"></div>
+<AppBackground theme="teal">
 	<ParticleField participantCount={s.results.participantCount} phase="individual" />
 
-	<div class="relative z-10 h-full px-4 py-2 md:px-8">
+	<div class="h-full px-4 py-2 md:px-8">
 		<div class="mx-auto max-w-6xl">
 			{#if !s.showResults}
 				<!-- ===== LOBBY ===== -->
 				<div class="flex h-dvh flex-col items-center justify-center text-center">
-					<div class="mb-3 text-xs font-bold tracking-[0.25em] text-white/40 uppercase">
-						Powered by AWA &times; Zyeta
-					</div>
+					<BrandFooter class="mb-3" />
 
 					<h1
 						class="mb-2 font-display text-4xl font-bold text-white md:text-5xl lg:text-6xl"
@@ -181,8 +180,7 @@
 						{/if}
 
 						<!-- Page content with slide transitions -->
-						<div class="stage-slide-container mt-2 flex-1">
-							<svelte:boundary>
+						<div class="stage-slide-container flex-1 {s.page < 3 ? 'mt-8 flex items-center justify-center' : 'mt-2'}">
 								{#key s.page}
 									<div
 										in:fly={{
@@ -212,25 +210,6 @@
 										{/if}
 									</div>
 								{/key}
-
-								{#snippet failed(error, reset)}
-									<div class="glass-panel rounded-2xl p-8 text-center">
-										<p class="mb-2 text-lg font-semibold text-white/70">
-											Something went wrong rendering this page.
-										</p>
-										<p class="mb-4 text-sm text-white/40">
-											{error instanceof Error ? error.message : 'Unknown error'}
-										</p>
-										<button
-											type="button"
-											class="rounded-xl border border-white/15 bg-white/10 px-6 py-2 text-sm font-semibold text-white/60 transition-colors hover:bg-white/15"
-											onclick={reset}
-										>
-											Try again
-										</button>
-									</div>
-								{/snippet}
-							</svelte:boundary>
 						</div>
 
 						<!-- Page Navigation -->
@@ -279,8 +258,7 @@
 				</div>
 			{/if}
 
-			<!-- Hidden AI Prompt (keep) -->
 			<AiPrompt features={s.allFeatures} hidden={true} />
 		</div>
 	</div>
-</div>
+</AppBackground>

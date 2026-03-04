@@ -45,16 +45,16 @@
 				style="--fill-width: {feature.percentage}%; animation-delay: {revealDelays[i] + 400}ms"
 			></div>
 
-			<div class="relative flex items-center gap-4 px-5 py-4">
+			<div class="relative flex items-center gap-3 px-3 py-3 sm:gap-4 sm:px-5 sm:py-4">
 				<!-- Medal -->
 				<span
-					class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-extrabold text-white {medalColors[i]}"
+					class="flex h-7 w-7 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full text-xs sm:text-sm font-extrabold text-white {medalColors[i]}"
 				>
 					{i + 1}
 				</span>
 
 				<!-- Icon -->
-				<div class="shrink-0 {isFirst ? 'text-accent' : 'text-slate-400'}">
+				<div class="shrink-0 {isFirst ? 'text-accent' : 'text-teal'}">
 					<CategoryIcon group={feature.group} size={28} animated={true} />
 				</div>
 
@@ -62,7 +62,7 @@
 				<div class="min-w-0 flex-1">
 					<h3
 						class="truncate font-display font-bold text-slate-900
-							{isFirst ? 'text-lg' : 'text-base'}"
+							{isFirst ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}"
 					>
 						{feature.name}
 					</h3>
@@ -74,7 +74,7 @@
 				<!-- Percentage -->
 				<div class="shrink-0 text-right">
 					<span
-						class="text-2xl font-extrabold tabular-nums {isFirst
+						class="text-lg sm:text-2xl font-extrabold tabular-nums {isFirst
 							? 'text-accent'
 							: 'text-slate-700'}"
 					>
