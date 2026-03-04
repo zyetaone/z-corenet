@@ -1,3 +1,6 @@
+/** Maximum number of feature picks per voting phase */
+export const MAX_PICKS = 5;
+
 export const FEATURE_GROUPS = [
 	{ key: 'light', label: 'Light & Daylight', icon: '💡' },
 	{ key: 'air', label: 'Air & Thermal', icon: '🌡️' },

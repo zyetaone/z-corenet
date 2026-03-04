@@ -13,7 +13,7 @@
 	let disabledIds = $derived(
 		engine.atMax
 			? new Set(
-					engine.availableFeatures
+					engine.features
 						.filter((f) => !engine.currentSelection.has(f.featureId))
 						.map((f) => f.featureId)
 				)
@@ -39,7 +39,7 @@
 
 	<main class="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6">
 		<FeatureGrid
-			features={engine.availableFeatures}
+			features={engine.features}
 			selectedIds={engine.currentSelection}
 			{disabledIds}
 			{usedIds}
@@ -71,8 +71,8 @@
 						<input type="hidden" name="communalIds" value={id} />
 					{/each}
 
-					<Button type="submit" disabled={!engine.canContinue || engine.isSubmitting}>
-						{engine.isSubmitting ? 'Submitting...' : engine.buttonText}
+					<Button type="submit" disabled={!engine.canContinue} loading={engine.isSubmitting}>
+						{engine.buttonText}
 					</Button>
 				</form>
 			{/if}

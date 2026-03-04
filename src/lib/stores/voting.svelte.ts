@@ -1,7 +1,6 @@
 import { SvelteSet } from 'svelte/reactivity';
 import type { SessionFeature } from '$lib/server/db/schema';
-
-const MAX_PICKS = 5;
+import { MAX_PICKS } from '$lib/data/default-features';
 
 export class VotingEngine {
 	features = $state<SessionFeature[]>([]);
@@ -16,8 +15,6 @@ export class VotingEngine {
 	);
 
 	readonly count = $derived(this.currentSelection.size);
-
-	readonly availableFeatures = $derived(this.features);
 
 	readonly atMax = $derived(this.count >= MAX_PICKS);
 
