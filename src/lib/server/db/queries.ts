@@ -1,7 +1,7 @@
 import { count, eq, sql } from 'drizzle-orm';
 import type { DbClient } from './index';
-import { comments, participants, sessionFeatures, sessions, votes } from './schema';
-import type { Comment, Participant, Session, SessionFeature } from './schema';
+import { comments, participants, sessionFeatures, sessions, votes, workspaceImages } from './schema';
+import type { Comment, Participant, Session, SessionFeature, WorkspaceImage } from './schema';
 import type { DefaultFeature } from '$lib/data/default-features';
 
 // ── Sessions ──
@@ -148,4 +148,103 @@ export async function saveComment(
 
 export async function getComments(db: DbClient, sessionId: string): Promise<Comment[]> {
 	return db.select().from(comments).where(eq(comments.sessionId, sessionId));
+}
+
+// ── Workspace Images ──
+
+export async function getWorkspaceImageCount(
+	db: DbClient,
+	participantId: string,
+	sessionId: string
+): Promise<number> {
+	const [result] = await db
+		.select({ count: count() })
+		.from(workspaceImages)
+		.where(
+			sql`${workspaceImages.participantId} = ${participantId} AND ${workspaceImages.sessionId} = ${sessionId}`
+		);
+	return result.count;
+}
+
+export async function getCollectiveImageCount(
+	db: DbClient,
+	sessionId: string
+): Promise<number> {
+	const [result] = await db
+		.select({ count: count() })
+		.from(workspaceImages)
+		.where(
+			sql`${workspaceImages.type} = 'collective' AND ${workspaceImages.sessionId} = ${sessionId}`
+		);
+	return result.count;
+}
+
+export async function insertWorkspaceImage(
+	db: DbClient,
+	data: {
+		sessionId: string;
+		participantId?: string;
+		participantName?: string;
+		participantEmail?: string;
+		imageData: string;
+		prompt: string;
+		generationNum: number;
+		type: 'individual' | 'collective';
+		featureNames: string[];
+	}
+): Promise<WorkspaceImage> {
+	const [row] = await db
+		.insert(workspaceImages)
+		.values({
+			sessionId: data.sessionId,
+			participantId: data.participantId ?? null,
+			participantName: data.participantName ?? null,
+			participantEmail: data.participantEmail ?? null,
+			imageData: data.imageData,
+			prompt: data.prompt,
+			generationNum: data.generationNum,
+			type: data.type,
+			featureNames: JSON.stringify(data.featureNames)
+		})
+		.returning();
+	return row;
+}
+
+export async function getSessionWorkspaceImages(
+	db: DbClient,
+	sessionId: string
+): Promise<WorkspaceImage[]> {
+	return db
+		.select()
+		.from(workspaceImages)
+		.where(eq(workspaceImages.sessionId, sessionId))
+		.orderBy(sql`${workspaceImages.createdAt} desc`);
+}
+
+export async function getLatestParticipantImage(
+	db: DbClient,
+	participantId: string,
+	sessionId: string
+): Promise<WorkspaceImage | undefined> {
+	const [row] = await db
+		.select()
+		.from(workspaceImages)
+		.where(
+			sql`${workspaceImages.participantId} = ${participantId} AND ${workspaceImages.sessionId} = ${sessionId}`
+		)
+		.orderBy(sql`${workspaceImages.createdAt} desc`)
+		.limit(1);
+	return row;
+}
+
+export async function updateParticipantIdentity(
+	db: DbClient,
+	participantId: string,
+	name: string,
+	email: string
+): Promise<void> {
+	await db
+		.update(participants)
+		.set({ name, email })
+		.where(eq(participants.id, participantId));
 }
