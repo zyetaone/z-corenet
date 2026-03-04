@@ -134,7 +134,7 @@
 				</div>
 			{:else}
 				<!-- ===== PAGED ANALYTICS (2 pages) ===== -->
-				<div class="flex h-dvh flex-col gap-6">
+				<div class="flex min-h-dvh flex-col gap-4 pb-4">
 					<!-- Header -->
 					<header class="relative flex items-center justify-between pt-4">
 						<div>
@@ -183,16 +183,7 @@
 						</div>
 					{:else}
 						<!-- Page title with badge -->
-						<div class="mb-2 text-center">
-							<div class="mb-3 flex justify-center">
-								<div class="rounded-2xl bg-white/5 p-4 text-4xl shadow-inner backdrop-blur-md">
-									{#if s.page === 3}
-										🎯
-									{:else}
-										🧠
-									{/if}
-								</div>
-							</div>
+						<div class="text-center">
 							<h2 class="font-display text-2xl font-black tracking-tight text-white md:text-3xl">
 								{currentMeta.title}
 							</h2>
