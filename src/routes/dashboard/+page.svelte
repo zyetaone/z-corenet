@@ -181,7 +181,7 @@
 						{/if}
 
 						<!-- Page content with slide transitions -->
-						<div class="stage-slide-container flex-1">
+						<div class="stage-slide-container mt-2 flex-1">
 							<svelte:boundary>
 								{#key s.page}
 									<div
