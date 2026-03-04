@@ -81,7 +81,7 @@
 		<polygon
 			points={gridPoints(level)}
 			fill="none"
-			stroke="#1a2b3c"
+			stroke="var(--color-navy)"
 			stroke-opacity={level === 100 ? 0.12 : 0.06}
 			stroke-width="1"
 		/>
@@ -95,7 +95,7 @@
 			y1={center}
 			x2={tip.x}
 			y2={tip.y}
-			stroke="#1a2b3c"
+			stroke="var(--color-navy)"
 			stroke-opacity="0.06"
 			stroke-width="1"
 		/>
@@ -127,7 +127,7 @@
 			y={pos.y}
 			text-anchor={textAnchor(i)}
 			dominant-baseline={baselineShift(i)}
-			fill="#1a2b3c"
+			fill="var(--color-navy)"
 			fill-opacity="0.55"
 			font-size="11"
 			font-weight="600"

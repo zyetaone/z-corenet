@@ -35,7 +35,7 @@
 			in:fly={{ y: 20, duration: 600, delay: i * 100 }}
 			class="rounded-3xl border p-5 shadow-sm transition-colors duration-700 sm:p-6 {phase ===
 			'individual'
-				? 'border-[#1a2b3c]/10 bg-white/40'
+				? 'border-navy/10 bg-white/40'
 				: 'border-white/5 bg-white/5'}"
 		>
 			<div class="mb-5 flex items-center gap-3">
@@ -50,7 +50,7 @@
 				<h3
 					class="font-display text-base font-bold tracking-wide uppercase transition-colors duration-700 {phase ===
 					'individual'
-						? 'text-[#1a2b3c]'
+						? 'text-navy'
 						: 'text-white/90'}"
 				>
 					{group.label}

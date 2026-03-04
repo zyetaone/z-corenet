@@ -30,7 +30,7 @@
 <div class="space-y-3">
 	{#each categories as cat, i (cat.key)}
 		<div
-			class="group relative flex items-center gap-4 rounded-2xl border border-[#1a2b3c]/5 bg-white/70 px-4 py-3 shadow-sm transition-all duration-500 hover:-translate-y-0.5 hover:border-[#1a2b3c]/15 hover:bg-white/95 hover:shadow-lg {i ===
+			class="group relative flex items-center gap-4 rounded-2xl border border-navy/5 bg-white/70 px-4 py-3 shadow-sm transition-all duration-500 hover:-translate-y-0.5 hover:border-navy/15 hover:bg-white/95 hover:shadow-lg {i ===
 			0
 				? 'shadow-[0_0_15px_rgba(0,191,165,0.1)] ring-1 ring-accent/20'
 				: ''}"
@@ -47,7 +47,7 @@
 			<div class="min-w-0 flex-1">
 				<div class="mb-1.5 flex items-center gap-2">
 					<span
-						class="truncate text-sm font-extrabold text-[#1a2b3c]/90 transition-colors group-hover:text-[#1a2b3c] md:text-base"
+						class="truncate text-sm font-extrabold text-navy/90 transition-colors group-hover:text-navy md:text-base"
 						>{cat.label}</span
 					>
 					<span
@@ -58,7 +58,7 @@
 				</div>
 				<!-- Horizontal bar -->
 				<div
-					class="relative h-2.5 overflow-hidden rounded-full bg-[#1a2b3c]/5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
+					class="relative h-2.5 overflow-hidden rounded-full bg-navy/5 shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
 				>
 					<div
 						class="absolute top-0 bottom-0 left-0 rounded-full bg-linear-to-r from-teal to-accent transition-all duration-1000 ease-out"
@@ -71,9 +71,9 @@
 
 			<!-- Percentage -->
 			<div class="flex shrink-0 flex-col items-end justify-center">
-				<span class="text-xs font-bold tracking-wider text-[#1a2b3c]/40 uppercase">Demand</span>
+				<span class="text-xs font-bold tracking-wider text-navy/40 uppercase">Demand</span>
 				<span
-					class="text-xl font-extrabold text-[#1a2b3c] tabular-nums transition-colors group-hover:text-teal"
+					class="text-xl font-extrabold text-navy tabular-nums transition-colors group-hover:text-teal"
 				>
 					{cat.percentage}%
 				</span>
@@ -84,7 +84,7 @@
 
 {#if summary}
 	<p
-		class="mt-6 text-center text-sm font-medium text-[#1a2b3c]/50"
+		class="mt-6 text-center text-sm font-medium text-navy/50"
 		style={!anim.done
 			? `animation: bar-enter 0.4s ease-out both; animation-delay: ${categories.length * 60 + 200}ms`
 			: ''}

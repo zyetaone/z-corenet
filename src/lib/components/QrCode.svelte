@@ -15,7 +15,7 @@
 
 {#await qrSvg}
 	<div
-		class="rounded-xl bg-[#1a2b3c]/10 motion-safe:animate-pulse"
+		class="rounded-xl bg-navy/10 motion-safe:animate-pulse"
 		style="width: {size}px; height: {size}px"
 	></div>
 {:then svgString}
@@ -27,7 +27,7 @@
 		class="flex items-center justify-center rounded-xl bg-white p-4"
 		style="width: {size}px; height: {size}px"
 	>
-		<code class="text-center font-mono text-xs break-all text-[#1a2b3c]">{url}</code>
+		<code class="text-center font-mono text-xs break-all text-navy">{url}</code>
 	</div>
 {/await}
 

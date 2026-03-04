@@ -63,15 +63,15 @@
 			class="mx-4 w-full max-w-sm rounded-2xl border border-(--dark2)/30 bg-white p-8 text-center shadow-2xl"
 		>
 			<div class="mb-4 text-4xl">&#9888;&#65039;</div>
-			<h3 class="mb-2 font-display text-xl font-bold text-[#1a2b3c]">Reset Exercise?</h3>
-			<p class="mb-6 text-sm leading-relaxed text-[#1a2b3c]/60">
+			<h3 class="mb-2 font-display text-xl font-bold text-navy">Reset Exercise?</h3>
+			<p class="mb-6 text-sm leading-relaxed text-navy/60">
 				Reset all votes and start fresh? This cannot be undone.
 			</p>
 			<div class="flex gap-3">
 				<button
 					bind:this={cancelBtn}
 					type="button"
-					class="min-h-[44px] flex-1 cursor-pointer rounded-xl border border-(--dark2)/50 bg-white px-4 py-3 text-sm font-semibold text-[#1a2b3c]/70 transition-colors hover:bg-(--dark2)/30"
+					class="min-h-[44px] flex-1 cursor-pointer rounded-xl border border-(--dark2)/50 bg-white px-4 py-3 text-sm font-semibold text-navy/70 transition-colors hover:bg-(--dark2)/30"
 					onclick={() => (showConfirm = false)}
 				>
 					Cancel
@@ -93,7 +93,7 @@
 
 <button
 	type="button"
-	class="min-h-[44px] cursor-pointer rounded-xl border border-[#1a2b3c]/20 bg-white/60 px-4 py-2 text-xs font-semibold text-[#1a2b3c]/70 shadow-sm transition-colors hover:bg-white"
+	class="min-h-[44px] cursor-pointer rounded-xl border border-navy/20 bg-white/60 px-4 py-2 text-xs font-semibold text-navy/70 shadow-sm transition-colors hover:bg-white"
 	onclick={() => (showConfirm = true)}
 >
 	New Exercise
