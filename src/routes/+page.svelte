@@ -6,6 +6,8 @@
 
 	let isSubmitting = $state(false);
 	const { mounted, reduceMotion } = useMount();
+
+	const dur = $derived(mounted && !reduceMotion ? 800 : 0);
 </script>
 
 <svelte:head>
@@ -38,75 +40,61 @@
 	</div>
 
 	<div class="relative z-10 w-full max-w-md text-center">
-		{#if mounted}
-			<div
-				in:fly={{
-					y: reduceMotion ? 0 : -20,
-					duration: reduceMotion ? 0 : 800,
-					delay: reduceMotion ? 0 : 100
-				}}
-				class="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl text-5xl shadow-2xl"
-				style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); box-shadow: 0 10px 40px rgba(0,0,0,0.15)"
-			>
-				🧠
-			</div>
+		<div
+			in:fly={{ y: reduceMotion ? 0 : -20, duration: dur, delay: dur ? 100 : 0 }}
+			class="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl text-5xl shadow-2xl"
+			style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); box-shadow: 0 10px 40px rgba(0,0,0,0.15)"
+		>
+			🧠
+		</div>
 
-			<h1
-				in:fly={{
-					y: reduceMotion ? 0 : 20,
-					duration: reduceMotion ? 0 : 800,
-					delay: reduceMotion ? 0 : 200
-				}}
-				class="mb-3 font-display text-4xl font-bold tracking-tight text-white md:text-5xl"
-				style="line-height: 1.15; text-shadow: 0 2px 20px rgba(0,0,0,0.1)"
-			>
-				Designing Workplaces<br />That Think
-			</h1>
+		<h1
+			in:fly={{ y: reduceMotion ? 0 : 20, duration: dur, delay: dur ? 200 : 0 }}
+			class="mb-3 font-display text-4xl font-bold tracking-tight text-white md:text-5xl"
+			style="line-height: 1.15; text-shadow: 0 2px 20px rgba(0,0,0,0.1)"
+		>
+			Designing Workplaces<br />That Think
+		</h1>
 
-			<p
-				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 300 }}
-				class="mb-6 text-base text-white/80 italic md:whitespace-nowrap"
-			>
-				Vote on workplace features that matter to you and your brain.
-			</p>
+		<p
+			in:fade={{ duration: dur, delay: dur ? 300 : 0 }}
+			class="mb-6 text-base text-white/80 italic md:whitespace-nowrap"
+		>
+			Vote on workplace features that matter to you and your brain.
+		</p>
 
-			<hr
-				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 350 }}
-				class="mx-auto mb-8 w-16 border-t border-white/20"
-			/>
+		<hr
+			in:fade={{ duration: dur, delay: dur ? 350 : 0 }}
+			class="mx-auto mb-8 w-16 border-t border-white/20"
+		/>
 
-			<form
-				in:fly={{
-					y: reduceMotion ? 0 : 30,
-					duration: reduceMotion ? 0 : 800,
-					delay: reduceMotion ? 0 : 400
-				}}
-				method="POST"
-				use:enhance={() => {
-					isSubmitting = true;
-					return async ({ update }) => {
-						await update();
-						isSubmitting = false;
-					};
-				}}
-				class="mx-auto max-w-sm"
+		<form
+			in:fly={{ y: reduceMotion ? 0 : 30, duration: dur, delay: dur ? 400 : 0 }}
+			method="POST"
+			use:enhance={() => {
+				isSubmitting = true;
+				return async ({ update }) => {
+					await update();
+					isSubmitting = false;
+				};
+			}}
+			class="mx-auto max-w-sm"
+		>
+			<Button
+				type="submit"
+				loading={isSubmitting}
+				fullWidth={true}
+				style="color: var(--color-teal); background: #fff; border-color: rgba(255,255,255,0.3); border-radius: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.15)"
 			>
-				<Button
-					type="submit"
-					loading={isSubmitting}
-					fullWidth={true}
-					style="color: var(--color-teal); background: #fff; border-color: rgba(255,255,255,0.3); border-radius: 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.15)"
-				>
-					Begin →
-				</Button>
-			</form>
+				Begin →
+			</Button>
+		</form>
 
-			<p
-				in:fade={{ duration: reduceMotion ? 0 : 800, delay: reduceMotion ? 0 : 600 }}
-				class="mt-6 text-center text-xs font-semibold tracking-widest text-white/50 uppercase"
-			>
-				Powered by AWA &times; Zyeta
-			</p>
-		{/if}
+		<p
+			in:fade={{ duration: dur, delay: dur ? 600 : 0 }}
+			class="mt-6 text-center text-xs font-semibold tracking-widest text-white/50 uppercase"
+		>
+			Powered by AWA &times; Zyeta
+		</p>
 	</div>
 </div>

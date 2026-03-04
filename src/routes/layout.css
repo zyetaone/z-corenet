@@ -99,7 +99,7 @@ body {
 }
 
 .bg-teal-gradient {
-	background: linear-gradient(160deg, var(--color-teal) 0%, var(--color-accent) 100%);
+	background: linear-gradient(160deg, #004d40 0%, var(--color-teal) 50%, var(--color-accent) 100%);
 }
 
 .theme-teal-green {
@@ -158,7 +158,8 @@ body {
 	color: rgba(26, 43, 60, 0.25);
 }
 
-.theme-teal-green .show-results-btn {
+.theme-teal-green .show-results-btn,
+.theme-dark-blue .show-results-btn {
 	border-color: rgba(255, 255, 255, 0.3);
 	background: rgba(255, 255, 255, 0.1);
 	color: rgba(255, 255, 255, 0.9);
@@ -261,7 +262,8 @@ body {
 		0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-.theme-teal-green .glass-panel {
+.theme-teal-green .glass-panel,
+.theme-dark-blue .glass-panel {
 	background: rgba(255, 255, 255, 0.08);
 	border-color: rgba(255, 255, 255, 0.15);
 	backdrop-filter: blur(12px);
@@ -278,7 +280,8 @@ body {
 	border-color: rgba(26, 43, 60, 0.2);
 }
 
-.theme-teal-green .glass-panel-interactive:hover {
+.theme-teal-green .glass-panel-interactive:hover,
+.theme-dark-blue .glass-panel-interactive:hover {
 	background: rgba(255, 255, 255, 0.12);
 	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 	border-color: rgba(255, 255, 255, 0.3);
@@ -291,6 +294,7 @@ body {
 		0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
+.theme-teal-green .glass-panel-interactive:active,
 .theme-dark-blue .glass-panel-interactive:active {
 	box-shadow:
 		0 4px 6px -1px rgba(0, 0, 0, 0.2),

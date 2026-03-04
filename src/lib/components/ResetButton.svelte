@@ -93,7 +93,7 @@
 
 <button
 	type="button"
-	class="min-h-[44px] cursor-pointer rounded-xl border border-navy/20 bg-white/60 px-4 py-2 text-xs font-semibold text-navy/70 shadow-sm transition-colors hover:bg-white"
+	class="cursor-pointer bg-transparent px-2 py-1 text-[10px] font-bold tracking-[0.2em] text-white/30 uppercase transition-colors hover:text-white/60"
 	onclick={() => (showConfirm = true)}
 >
 	New Exercise

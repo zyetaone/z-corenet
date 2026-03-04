@@ -11,6 +11,7 @@
 	import AiPrompt from '$lib/components/AiPrompt.svelte';
 	import MetricStrip from '$lib/components/MetricStrip.svelte';
 	import ConsensusView from '$lib/components/ConsensusView.svelte';
+	import { ChevronLeft } from '@lucide/svelte';
 
 	let { data }: { data: PageData } = $props();
 	const s = new DashboardState(() => data);
@@ -133,43 +134,23 @@
 					</div>
 				</div>
 			{:else}
-				<!-- ===== PAGED ANALYTICS (2 pages) ===== -->
+				<!-- ===== PAGED ANALYTICS (3 pages) ===== -->
 				<div class="flex min-h-dvh flex-col gap-4 pb-4">
-					<!-- Header -->
-					<header class="relative flex items-center justify-between pt-4">
-						<div>
-							<div class="text-xs font-bold tracking-[0.25em] text-white/40 uppercase">
-								Powered by AWA &times; Zyeta
-							</div>
-							<h1
-								class="font-display text-2xl font-bold text-white md:text-3xl lg:text-4xl"
-								style="line-height: 1.1"
-							>
-								{s.results.session.title}
-							</h1>
-						</div>
-						<div class="flex items-center gap-4">
-							<!-- Live badge -->
-							<div
-								class="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-1.5 text-sm font-semibold text-white transition-colors duration-300"
-								style="background: rgba(255,255,255,{s.justUpdated ? 0.15 : 0.08})"
-							>
-								<span class="relative flex h-2.5 w-2.5">
-									<span
-										class="absolute inline-flex h-full w-full rounded-full bg-white motion-safe:animate-ping {s.polling
-											? 'opacity-50'
-											: 'opacity-75'}"
-									></span>
-									<span
-										class="relative inline-flex h-2.5 w-2.5 rounded-full bg-white {s.polling
-											? 'opacity-50'
-											: ''}"
-									></span>
-								</span>
-								Live
-							</div>
-							<ResetButton onreset={() => s.handleReset()} />
-						</div>
+					<!-- Compact top bar -->
+					<header class="flex items-center justify-between pt-3 pb-1">
+						<button
+							type="button"
+							class="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-white/50 transition-colors hover:bg-white/10 hover:text-white/80"
+							onclick={() => { s.showResults = false; s.page = 1; }}
+						>
+							<ChevronLeft size={14} /> Lobby
+						</button>
+						<span class="text-xs font-medium tracking-wide text-white/40">
+							{s.results.session.title}
+						</span>
+						<span class="text-xs font-bold tracking-wider text-white/40 tabular-nums">
+							{s.page}/{DashboardState.TOTAL_PAGES}
+						</span>
 					</header>
 
 					<!-- Waiting state if no votes -->
@@ -182,12 +163,12 @@
 							<p class="text-white/60">Results will appear here as votes come in</p>
 						</div>
 					{:else}
-						<!-- Page title with badge -->
+						<!-- Hero page title -->
 						<div class="text-center">
-							<h2 class="font-display text-2xl font-black tracking-tight text-white md:text-3xl">
+							<h2 class="font-display text-3xl font-black tracking-tight text-white md:text-4xl">
 								{currentMeta.title}
 							</h2>
-							<p class="mt-1 text-sm font-medium tracking-wide text-white/40 italic">
+							<p class="mt-1 text-sm font-medium tracking-wide text-white/50 italic">
 								{currentMeta.subtitle}
 							</p>
 						</div>
@@ -196,7 +177,6 @@
 							<MetricStrip
 								totalVotes={s.results.voteCount}
 								evidenceScore={s.overallEvidenceRatio}
-								consensusScore={s.consensusAlignment}
 							/>
 						{/if}
 
@@ -219,10 +199,10 @@
 									>
 										{#if s.page === 1}
 											<!-- PAGE 1 — Individual Top 3 -->
-											<TopThreePodium features={s.results.individual.features} totalCount={0} />
+											<TopThreePodium features={s.results.individual.features} />
 										{:else if s.page === 2}
 											<!-- PAGE 2 — Collective Top 3 -->
-											<TopThreePodium features={s.results.communal.features} totalCount={0} />
+											<TopThreePodium features={s.results.communal.features} />
 										{:else if s.page === 3}
 											<!-- PAGE 3 — Consensus & Alignment -->
 											<ConsensusView

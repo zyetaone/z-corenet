@@ -46,7 +46,13 @@ function buildPhaseResult(
 ): PhaseResult {
 	const phaseTallies = tallies
 		.filter((t) => t.phase === phase)
-		.sort((a, b) => b.voteCount - a.voteCount);
+		.sort((a, b) => {
+			if (b.voteCount !== a.voteCount) return b.voteCount - a.voteCount;
+			// Tiebreaker: evidence-backed features rank higher
+			const aEvidence = featuresMap.get(a.featureId)?.hasEvidence ? 1 : 0;
+			const bEvidence = featuresMap.get(b.featureId)?.hasEvidence ? 1 : 0;
+			return bEvidence - aEvidence;
+		});
 
 	const features: RankedFeature[] = phaseTallies.map((t) => {
 		const feature = featuresMap.get(t.featureId);

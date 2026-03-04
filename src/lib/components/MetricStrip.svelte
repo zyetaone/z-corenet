@@ -1,13 +1,11 @@
 <script lang="ts">
-	import { Brain, Target, ShieldCheck } from '@lucide/svelte';
+	import { Brain, ShieldCheck } from '@lucide/svelte';
 
 	let {
 		evidenceScore,
-		consensusScore,
 		totalVotes
 	}: {
 		evidenceScore: number;
-		consensusScore: number;
 		totalVotes: number;
 	} = $props();
 </script>
@@ -34,16 +32,6 @@
 			<span class="value">{evidenceScore}%</span>
 		</div>
 	</div>
-
-	<div class="metric-card glass-panel">
-		<div class="icon-box text-lime-400">
-			<Target size={20} />
-		</div>
-		<div class="content">
-			<span class="label">Team Alignment</span>
-			<span class="value">{consensusScore}%</span>
-		</div>
-	</div>
 </div>
 
 <style>
@@ -52,13 +40,6 @@
 		grid-template-columns: repeat(2, 1fr);
 		gap: 0.75rem;
 		margin-bottom: 1.5rem;
-	}
-
-	@media (min-width: 768px) {
-		.metrics-grid {
-			grid-template-columns: repeat(3, 1fr);
-			gap: 1rem;
-		}
 	}
 
 	.metric-card {

@@ -59,7 +59,10 @@ export class DashboardState {
 				map.set(key, { ...f });
 			}
 		}
-		const merged = [...map.values()].sort((a, b) => b.voteCount - a.voteCount);
+		const merged = [...map.values()].sort((a, b) => {
+			if (b.voteCount !== a.voteCount) return b.voteCount - a.voteCount;
+			return (b.hasEvidence ? 1 : 0) - (a.hasEvidence ? 1 : 0);
+		});
 		const totalParticipants = this.results.participantCount;
 		return merged.map((f) => ({
 			...f,
@@ -155,7 +158,7 @@ export class DashboardState {
 	readonly categoryStats = $derived.by((): CategoryStat[] => {
 		const grouped = new Map<
 			GroupKey,
-			{ totalVotes: number; evidenceCount: number; featureCount: number }
+			{ totalVotes: number; evidenceVotes: number; evidenceCount: number; featureCount: number }
 		>();
 		for (const f of this.combinedFeatures) {
 			const groupKey = (CATEGORY_TO_GROUP[f.group] ?? f.group) as GroupKey;
@@ -163,12 +166,16 @@ export class DashboardState {
 			if (existing) {
 				existing.totalVotes += f.voteCount;
 				existing.featureCount++;
-				if (f.hasEvidence) existing.evidenceCount++;
+				if (f.hasEvidence) {
+					existing.evidenceCount++;
+					existing.evidenceVotes += f.voteCount;
+				}
 			} else {
 				grouped.set(groupKey, {
 					totalVotes: f.voteCount,
 					featureCount: 1,
-					evidenceCount: f.hasEvidence ? 1 : 0
+					evidenceCount: f.hasEvidence ? 1 : 0,
+					evidenceVotes: f.hasEvidence ? f.voteCount : 0
 				});
 			}
 		}
@@ -176,14 +183,16 @@ export class DashboardState {
 		const totalVotesAll = [...grouped.values()].reduce((s, g) => s + g.totalVotes, 0);
 
 		return FEATURE_GROUPS.map((fg) => {
-			const g = grouped.get(fg.key) ?? { totalVotes: 0, evidenceCount: 0, featureCount: 0 };
+			const g = grouped.get(fg.key) ?? { totalVotes: 0, evidenceVotes: 0, evidenceCount: 0, featureCount: 0 };
 			return {
 				key: fg.key,
 				label: fg.label,
 				totalVotes: g.totalVotes,
 				percentage: totalVotesAll > 0 ? Math.round((g.totalVotes / totalVotesAll) * 100) : 0,
 				evidenceCount: g.evidenceCount,
-				featureCount: g.featureCount
+				featureCount: g.featureCount,
+				evidenceVotes: g.evidenceVotes,
+				evidenceRatio: g.totalVotes > 0 ? Math.round((g.evidenceVotes / g.totalVotes) * 100) : 0
 			};
 		})
 			.filter((c) => c.featureCount > 0)

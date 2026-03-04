@@ -14,4 +14,6 @@ export interface CategoryStat {
 	percentage: number;
 	evidenceCount: number;
 	featureCount: number;
+	evidenceVotes: number;
+	evidenceRatio: number; // 0-100, vote-weighted
 }
