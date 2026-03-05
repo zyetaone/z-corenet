@@ -27,14 +27,16 @@ export async function resolveSessionTally(
 	db: DbClient,
 	sessionId: string | undefined
 ): Promise<TallyResult | null> {
+	// Always prefer the latest open session — ensures reset clears stale data
+	const openSession = await getLatestOpenSession(db);
+	if (openSession) {
+		return buildTallyResultById(db, openSession.id);
+	}
+
+	// Fallback: use the cookie session (may be closed, for historical view)
 	if (sessionId) {
 		const result = await buildTallyResultById(db, sessionId);
 		if (result) return result;
-	}
-
-	const session = await getLatestOpenSession(db);
-	if (session) {
-		return buildTallyResultById(db, session.id);
 	}
 
 	return null;

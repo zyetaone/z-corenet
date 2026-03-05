@@ -129,7 +129,7 @@ export async function generateWorkspaceImage(prompt: string, trackingId?: string
 			prompt,
 			num_images: 1,
 			aspect_ratio: '16:9',
-			resolution: '2K',
+			resolution: '1K',
 			output_format: 'webp'
 		},
 		onQueueUpdate(update) {
