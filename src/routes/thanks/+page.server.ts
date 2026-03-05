@@ -3,6 +3,8 @@ import { getDb } from '$lib/server/db';
 import { eq, and } from 'drizzle-orm';
 import { votes, sessionFeatures } from '$lib/server/db/schema';
 import { requireParticipant } from '$lib/server/session';
+import { getLatestParticipantImage, getWorkspaceImageCount } from '$lib/server/db/queries';
+import { MAX_GENERATIONS } from '$lib/server/ai/image-generator';
 
 export const load: PageServerLoad = async ({ platform, cookies }) => {
 	const { participantId, sessionId } = requireParticipant(cookies);
@@ -35,5 +37,21 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 		.filter((r) => r.phase === 'communal')
 		.map((r) => ({ name: r.name, hasEvidence: r.hasEvidence, caption: r.caption }));
 
-	return { individual, communal };
+	const existingImage = await getLatestParticipantImage(db, participantId, sessionId);
+	const imageCount = existingImage
+		? await getWorkspaceImageCount(db, participantId, sessionId)
+		: 0;
+
+	return {
+		individual,
+		communal,
+		existingImage: existingImage
+			? {
+					imageData: existingImage.imageData,
+					prompt: existingImage.prompt,
+					generationsRemaining: MAX_GENERATIONS - imageCount
+				}
+			: null,
+		hasFalKey: !!platform?.env?.FAL_API_KEY
+	};
 };

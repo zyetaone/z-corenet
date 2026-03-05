@@ -1,10 +1,73 @@
 <script lang="ts">
-	import { Brain, UsersRound, Check } from '@lucide/svelte';
+	import { Brain, UsersRound, Check, Sparkles } from '@lucide/svelte';
 	import type { PageData } from './$types';
 	import AppBackground from '$lib/components/AppBackground.svelte';
 	import BrandFooter from '$lib/components/BrandFooter.svelte';
+	import AiLoader from '$lib/components/AiLoader.svelte';
+	import WorkspaceImage from '$lib/components/WorkspaceImage.svelte';
 
 	let { data }: { data: PageData } = $props();
+
+	let vizState = $state<'form' | 'generating' | 'done'>(data.existingImage ? 'done' : 'form');
+	let userName = $state('');
+	let userEmail = $state('');
+	let progress = $state(0);
+	let progressMsg = $state('Creating your workspace...');
+	let currentImage = $state(data.existingImage?.imageData ?? '');
+	let currentPrompt = $state(data.existingImage?.prompt ?? '');
+	let generationsRemaining = $state(data.existingImage?.generationsRemaining ?? 3);
+
+	let progressInterval: ReturnType<typeof setInterval> | null = null;
+
+	function startProgress() {
+		progress = 0;
+		progressInterval = setInterval(() => {
+			if (progress < 90) {
+				progress = Math.min(90, progress + Math.random() * 20);
+			}
+		}, 400);
+	}
+
+	function stopProgress() {
+		if (progressInterval) clearInterval(progressInterval);
+		progress = 100;
+	}
+
+	async function generateImage(additionalPrompt?: string) {
+		vizState = 'generating';
+		startProgress();
+		progressMsg = additionalPrompt ? 'Regenerating workspace...' : 'Creating your workspace...';
+
+		try {
+			const res = await fetch('/api/generate-image', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					type: 'individual',
+					name: userName || undefined,
+					email: userEmail || undefined,
+					additionalPrompt
+				})
+			});
+
+			if (!res.ok) {
+				const err = await res.json().catch(() => ({ message: 'Generation failed' }));
+				throw new Error(err.message ?? `HTTP ${res.status}`);
+			}
+
+			const result = await res.json();
+			stopProgress();
+
+			currentImage = result.imageData;
+			currentPrompt = result.prompt;
+			generationsRemaining = result.generationsRemaining;
+			vizState = 'done';
+		} catch (e) {
+			stopProgress();
+			vizState = currentImage ? 'done' : 'form';
+			console.error('Image generation failed:', e);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -19,7 +82,7 @@
 		<h1 class="mb-1 font-display text-2xl font-black tracking-tight text-white md:text-3xl">
 			Your Final Choices
 		</h1>
-		<p class="mb-4 text-xs font-medium tracking-wide text-white/50 italic">
+		<p class="mb-4 text-xs font-medium tracking-wide text-white/50">
 			Your selected priorities from both phases
 		</p>
 
@@ -109,7 +172,7 @@
 									{feature.name}
 								</div>
 								{#if feature.caption}
-									<p class="mt-1.5 text-[13px] leading-relaxed text-slate-500 italic">
+									<p class="mt-1.5 text-[13px] leading-relaxed text-slate-500">
 										{feature.caption}
 									</p>
 								{/if}
@@ -119,6 +182,57 @@
 				</ol>
 			</div>
 		</div>
+
+		{#if data.hasFalKey}
+			<div
+				class="mt-4 rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-[0_20px_50px_rgba(0,0,0,0.15)] md:p-8"
+			>
+				{#if vizState === 'form'}
+					<div class="flex flex-col items-center gap-4 text-center">
+						<div class="flex items-center gap-2 text-accent">
+							<Sparkles size={20} />
+							<h3 class="font-display text-xl font-bold text-slate-900">
+								Visualise Your Workspace
+							</h3>
+						</div>
+						<p class="text-sm text-slate-500">
+							See your choices come to life as an AI-generated workspace design
+						</p>
+						<div class="flex w-full max-w-md gap-3">
+							<input
+								type="text"
+								placeholder="Your Name"
+								bind:value={userName}
+								class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-teal focus:outline-none"
+							/>
+							<input
+								type="email"
+								placeholder="Email"
+								bind:value={userEmail}
+								class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-teal focus:outline-none"
+							/>
+						</div>
+						<button
+							type="button"
+							class="rounded-xl bg-gradient-to-r from-teal to-accent px-8 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-40"
+							disabled={!userName.trim() || !userEmail.trim()}
+							onclick={() => generateImage()}
+						>
+							Generate My Workspace
+						</button>
+					</div>
+				{:else if vizState === 'generating'}
+					<AiLoader {progress} message={progressMsg} />
+				{:else}
+					<WorkspaceImage
+						imageData={currentImage}
+						prompt={currentPrompt}
+						{generationsRemaining}
+						onregenerate={(additionalPrompt) => generateImage(additionalPrompt)}
+					/>
+				{/if}
+			</div>
+		{/if}
 	</div>
 	</div>
 </AppBackground>
