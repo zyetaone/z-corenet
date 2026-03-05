@@ -17,7 +17,8 @@
 	import ImageModal from '$lib/components/ImageModal.svelte';
 	import WorkspaceImage from '$lib/components/WorkspaceImage.svelte';
 	import AiLoader from '$lib/components/AiLoader.svelte';
-	import { ChevronLeft, Sparkles } from '@lucide/svelte';
+	import PillLabel from '$lib/components/PillLabel.svelte';
+	import { ChevronLeft, Sparkles, Trash2 } from '@lucide/svelte';
 
 	let { data }: { data: PageData } = $props();
 	const s = new DashboardState(() => data);
@@ -94,46 +95,76 @@
 
 	let collectiveGenerating = $state(false);
 	let collectiveProgress = $state(0);
-	let collectiveProgressInterval: ReturnType<typeof setInterval> | null = null;
+	let collectiveProgressMsg = $state('Creating collective workspace...');
 
-	function startCollectiveProgress() {
-		collectiveProgress = 0;
-		collectiveProgressInterval = setInterval(() => {
-			if (collectiveProgress < 90) {
-				collectiveProgress = Math.min(90, collectiveProgress + Math.random() * 20);
-			}
-		}, 400);
+	let collectiveImageHistory = $state<Array<{ imageData: string; prompt: string }>>([]);
+	let canUndoCollective = $derived(collectiveImageHistory.length > 0);
+
+	function clearCollectiveImage() {
+		s.collectiveImage = null;
+		s.collectivePrompt = '';
+		collectiveImageHistory = [];
 	}
 
-	function stopCollectiveProgress() {
-		if (collectiveProgressInterval) clearInterval(collectiveProgressInterval);
-		collectiveProgress = 100;
+	function undoCollectiveImage() {
+		const prev = collectiveImageHistory[collectiveImageHistory.length - 1];
+		if (prev) {
+			collectiveImageHistory = collectiveImageHistory.slice(0, -1);
+			s.collectiveImage = prev.imageData;
+			s.collectivePrompt = prev.prompt;
+		}
 	}
 
-	async function generateCollective(additionalPrompt?: string) {
+	async function generateCollective(opts?: { additionalPrompt?: string; editInPlace?: boolean }) {
+		const { additionalPrompt, editInPlace } = opts ?? {};
 		collectiveGenerating = true;
-		startCollectiveProgress();
+		collectiveProgress = 0;
+		collectiveProgressMsg = editInPlace ? 'Editing collective workspace...' : additionalPrompt ? 'Regenerating collective workspace...' : 'Preparing generation...';
+
+		const trackingId = crypto.randomUUID();
+		let eventSource: EventSource | null = null;
 
 		try {
+			eventSource = new EventSource(`/api/generate-image/progress?id=${trackingId}`);
+			eventSource.onmessage = (event) => {
+				try {
+					const data = JSON.parse(event.data);
+					if (data.progress !== undefined) collectiveProgress = data.progress;
+					if (data.message) collectiveProgressMsg = data.message;
+				} catch (e) {
+					// parsing error ignored
+				}
+			};
+
 			const res = await fetch('/api/generate-image', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ type: 'collective', additionalPrompt })
+				body: JSON.stringify({
+					type: 'collective',
+					additionalPrompt,
+					trackingId,
+					previousImageData: editInPlace && s.collectiveImage ? s.collectiveImage : undefined
+				})
 			});
 
 			if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
 			const result = await res.json();
-			stopCollectiveProgress();
+			collectiveProgress = 100;
 
+			// Push current to history for undo
+			if (s.collectiveImage) {
+				collectiveImageHistory = [...collectiveImageHistory, { imageData: s.collectiveImage, prompt: s.collectivePrompt }];
+			}
 			s.collectiveImage = result.imageData;
 			s.collectivePrompt = result.prompt;
 			s.collectiveGenerationsRemaining = result.generationsRemaining;
 		} catch (e) {
+			collectiveProgress = 100;
 			console.error('Collective generation failed:', e);
 		} finally {
 			collectiveGenerating = false;
-			stopCollectiveProgress();
+			eventSource?.close();
 		}
 	}
 </script>
@@ -155,8 +186,8 @@
 					<BrandFooter class="mb-3" />
 
 					<h1
-						class="mb-2 font-display text-6xl font-bold text-white md:text-7xl lg:text-8xl"
-						style="line-height: 1.1"
+						class="mb-2 font-display text-5xl font-bold text-white md:text-6xl lg:text-[4.5rem] xl:text-[5.5rem]"
+						style="line-height: 1.05"
 					>
 						{s.results.session.title}
 					</h1>
@@ -194,7 +225,7 @@
 					</button>
 
 					<div class="fixed right-4 bottom-4 z-20 opacity-40 transition-opacity hover:opacity-100">
-						<ResetButton onreset={() => s.handleReset()} />
+						<ResetButton onreset={(pin) => s.handleReset(pin)} />
 					</div>
 				</div>
 			{:else}
@@ -204,15 +235,15 @@
 					<header class="flex items-center justify-between pt-2 pb-2">
 						<button
 							type="button"
-							class="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-white/50 transition-colors hover:bg-white/10 hover:text-white/80"
+							class="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-sm font-bold text-white/60 transition-colors hover:bg-white/10 hover:text-white"
 							onclick={() => { s.showResults = false; s.page = 1; }}
 						>
-							<ChevronLeft size={14} /> Lobby
+							<ChevronLeft size={16} /> Lobby
 						</button>
-						<span class="text-xs font-medium tracking-wide text-white/40">
+						<span class="text-lg font-bold tracking-wide text-white/80 md:text-xl">
 							{s.results.session.title}
 						</span>
-						<span class="text-xs font-bold tracking-wider text-white/40 tabular-nums">
+						<span class="text-sm font-bold tracking-wider text-white/60 tabular-nums">
 							{s.page}/{DashboardState.TOTAL_PAGES}
 						</span>
 					</header>
@@ -229,10 +260,10 @@
 					{:else}
 						<!-- Hero page title -->
 						<div class="text-center">
-							<h2 class="font-display text-4xl font-black tracking-tight text-white md:text-5xl">
+							<h2 class="font-display text-5xl font-black tracking-tight text-white md:text-[4.5rem]" style="line-height: 1.1">
 								{currentMeta.title}
 							</h2>
-							<p class="mt-2 text-base font-medium tracking-wide text-white/70">
+							<p class="mt-2 text-lg font-medium tracking-wide text-white/70">
 								{currentMeta.subtitle}
 							</p>
 						</div>
@@ -274,18 +305,18 @@
 											/>
 										{:else if s.page === 4}
 											<!-- PAGE 4 — Workspace Gallery -->
-											<div class="grid grid-cols-1 gap-4 lg:grid-cols-5">
+											<div class="flex h-full min-h-[75vh] flex-col gap-6 lg:flex-row">
 												<!-- Left: Individual gallery (60%) -->
-												<div class="lg:col-span-3">
-													<h3 class="mb-2 text-sm font-bold tracking-wider text-white/50 uppercase">
-														Individual Workspaces
-													</h3>
+												<div class="flex-1 lg:w-3/5">
+													<div class="mb-4">
+														<PillLabel>Individual Workspaces</PillLabel>
+													</div>
 													{#if s.workspaceImages.individual.length === 0}
-														<div class="flex h-64 items-center justify-center rounded-2xl border border-white/8 bg-white/5">
+														<div class="flex h-[60vh] items-center justify-center rounded-2xl border border-white/8 bg-white/5">
 															<p class="text-sm text-white/30">No workspace images yet — participants can generate from the results page</p>
 														</div>
 													{:else}
-														<div class="h-[60vh]">
+														<div class="h-[75vh]">
 															<MasonryTicker
 																images={s.workspaceImages.individual}
 																onselect={(img) => (selectedImage = img)}
@@ -295,33 +326,62 @@
 												</div>
 
 												<!-- Right: Collective workspace (40%) -->
-												<div class="lg:col-span-2">
-													<h3 class="mb-2 text-sm font-bold tracking-wider text-white/50 uppercase">
-														Collective Workspace
-													</h3>
-													<div class="rounded-2xl border border-white/8 bg-white/5 p-4">
-														{#if collectiveGenerating}
-															<AiLoader progress={collectiveProgress} message="Creating collective workspace..." dark={true} />
+												<div class="flex flex-col lg:w-2/5">
+													<div class="mb-4 flex items-center justify-between">
+														<PillLabel>Collective Workspace</PillLabel>
+														{#if s.collectiveImage}
+															<button
+																type="button"
+																class="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-white/30 transition-colors hover:bg-white/10 hover:text-white/60"
+																onclick={clearCollectiveImage}
+															>
+																<Trash2 size={12} /> Clear
+															</button>
+														{/if}
+													</div>
+													<div class="flex-1 rounded-2xl border border-white/8 bg-white/5 p-4 flex flex-col justify-center">
+														{#if collectiveGenerating && !s.collectiveImage}
+															<AiLoader progress={collectiveProgress} message={collectiveProgressMsg} dark={true} />
 														{:else if s.collectiveImage}
-															<WorkspaceImage
-																imageData={s.collectiveImage}
-																prompt={s.collectivePrompt}
-																generationsRemaining={s.collectiveGenerationsRemaining}
-																onregenerate={(additionalPrompt) => generateCollective(additionalPrompt)}
-																dark={true}
-															/>
+															<div class="relative h-full w-full">
+																<div class={collectiveGenerating ? 'pointer-events-none opacity-50 blur-sm transition-all duration-500 h-full w-full' : 'transition-all duration-500 h-full w-full'}>
+																	<WorkspaceImage
+																		imageData={s.collectiveImage}
+																		prompt={s.collectivePrompt || ''}
+																		generationsRemaining={s.collectiveGenerationsRemaining}
+																		onregenerate={() => generateCollective()}
+																		onedit={(editPrompt) => generateCollective({ additionalPrompt: editPrompt, editInPlace: true })}
+																		onundo={undoCollectiveImage}
+																		canUndo={canUndoCollective}
+																		dark={true}
+																	/>
+																</div>
+																{#if collectiveGenerating}
+																	<div class="absolute inset-x-0 -top-6 bottom-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-black/50 backdrop-blur-sm">
+																		<AiLoader progress={collectiveProgress} message={collectiveProgressMsg} dark={true} showCredit={false} />
+																	</div>
+																{/if}
+															</div>
 														{:else}
-															<div class="flex flex-col items-center gap-4 py-12">
-																<Sparkles size={32} class="text-accent" />
-																<p class="text-center text-sm text-white/50">
-																	Generate a workspace from the group's top-voted features
-																</p>
+															<div class="flex flex-col items-center gap-5 px-6 py-14 text-center">
+																<div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 text-white/80 shadow-inner ring-1 ring-white/10">
+																	<Sparkles size={32} />
+																</div>
+																<div>
+																	<h3 class="mb-2 font-display text-xl font-bold tracking-tight text-white">
+																		Visualise the Session's Priorities
+																	</h3>
+																	<p class="text-sm font-medium leading-relaxed text-white/50">
+																		Transform the session's top-voted features into an evidence-driven workspace visualisation — individual choices meet data-backed design.
+																	</p>
+																</div>
 																<button
 																	type="button"
-																	class="rounded-xl bg-gradient-to-r from-teal to-accent px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+																	class="group relative mt-2 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-white px-8 py-4 text-[13px] font-black tracking-wide text-teal shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-all hover:scale-[1.02] hover:bg-slate-50 hover:shadow-[0_0_60px_rgba(255,255,255,0.2)] active:scale-95 lg:w-auto"
 																	onclick={() => generateCollective()}
 																>
-																	Create Workspace from Collective Votes
+																	<span>GENERATE WORKSPACE</span>
+																	<Sparkles size={16} class="transition-transform group-hover:scale-110" />
 																</button>
 															</div>
 														{/if}

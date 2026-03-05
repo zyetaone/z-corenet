@@ -21,13 +21,13 @@
 		</div>
 
 		<h1
-			class="mb-3 font-display text-4xl font-bold tracking-tight text-white md:text-5xl"
+			class="mb-3 font-display text-5xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl"
 			style="line-height: 1.15; text-shadow: 0 2px 20px rgba(0,0,0,0.1)"
 		>
 			Designing Workplaces<br />That Think
 		</h1>
 
-		<p class="mb-6 text-base text-white/80 italic md:whitespace-nowrap">
+		<p class="mb-6 text-base text-white/80 md:whitespace-nowrap">
 			Vote on workplace features that matter to you and your brain.
 		</p>
 

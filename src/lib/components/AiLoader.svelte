@@ -10,6 +10,41 @@
 		showCredit?: boolean;
 		dark?: boolean;
 	} = $props();
+
+	const STALL_MESSAGES = [
+		'Processing image...',
+		'Refining details...',
+		'Adding finishing touches...',
+		'Sending to dashboard...',
+		'Any second now...'
+	];
+
+	let stallIndex = $state(0);
+	let stallInterval = $state<ReturnType<typeof setInterval> | null>(null);
+	let displayMessage = $derived(
+		progress >= 90 && progress < 100 ? STALL_MESSAGES[stallIndex] : message
+	);
+
+	// Cycle through stall messages when stuck at high progress
+	$effect(() => {
+		if (progress >= 90 && progress < 100) {
+			if (!stallInterval) {
+				stallIndex = 0;
+				stallInterval = setInterval(() => {
+					stallIndex = Math.min(stallIndex + 1, STALL_MESSAGES.length - 1);
+				}, 3000);
+			}
+		} else {
+			if (stallInterval) {
+				clearInterval(stallInterval);
+				stallInterval = null;
+			}
+			stallIndex = 0;
+		}
+		return () => {
+			if (stallInterval) clearInterval(stallInterval);
+		};
+	});
 </script>
 
 <div class="flex flex-col items-center gap-4 p-8" class:dark-mode={dark}>
@@ -27,8 +62,8 @@
 		<div class="progress-track">
 			<div class="progress-fill" style="width: {progress}%"></div>
 		</div>
-		{#if message}
-			<p class="progress-msg">{message}</p>
+		{#if displayMessage}
+			<p class="progress-msg">{displayMessage}</p>
 		{/if}
 	</div>
 </div>
@@ -61,8 +96,15 @@
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
-		animation: dot-bounce 3s ease-in-out infinite;
+		animation: dot-bounce 4.5s ease-in-out infinite;
 		transform-origin: bottom;
+	}
+
+	.dark-mode .brand-text,
+	.dark-mode .bounce-i {
+		background: none;
+		-webkit-text-fill-color: white;
+		color: white;
 	}
 
 	@keyframes dot-bounce {
@@ -100,7 +142,7 @@
 		height: 100%;
 		border-radius: 9999px;
 		background: linear-gradient(90deg, var(--color-teal), var(--color-accent));
-		transition: width 0.3s ease-out;
+		transition: width 0.8s ease-out;
 	}
 
 	.progress-msg {

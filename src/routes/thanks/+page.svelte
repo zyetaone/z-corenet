@@ -8,37 +8,81 @@
 
 	let { data }: { data: PageData } = $props();
 
-	let vizState = $state<'form' | 'generating' | 'done'>(data.existingImage ? 'done' : 'form');
+	let vizState = $state<'form' | 'generating' | 'done' | 'error'>('form');
+	let errorMsg = $state('');
 	let userName = $state('');
 	let userEmail = $state('');
 	let progress = $state(0);
 	let progressMsg = $state('Creating your workspace...');
-	let currentImage = $state(data.existingImage?.imageData ?? '');
-	let currentPrompt = $state(data.existingImage?.prompt ?? '');
-	let generationsRemaining = $state(data.existingImage?.generationsRemaining ?? 3);
+	let currentImage = $state('');
+	let currentPrompt = $state('');
+	let generationsRemaining = $state(3);
+	let imageHistory = $state<Array<{ imageData: string; prompt: string }>>([]);
+	let canUndo = $derived(imageHistory.length > 0);
 
-	let progressInterval: ReturnType<typeof setInterval> | null = null;
+	// Pre-fill form from cookies on mount
+	$effect(() => {
+		const cookies = document.cookie.split('; ').reduce<Record<string, string>>((acc, c) => {
+			const [k, v] = c.split('=');
+			if (k && v) acc[k] = decodeURIComponent(v);
+			return acc;
+		}, {});
+		if (cookies['user_name'] && !userName) userName = cookies['user_name'];
+		if (cookies['user_email'] && !userEmail) userEmail = cookies['user_email'];
+	});
 
-	function startProgress() {
-		progress = 0;
-		progressInterval = setInterval(() => {
-			if (progress < 90) {
-				progress = Math.min(90, progress + Math.random() * 20);
-			}
-		}, 400);
+	// Sync with incoming data (needed because data can update during client-side navigation)
+	$effect(() => {
+		if (data.existingImage) {
+			vizState = 'done';
+			currentImage = data.existingImage.imageData;
+			currentPrompt = data.existingImage.prompt;
+			generationsRemaining = data.existingImage.generationsRemaining;
+		} else {
+			vizState = 'form';
+		}
+	});
+
+	function undoImage() {
+		const prev = imageHistory[imageHistory.length - 1];
+		if (prev) {
+			imageHistory = imageHistory.slice(0, -1);
+			currentImage = prev.imageData;
+			currentPrompt = prev.prompt;
+		}
 	}
 
-	function stopProgress() {
-		if (progressInterval) clearInterval(progressInterval);
-		progress = 100;
+	function setCookie(name: string, value: string, days = 30) {
+		const expires = new Date(Date.now() + days * 864e5).toUTCString();
+		document.cookie = `${name}=${encodeURIComponent(value)}; path=/; expires=${expires}; SameSite=Lax`;
 	}
 
-	async function generateImage(additionalPrompt?: string) {
+	async function generateImage(opts?: { additionalPrompt?: string; editInPlace?: boolean }) {
+		const { additionalPrompt, editInPlace } = opts ?? {};
+		
+		if (userName) setCookie('user_name', userName.trim());
+		if (userEmail) setCookie('user_email', userEmail.trim());
+
 		vizState = 'generating';
-		startProgress();
-		progressMsg = additionalPrompt ? 'Regenerating workspace...' : 'Creating your workspace...';
+		errorMsg = '';
+		progress = 0;
+		progressMsg = editInPlace ? 'Editing workspace...' : additionalPrompt ? 'Regenerating workspace...' : 'Preparing generation...';
+
+		const trackingId = crypto.randomUUID();
+		let eventSource: EventSource | null = null;
 
 		try {
+			eventSource = new EventSource(`/api/generate-image/progress?id=${trackingId}`);
+			eventSource.onmessage = (event) => {
+				try {
+					const data = JSON.parse(event.data);
+					if (data.progress !== undefined) progress = data.progress;
+					if (data.message) progressMsg = data.message;
+				} catch {
+					// parse error ignored
+				}
+			};
+
 			const res = await fetch('/api/generate-image', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -46,7 +90,9 @@
 					type: 'individual',
 					name: userName || undefined,
 					email: userEmail || undefined,
-					additionalPrompt
+					additionalPrompt,
+					trackingId,
+					previousImageData: editInPlace && currentImage ? currentImage : undefined
 				})
 			});
 
@@ -56,17 +102,30 @@
 			}
 
 			const result = await res.json();
-			stopProgress();
+			progress = 100;
+			progressMsg = 'Finishing up...';
 
+			if (currentImage) {
+				imageHistory = [...imageHistory, { imageData: currentImage, prompt: currentPrompt }];
+			}
 			currentImage = result.imageData;
 			currentPrompt = result.prompt;
 			generationsRemaining = result.generationsRemaining;
 			vizState = 'done';
 		} catch (e) {
-			stopProgress();
-			vizState = currentImage ? 'done' : 'form';
-			console.error('Image generation failed:', e);
+			progress = 100;
+			if (e instanceof Error && e.name !== 'AbortError') {
+				errorMsg = e.message || 'Image generation failed. Please try again.';
+				vizState = currentImage ? 'done' : 'error';
+			}
+		} finally {
+			eventSource?.close();
 		}
+	}
+
+	async function retakeQuiz() {
+		await fetch('/api/retake', { method: 'POST' });
+		window.location.href = '/';
 	}
 </script>
 
@@ -184,53 +243,148 @@
 		</div>
 
 		{#if data.hasFalKey}
-			<div
-				class="mt-4 rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-[0_20px_50px_rgba(0,0,0,0.15)] md:p-8"
-			>
-				{#if vizState === 'form'}
-					<div class="flex flex-col items-center gap-4 text-center">
-						<div class="flex items-center gap-2 text-accent">
-							<Sparkles size={20} />
-							<h3 class="font-display text-xl font-bold text-slate-900">
-								Visualise Your Workspace
-							</h3>
+			<div class="mt-4 overflow-hidden rounded-[2.5rem] border border-slate-800 bg-slate-950 text-left shadow-2xl">
+				<div class="flex flex-col lg:flex-row">
+					<!-- Left Side: Studio Controls -->
+					<div class="flex w-full flex-col justify-center border-b border-slate-800 p-8 lg:w-1/2 lg:border-r lg:border-b-0 lg:p-12">
+						<div class="mb-8 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-teal/10 text-teal ring-1 ring-teal/20">
+							<Sparkles size={28} />
 						</div>
-						<p class="text-sm text-slate-500">
-							See your choices come to life as an AI-generated workspace design
+						
+						<h3 class="font-display text-3xl font-black tracking-tight text-white md:text-4xl">
+							Visualise Your Workspace
+						</h3>
+						<p class="mt-3 text-[15px] leading-relaxed text-slate-400">
+							{#if vizState === 'form' || vizState === 'error'}
+								Enter your details to generate your unique structural vision based on your individual and communal selections.
+							{:else}
+								Your workspace is materializing based on your selected features.
+							{/if}
 						</p>
-						<div class="flex w-full max-w-md gap-3">
-							<input
-								type="text"
-								placeholder="Your Name"
-								bind:value={userName}
-								class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-teal focus:outline-none"
-							/>
-							<input
-								type="email"
-								placeholder="Email"
-								bind:value={userEmail}
-								class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-teal focus:outline-none"
-							/>
-						</div>
-						<button
-							type="button"
-							class="rounded-xl bg-gradient-to-r from-teal to-accent px-8 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-40"
-							disabled={!userName.trim() || !userEmail.trim()}
-							onclick={() => generateImage()}
-						>
-							Generate My Workspace
-						</button>
+
+						{#if vizState === 'form' || vizState === 'error'}
+							<div class="mt-8 flex flex-col gap-4">
+								{#if vizState === 'error'}
+									<div class="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+										<p class="font-bold">Generation failed</p>
+										<p class="mt-1 opacity-80">{errorMsg}</p>
+									</div>
+								{/if}
+								
+								<div class="group relative">
+									<input
+										type="text"
+										placeholder="First Name"
+										bind:value={userName}
+										class="w-full rounded-2xl border border-slate-800 bg-slate-900/50 px-5 py-4 text-sm font-bold text-white placeholder:text-slate-600 placeholder:font-medium transition-all focus:border-teal focus:bg-slate-900 focus:ring-4 focus:ring-teal/20 focus:outline-none"
+									/>
+								</div>
+								<div class="group relative">
+									<input
+										type="email"
+										placeholder="Email Address"
+										bind:value={userEmail}
+										class="w-full rounded-2xl border border-slate-800 bg-slate-900/50 px-5 py-4 text-sm font-bold text-white placeholder:text-slate-600 placeholder:font-medium transition-all focus:border-teal focus:bg-slate-900 focus:ring-4 focus:ring-teal/20 focus:outline-none"
+									/>
+								</div>
+
+								<button
+									type="button"
+									class="group relative mt-2 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-teal px-8 py-4.5 text-sm font-black tracking-wide text-slate-950 shadow-[0_0_40px_rgba(20,184,166,0.2)] transition-all hover:scale-[1.02] hover:bg-teal-400 hover:shadow-[0_0_60px_rgba(20,184,166,0.3)] active:scale-95 disabled:pointer-events-none disabled:opacity-50"
+									disabled={!userName.trim() || !userEmail.trim()}
+									onclick={() => generateImage()}
+								>
+									<span>GENERATE DESIGN</span>
+									<Sparkles size={16} class="transition-transform group-hover:scale-110" />
+								</button>
+								
+								<p class="text-center text-[13px] font-medium text-slate-600">
+									Returning emails will auto-load their previous generation.
+								</p>
+							</div>
+						{:else}
+							<!-- Status block while generating or done -->
+							<div class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+								<div class="flex items-center gap-4">
+									<div class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-teal">
+										<Brain size={24} class={vizState === 'generating' ? 'animate-pulse' : ''} />
+									</div>
+									<div>
+										<p class="font-bold text-white">
+											{vizState === 'generating' ? 'AI is working...' : 'Generation Complete'}
+										</p>
+										<p class="text-[13px] text-slate-500 mt-0.5">
+											{currentImage ? `${generationsRemaining} edits remaining` : 'Connecting to neural net'}
+										</p>
+									</div>
+								</div>
+								{#if vizState === 'done'}
+									<div class="mt-6 flex gap-3">
+										<button
+											onclick={retakeQuiz}
+											class="flex-1 rounded-xl bg-slate-800 py-3 text-xs font-bold tracking-wider text-slate-300 uppercase transition-colors hover:bg-slate-700 hover:text-white"
+										>
+											New Concept
+										</button>
+										<button
+											onclick={() => {
+												userName = '';
+												userEmail = '';
+												vizState = 'form';
+												currentImage = '';
+											}}
+											class="flex-1 rounded-xl bg-slate-800 py-3 text-xs font-bold tracking-wider text-slate-300 uppercase transition-colors hover:bg-slate-700 hover:text-white"
+										>
+											Clear User
+										</button>
+									</div>
+								{/if}
+							</div>
+						{/if}
 					</div>
-				{:else if vizState === 'generating'}
-					<AiLoader {progress} message={progressMsg} />
-				{:else}
-					<WorkspaceImage
-						imageData={currentImage}
-						prompt={currentPrompt}
-						{generationsRemaining}
-						onregenerate={(additionalPrompt) => generateImage(additionalPrompt)}
-					/>
-				{/if}
+
+					<!-- Right Side: Dedicated Canvas -->
+					<div class="flex w-full items-center justify-center bg-black lg:w-1/2 p-6 md:p-12 lg:p-12">
+						<!-- Constraint for the 1:1 image area -->
+						<div class="relative w-full aspect-square overflow-hidden rounded-3xl bg-slate-900 ring-1 ring-white/10">
+							{#if !currentImage && vizState === 'form'}
+								<!-- Empty Skeleton State -->
+								<div class="flex h-full w-full flex-col items-center justify-center border-2 border-dashed border-slate-800/80 bg-slate-900/30 p-6 text-center">
+									<div class="mb-4 text-slate-800">
+										<div class="mx-auto h-24 w-24 rounded-2xl bg-slate-800/50"></div>
+									</div>
+									<p class="font-display text-lg font-bold text-slate-600">Awaiting Input</p>
+								</div>
+							{:else if vizState === 'generating' && !currentImage}
+								<!-- Initial Generation State -->
+								<div class="flex h-full w-full items-center justify-center bg-black/40">
+									<AiLoader {progress} message={progressMsg} dark={true} showCredit={false} />
+								</div>
+							{:else if currentImage}
+								<!-- Rendered Image State -->
+								<div class="relative h-full w-full bg-black">
+									<div class={vizState === 'generating' ? 'pointer-events-none h-full w-full opacity-40 blur-md transition-all duration-700' : 'h-full w-full transition-all duration-700'}>
+										<WorkspaceImage
+											imageData={currentImage}
+											prompt={currentPrompt}
+											{generationsRemaining}
+											onregenerate={() => generateImage()}
+											onedit={(editPrompt) => generateImage({ additionalPrompt: editPrompt, editInPlace: true })}
+											onundo={undoImage}
+											{canUndo}
+											dark={true}
+										/>
+									</div>
+									{#if vizState === 'generating'}
+										<div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md">
+											<AiLoader {progress} message={progressMsg} dark={true} showCredit={false} />
+										</div>
+									{/if}
+								</div>
+							{/if}
+						</div>
+					</div>
+				</div>
 			</div>
 		{/if}
 	</div>

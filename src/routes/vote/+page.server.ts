@@ -19,6 +19,16 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 
 	const features = await getSessionFeatures(db, session.id);
 
+	const existingVotes = await db
+		.select({ id: votes.id })
+		.from(votes)
+		.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)))
+		.limit(1);
+
+	if (existingVotes.length > 0) {
+		redirect(303, '/thanks');
+	}
+
 	return { participantId, session, features };
 };
 

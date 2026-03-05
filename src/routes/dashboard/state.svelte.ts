@@ -22,6 +22,7 @@ export class DashboardState {
 			participantName: string;
 			imageData: string;
 			featureNames: string[];
+			prompt: string;
 			createdAt: string;
 		}>;
 		collective: Array<{
@@ -35,7 +36,7 @@ export class DashboardState {
 
 	collectiveImage = $state<string | null>(null);
 	collectivePrompt = $state<string>('');
-	collectiveGenerationsRemaining = $state(3);
+	collectiveGenerationsRemaining = $state(10);
 
 	constructor(getData: () => TallyResult) {
 		this.#getData = getData;
@@ -87,13 +88,16 @@ export class DashboardState {
 		const totalParticipants = this.results.participantCount;
 		return merged.map((f) => ({
 			...f,
-			percentage: totalParticipants > 0 ? Math.round((f.voteCount / totalParticipants) * 100) : 0
+			percentage: totalParticipants > 0 ? Math.min(100, Math.round((f.voteCount / totalParticipants) * 100)) : 0
 		}));
 	});
 
-	readonly overallEvidenceRatio = $derived(
-		Math.round((this.results.individual.score + this.results.communal.score) / 2)
-	);
+	readonly overallEvidenceRatio = $derived.by(() => {
+		const evidencePicks =
+			this.results.individual.evidencePicks + this.results.communal.evidencePicks;
+		const totalPicks = this.results.individual.totalPicks + this.results.communal.totalPicks;
+		return totalPicks > 0 ? Math.round((evidencePicks / totalPicks) * 100) : 0;
+	});
 
 	readonly allFeatures = $derived([
 		...this.results.individual.features,
@@ -141,17 +145,14 @@ export class DashboardState {
 		this.direction = 'forward';
 	}
 
-	async handleReset() {
+	async handleReset(pin: string) {
 		try {
 			const res = await fetch('/api/reset', {
 				method: 'POST',
-				headers: { 'x-admin-pin': '1234' }
+				headers: { 'x-admin-pin': pin }
 			});
 			if (res.ok) {
-				this.showResults = false;
-				this.polledResults = null;
-				this.page = 1;
-				this.direction = 'forward';
+				window.location.reload();
 			}
 		} catch {
 			// silently ignore reset errors
@@ -176,7 +177,7 @@ export class DashboardState {
 
 	async pollWorkspaceImages() {
 		try {
-			const res = await fetch('/api/workspace-images?all=1');
+			const res = await fetch('/api/workspace-images');
 			if (res.ok) {
 				this.workspaceImages = await res.json();
 				// Update collective state from latest
@@ -184,7 +185,7 @@ export class DashboardState {
 				if (latest) {
 					this.collectiveImage = latest.imageData;
 					this.collectivePrompt = latest.prompt;
-					this.collectiveGenerationsRemaining = 3 - this.workspaceImages.collective.length;
+					this.collectiveGenerationsRemaining = 10 - this.workspaceImages.collective.length;
 				}
 			}
 		} catch {
@@ -261,6 +262,7 @@ export class DashboardState {
 		const topInd = this.results.individual.features.slice(0, 5).map((f) => f.name);
 		const topCom = this.results.communal.features.slice(0, 5).map((f) => f.name);
 		const shared = topInd.filter((name) => topCom.includes(name));
-		return Math.round((shared.length / 5) * 100);
+		const denom = Math.min(5, topInd.length, topCom.length);
+		return denom > 0 ? Math.round((shared.length / denom) * 100) : 0;
 	});
 }

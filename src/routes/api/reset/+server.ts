@@ -7,7 +7,7 @@ import { DEFAULT_FEATURES } from '$lib/data/default-features';
 import { generateCode } from '$lib/server/utils';
 import { eq } from 'drizzle-orm';
 
-export const POST: RequestHandler = async ({ platform, request }) => {
+export const POST: RequestHandler = async ({ platform, request, cookies }) => {
 	const ADMIN_PIN = (platform?.env as any)?.ADMIN_PIN || '1234';
 	const pin = request.headers.get('x-admin-pin');
 
@@ -25,5 +25,13 @@ export const POST: RequestHandler = async ({ platform, request }) => {
 	const session = await createSession(db, code, 'Designing Workplaces That Think');
 	await copyDefaultFeatures(db, session.id, DEFAULT_FEATURES);
 
-	return json({ ok: true });
+	// Update the dashboard's session cookie so the next poll uses the new session
+	cookies.set('session_id', session.id, {
+		path: '/',
+		httpOnly: true,
+		sameSite: 'lax',
+		maxAge: 60 * 60 * 24
+	});
+
+	return json({ ok: true, sessionId: session.id });
 };

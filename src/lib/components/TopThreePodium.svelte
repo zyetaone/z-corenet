@@ -29,7 +29,7 @@
 	const anim = useAnimateOnce();
 </script>
 
-<div class="flex flex-col gap-3">
+<div class="flex flex-col gap-8">
 	{#each top3 as feature, i (feature.name)}
 		{@const isFirst = i === 0}
 		<div
@@ -78,7 +78,7 @@
 							? 'text-accent'
 							: 'text-slate-700'}"
 					>
-						{feature.percentage}%
+						{Math.round(feature.percentage)}%
 					</span>
 				</div>
 

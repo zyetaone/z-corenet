@@ -23,7 +23,7 @@ bun run format       # Prettier auto-fix
 ```bash
 bunx wrangler d1 execute corenet-db --local --file=migrations/0001_initial.sql  # Apply schema locally
 bunx wrangler dev --local                                                        # Run with local D1
-bunx wrangler deploy                                                             # Deploy to Cloudflare
+bunx wrangler pages deploy .svelte-kit/cloudflare                                # Deploy to Cloudflare Pages
 ```
 
 ## Tech Stack
@@ -33,7 +33,7 @@ bunx wrangler deploy                                                            
 - **Database**: Cloudflare D1 (SQLite) via Drizzle ORM — binding name `DB` in `wrangler.jsonc`
 - **Styling**: TailwindCSS v4 via Vite plugin — uses `@import 'tailwindcss'` + `@plugin` syntax (not `@tailwind` directives)
 - **Package manager**: bun
-- **Deployment**: Cloudflare Workers (`@sveltejs/adapter-cloudflare`)
+- **Deployment**: Cloudflare Pages (`@sveltejs/adapter-cloudflare`) — use `wrangler pages deploy`, NOT `wrangler deploy`
 
 ## Architecture
 

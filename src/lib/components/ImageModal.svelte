@@ -20,7 +20,7 @@
 	function download() {
 		const link = document.createElement('a');
 		link.href = image.imageData;
-		link.download = `workspace-${image.participantName}-${Date.now()}.jpg`;
+		link.download = `workspace-${image.participantName}-${Date.now()}.webp`;
 		document.body.appendChild(link);
 		link.click();
 		document.body.removeChild(link);

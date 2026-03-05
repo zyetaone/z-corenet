@@ -8,35 +8,35 @@ export const GET: RequestHandler = async ({ platform, cookies, url }) => {
 	const sessionId = cookies.get('session_id');
 	const showAll = url.searchParams.get('all') === '1';
 
-	// If ?all=1, return all images ever (cross-session showcase)
+	// If ?all=1, return all images (cross-session showcase) — requires a valid session
 	// Otherwise, return only images for the current session
 	const images = showAll
-		? await getAllWorkspaceImages(db)
+		? sessionId
+			? await getAllWorkspaceImages(db)
+			: []
 		: sessionId
 			? await getSessionWorkspaceImages(db, sessionId)
 			: [];
 
-	// Split into individual and collective, return latest per participant
-	const individualMap = new Map<string, (typeof images)[0]>();
+	// Split into individual and collective — keep ALL generations
+	const individual: (typeof images)[0][] = [];
 	const collective: (typeof images)[0][] = [];
 
 	for (const img of images) {
 		if (img.type === 'collective') {
 			collective.push(img);
-		} else if (img.participantId) {
-			// Keep only the latest image per participant
-			if (!individualMap.has(img.participantId)) {
-				individualMap.set(img.participantId, img);
-			}
+		} else {
+			individual.push(img);
 		}
 	}
 
 	return json({
-		individual: [...individualMap.values()].map((img) => ({
+		individual: individual.map((img) => ({
 			id: img.id,
 			participantName: img.participantName ?? 'Anonymous',
 			imageData: img.imageData,
 			featureNames: img.featureNames ? JSON.parse(img.featureNames) : [],
+			prompt: img.prompt,
 			createdAt: img.createdAt
 		})),
 		collective: collective.map((img) => ({

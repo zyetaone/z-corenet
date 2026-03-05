@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { RefreshCw, Download, Maximize2 } from '@lucide/svelte';
+	import { RefreshCw, Pencil, Download, Maximize2, Undo2 } from '@lucide/svelte';
 	import PromptDropdown from './PromptDropdown.svelte';
 
 	let {
@@ -7,12 +7,18 @@
 		prompt,
 		generationsRemaining,
 		onregenerate,
+		onedit,
+		onundo,
+		canUndo = false,
 		dark = false
 	}: {
 		imageData: string;
 		prompt: string;
 		generationsRemaining: number;
-		onregenerate: (additionalPrompt?: string) => void;
+		onregenerate: () => void;
+		onedit: (editPrompt: string) => void;
+		onundo?: () => void;
+		canUndo?: boolean;
 		dark?: boolean;
 	} = $props();
 
@@ -22,7 +28,7 @@
 	function download() {
 		const link = document.createElement('a');
 		link.href = imageData;
-		link.download = `workspace-${Date.now()}.jpg`;
+		link.download = `workspace-${Date.now()}.webp`;
 		document.body.appendChild(link);
 		link.click();
 		document.body.removeChild(link);
@@ -52,7 +58,7 @@
 		<input
 			type="text"
 			class="reprompt-input"
-			placeholder="Add to prompt: &quot;more plants, warmer lighting...&quot;"
+			placeholder="e.g. add a lounge chair, warmer lighting, more plants, change wall colour..."
 			bind:value={repromptText}
 			disabled={generationsRemaining <= 0}
 		/>
@@ -60,11 +66,24 @@
 
 	<!-- Action buttons -->
 	<div class="actions-row">
+		{#if canUndo && onundo}
+			<button type="button" class="action-btn" onclick={onundo}>
+				<Undo2 size={14} /> Undo
+			</button>
+		{/if}
+		<button
+			type="button"
+			class="action-btn edit-btn"
+			disabled={generationsRemaining <= 0 || !repromptText.trim()}
+			onclick={() => { onedit(repromptText); repromptText = ''; }}
+		>
+			<Pencil size={14} /> Edit
+		</button>
 		<button
 			type="button"
 			class="action-btn"
 			disabled={generationsRemaining <= 0}
-			onclick={() => { onregenerate(repromptText || undefined); repromptText = ''; }}
+			onclick={() => { onregenerate(); repromptText = ''; }}
 		>
 			<RefreshCw size={14} />
 			{#if generationsRemaining > 0}
@@ -196,6 +215,24 @@
 	.dark-mode .action-btn:hover:not(:disabled) {
 		background: rgba(255, 255, 255, 0.12);
 		color: rgba(255, 255, 255, 0.8);
+	}
+
+	.edit-btn:not(:disabled) {
+		border-color: var(--color-teal, #14b8a6);
+		color: var(--color-teal, #14b8a6);
+	}
+
+	.edit-btn:hover:not(:disabled) {
+		background: rgba(20, 184, 166, 0.1);
+	}
+
+	.dark-mode .edit-btn:not(:disabled) {
+		border-color: var(--color-teal, #14b8a6);
+		color: var(--color-teal, #14b8a6);
+	}
+
+	.dark-mode .edit-btn:hover:not(:disabled) {
+		background: rgba(20, 184, 166, 0.15);
 	}
 
 	.fullscreen-overlay {

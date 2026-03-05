@@ -1,8 +1,8 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getDb } from '$lib/server/db';
-import { eq, and, sql, count } from 'drizzle-orm';
-import { votes, sessionFeatures, workspaceImages, participants } from '$lib/server/db/schema';
+import { eq, and, sql } from 'drizzle-orm';
+import { votes, sessionFeatures, workspaceImages } from '$lib/server/db/schema';
 import {
 	getWorkspaceImageCount,
 	getCollectiveImageCount,
@@ -14,7 +14,9 @@ import {
 	buildWorkspacePrompt,
 	buildRegenerationPrompt,
 	generateWorkspaceImage,
-	MAX_GENERATIONS
+	editWorkspaceImage,
+	MAX_GENERATIONS,
+	MAX_COLLECTIVE_GENERATIONS
 } from '$lib/server/ai/image-generator';
 import { buildTallyResultById } from '$lib/server/tally';
 
@@ -30,15 +32,37 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 	configureFal(apiKey);
 
 	const body = await request.json();
-	const { type, name, email, additionalPrompt } = body as {
+	const { type, name, email, additionalPrompt, trackingId, previousImageData } = body as {
 		type: 'individual' | 'collective';
 		name?: string;
 		email?: string;
 		additionalPrompt?: string;
+		trackingId?: string;
+		previousImageData?: string;
 	};
 
 	if (type !== 'individual' && type !== 'collective') {
 		error(400, 'Invalid type');
+	}
+
+	// Validate trackingId is a UUID if provided
+	if (trackingId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trackingId)) {
+		error(400, 'Invalid tracking ID');
+	}
+
+	// Cap additional prompt length
+	if (additionalPrompt && additionalPrompt.length > 500) {
+		error(400, 'Additional prompt too long (max 500 characters)');
+	}
+
+	// Validate previousImageData size and format
+	if (previousImageData) {
+		if (previousImageData.length > 8 * 1024 * 1024) {
+			error(400, 'Image data too large (max 8MB)');
+		}
+		if (!/^data:image\/(webp|jpeg|png);base64,/.test(previousImageData)) {
+			error(400, 'Invalid image format (must be webp, jpeg, or png)');
+		}
 	}
 
 	let features: Array<{ name: string; hasEvidence: boolean }> = [];
@@ -47,20 +71,44 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 	if (type === 'individual') {
 		if (!participantId) error(401, 'No participant session');
 
+		const targetEmail = email?.trim();
+		const targetName = name?.trim();
+
+		// Update participant identity if provided
+		if (targetName || targetEmail) {
+			await updateParticipantIdentity(db, participantId, targetName ?? '', targetEmail ?? '');
+		}
+
+		// If they just submitted the form initially (no additionalPrompt) and already have an image connected to this email, skip generation
+		if (targetEmail && !additionalPrompt) {
+			const existing = await db
+				.select()
+				.from(workspaceImages)
+				.where(
+					and(
+						eq(workspaceImages.sessionId, sessionId),
+						eq(workspaceImages.type, 'individual'),
+						eq(workspaceImages.participantEmail, targetEmail)
+					)
+				)
+				.orderBy(sql`${workspaceImages.createdAt} DESC`)
+				.limit(1);
+
+			if (existing.length > 0) {
+				const img = existing[0];
+				return json({
+					imageData: img.imageData,
+					prompt: img.prompt,
+					generationsRemaining: Math.max(0, MAX_GENERATIONS - img.generationNum),
+					generationNum: img.generationNum
+				});
+			}
+		}
+
 		// Check generation limit
 		currentCount = await getWorkspaceImageCount(db, participantId, sessionId);
 		if (currentCount >= MAX_GENERATIONS) {
 			error(429, 'Generation limit reached');
-		}
-
-		// Update participant identity if provided
-		if (name?.trim() || email?.trim()) {
-			await updateParticipantIdentity(
-				db,
-				participantId,
-				name?.trim() ?? '',
-				email?.trim() ?? ''
-			);
 		}
 
 		// Fetch this participant's voted features
@@ -83,7 +131,7 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 	} else {
 		// Collective: use top 8 features from tally
 		currentCount = await getCollectiveImageCount(db, sessionId);
-		if (currentCount >= MAX_GENERATIONS) {
+		if (currentCount >= MAX_COLLECTIVE_GENERATIONS) {
 			error(429, 'Generation limit reached');
 		}
 
@@ -113,15 +161,21 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 	// Build prompt (new or regeneration)
 	let prompt: string;
 	if (currentCount > 0 && additionalPrompt !== undefined) {
-		// Regeneration: modify previous prompt
 		const basePrompt = buildWorkspacePrompt(features);
 		prompt = buildRegenerationPrompt(basePrompt, additionalPrompt);
 	} else {
 		prompt = buildWorkspacePrompt(features, additionalPrompt);
 	}
 
-	// Generate image via fal.ai
-	const result = await generateWorkspaceImage(prompt);
+	// Use edit mode when we have a previous image and user provided modifications
+	let result: { imageData: string; prompt: string };
+	if (previousImageData && additionalPrompt?.trim()) {
+		result = await editWorkspaceImage(previousImageData, additionalPrompt.trim(), trackingId);
+		// Store the full composite prompt for DB/display, not the short edit instruction
+		result = { ...result, prompt };
+	} else {
+		result = await generateWorkspaceImage(prompt, trackingId);
+	}
 	const generationNum = currentCount + 1;
 
 	// Store in DB
@@ -137,10 +191,11 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 		featureNames: features.map((f) => f.name)
 	});
 
+	const maxGens = type === 'collective' ? MAX_COLLECTIVE_GENERATIONS : MAX_GENERATIONS;
 	return json({
 		imageData: result.imageData,
 		prompt: result.prompt,
-		generationsRemaining: MAX_GENERATIONS - generationNum,
+		generationsRemaining: maxGens - generationNum,
 		generationNum
 	});
 };

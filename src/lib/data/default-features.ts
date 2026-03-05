@@ -4,7 +4,7 @@ export const MAX_PICKS = 5;
 export const FEATURE_GROUPS = [
 	{ key: 'light', label: 'Light & Daylight' },
 	{ key: 'air', label: 'Air & Thermal' },
-	{ key: 'acoustic', label: 'Acoustic' },
+	{ key: 'acoustic', label: 'Acoustics' },
 	{ key: 'biophilic', label: 'Biophilic & Nature' },
 	{ key: 'wellness', label: 'Movement & Wellness' },
 	{ key: 'tech', label: 'Technology' },
