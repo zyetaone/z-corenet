@@ -13,7 +13,11 @@
 	import AiPrompt from '$lib/components/AiPrompt.svelte';
 	import MetricStrip from '$lib/components/MetricStrip.svelte';
 	import ConsensusView from '$lib/components/ConsensusView.svelte';
-	import { ChevronLeft } from '@lucide/svelte';
+	import MasonryTicker from '$lib/components/MasonryTicker.svelte';
+	import ImageModal from '$lib/components/ImageModal.svelte';
+	import WorkspaceImage from '$lib/components/WorkspaceImage.svelte';
+	import AiLoader from '$lib/components/AiLoader.svelte';
+	import { ChevronLeft, Sparkles } from '@lucide/svelte';
 
 	let { data }: { data: PageData } = $props();
 	const s = new DashboardState(() => data);
@@ -48,6 +52,13 @@
 		return () => clearInterval(interval);
 	});
 
+	// Poll workspace images when results are shown
+	$effect(() => {
+		if (!s.showResults) return;
+		const interval = setInterval(() => s.pollWorkspaceImages(), 5000);
+		return () => clearInterval(interval);
+	});
+
 	// Keyboard navigation for pages
 	function handleKeydown(e: KeyboardEvent) {
 		if (!s.showResults || s.results.voteCount === 0) return;
@@ -72,6 +83,59 @@
 
 	const flyX = $derived(s.direction === 'forward' ? 300 : -300);
 	const currentMeta = $derived(PAGE_META[s.page - 1]);
+
+	// Page 4 state
+	let selectedImage = $state<{
+		participantName: string;
+		imageData: string;
+		featureNames: string[];
+		prompt?: string;
+	} | null>(null);
+
+	let collectiveGenerating = $state(false);
+	let collectiveProgress = $state(0);
+	let collectiveProgressInterval: ReturnType<typeof setInterval> | null = null;
+
+	function startCollectiveProgress() {
+		collectiveProgress = 0;
+		collectiveProgressInterval = setInterval(() => {
+			if (collectiveProgress < 90) {
+				collectiveProgress = Math.min(90, collectiveProgress + Math.random() * 20);
+			}
+		}, 400);
+	}
+
+	function stopCollectiveProgress() {
+		if (collectiveProgressInterval) clearInterval(collectiveProgressInterval);
+		collectiveProgress = 100;
+	}
+
+	async function generateCollective(additionalPrompt?: string) {
+		collectiveGenerating = true;
+		startCollectiveProgress();
+
+		try {
+			const res = await fetch('/api/generate-image', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ type: 'collective', additionalPrompt })
+			});
+
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+			const result = await res.json();
+			stopCollectiveProgress();
+
+			s.collectiveImage = result.imageData;
+			s.collectivePrompt = result.prompt;
+			s.collectiveGenerationsRemaining = result.generationsRemaining;
+		} catch (e) {
+			console.error('Collective generation failed:', e);
+		} finally {
+			collectiveGenerating = false;
+			stopCollectiveProgress();
+		}
+	}
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -181,7 +245,7 @@
 						{/if}
 
 						<!-- Page content with slide transitions -->
-						<div class="stage-slide-container flex-1 {s.page < 3 ? 'mt-8 flex items-center justify-center' : 'mt-2'}">
+						<div class="stage-slide-container flex-1 {s.page <= 2 ? 'mt-8 flex items-center justify-center' : 'mt-2'}">
 								{#key s.page}
 									<div
 										in:fly={{
@@ -208,6 +272,62 @@
 												radarDatasets={s.radarDatasets}
 												categoryStats={s.categoryStats}
 											/>
+										{:else if s.page === 4}
+											<!-- PAGE 4 — Workspace Gallery -->
+											<div class="grid grid-cols-1 gap-4 lg:grid-cols-5">
+												<!-- Left: Individual gallery (60%) -->
+												<div class="lg:col-span-3">
+													<h3 class="mb-2 text-sm font-bold tracking-wider text-white/50 uppercase">
+														Individual Workspaces
+													</h3>
+													{#if s.workspaceImages.individual.length === 0}
+														<div class="flex h-64 items-center justify-center rounded-2xl border border-white/8 bg-white/5">
+															<p class="text-sm text-white/30">No workspace images yet — participants can generate from the results page</p>
+														</div>
+													{:else}
+														<div class="h-[60vh]">
+															<MasonryTicker
+																images={s.workspaceImages.individual}
+																onselect={(img) => (selectedImage = img)}
+															/>
+														</div>
+													{/if}
+												</div>
+
+												<!-- Right: Collective workspace (40%) -->
+												<div class="lg:col-span-2">
+													<h3 class="mb-2 text-sm font-bold tracking-wider text-white/50 uppercase">
+														Collective Workspace
+													</h3>
+													<div class="rounded-2xl border border-white/8 bg-white/5 p-4">
+														{#if collectiveGenerating}
+															<AiLoader progress={collectiveProgress} message="Creating collective workspace..." dark={true} />
+														{:else if s.collectiveImage}
+															<WorkspaceImage
+																imageData={s.collectiveImage}
+																prompt={s.collectivePrompt}
+																generationsRemaining={s.collectiveGenerationsRemaining}
+																onregenerate={(additionalPrompt) => generateCollective(additionalPrompt)}
+																dark={true}
+															/>
+														{:else}
+															<div class="flex flex-col items-center gap-4 py-12">
+																<Sparkles size={32} class="text-accent" />
+																<p class="text-center text-sm text-white/50">
+																	Generate a workspace from the group's top-voted features
+																</p>
+																<button
+																	type="button"
+																	class="rounded-xl bg-gradient-to-r from-teal to-accent px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+																	onclick={() => generateCollective()}
+																>
+																	Create Workspace from Collective Votes
+																</button>
+															</div>
+														{/if}
+													</div>
+												</div>
+											</div>
 										{/if}
 									</div>
 								{/key}
@@ -262,4 +382,8 @@
 			<AiPrompt features={s.allFeatures} hidden={true} />
 		</div>
 	</div>
+
+	{#if selectedImage}
+		<ImageModal image={selectedImage} onclose={() => (selectedImage = null)} />
+	{/if}
 </AppBackground>
