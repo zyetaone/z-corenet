@@ -1,10 +1,11 @@
 <script lang="ts">
-	let { onreset }: { onreset: (pin: string) => void } = $props();
+	let { onreset }: { onreset: (pin: string) => Promise<string | null> } = $props();
 
 	let showConfirm = $state(false);
 	let step = $state<'confirm' | 'pin'>('confirm');
 	let pin = $state('');
 	let pinError = $state('');
+	let submitting = $state(false);
 
 	let cancelBtn: HTMLButtonElement | undefined = $state();
 	let pinInput: HTMLInputElement | undefined = $state();
@@ -26,13 +27,20 @@
 		pinError = '';
 	}
 
-	function submitPin() {
+	async function submitPin() {
 		if (pin.length < 4) {
 			pinError = 'Enter the 4-digit PIN';
 			return;
 		}
-		close();
-		onreset(pin);
+		pinError = '';
+		submitting = true;
+		const err = await onreset(pin);
+		submitting = false;
+		if (err) {
+			pinError = err;
+		} else {
+			close();
+		}
 	}
 
 	function getFocusable(container: HTMLElement): HTMLElement[] {
@@ -137,10 +145,11 @@
 					</button>
 					<button
 						type="button"
-						class="min-h-[44px] flex-1 cursor-pointer rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+						class="min-h-[44px] flex-1 cursor-pointer rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
 						onclick={submitPin}
+						disabled={submitting}
 					>
-						Confirm
+						{submitting ? 'Resetting...' : 'Confirm'}
 					</button>
 				</div>
 			{/if}

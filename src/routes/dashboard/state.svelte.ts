@@ -145,7 +145,7 @@ export class DashboardState {
 		this.direction = 'forward';
 	}
 
-	async handleReset(pin: string) {
+	async handleReset(pin: string): Promise<string | null> {
 		try {
 			const res = await fetch('/api/reset', {
 				method: 'POST',
@@ -153,9 +153,12 @@ export class DashboardState {
 			});
 			if (res.ok) {
 				window.location.reload();
+				return null;
 			}
-		} catch {
-			// silently ignore reset errors
+			const body = await res.json().catch(() => ({}));
+			return body.error || `Reset failed (${res.status})`;
+		} catch (e) {
+			return `Network error: ${e instanceof Error ? e.message : 'unknown'}`;
 		}
 	}
 
