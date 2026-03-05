@@ -12,10 +12,9 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 
 	const db = getDb(platform);
 
-	// Verify session is still open (redirects after reset)
 	const session = await getSessionById(db, sessionId);
-	if (!session || session.status !== 'open') {
-		redirect(303, '/');
+	if (!session) {
+		redirect(303, '/vote');
 	}
 
 	const rows = await db
@@ -37,9 +36,9 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 
 	type PickedFeature = { name: string; hasEvidence: boolean; caption: string | null };
 
-	// If no votes found for this participant+session combo, redirect to join fresh
+	// If no votes found for this participant+session combo, send to quiz
 	if (rows.length === 0) {
-		redirect(303, '/');
+		redirect(303, '/vote');
 	}
 
 	const individual: PickedFeature[] = rows

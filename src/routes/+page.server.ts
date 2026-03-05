@@ -7,8 +7,8 @@ import {
 	copyDefaultFeatures,
 	createParticipant
 } from '$lib/server/db/queries';
-import { participants } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { participants, votes } from '$lib/server/db/schema';
+import { eq, and } from 'drizzle-orm';
 import { DEFAULT_FEATURES } from '$lib/data/default-features';
 import { generateCode } from '$lib/server/utils';
 
@@ -28,7 +28,7 @@ export const actions: Actions = {
 		const session = await getOrCreateSession(db);
 
 		const existingParticipantId = cookies.get('participant_id');
-		let validParticipant = false;
+		let needsNewParticipant = true;
 
 		if (existingParticipantId) {
 			const existing = await db
@@ -38,11 +38,22 @@ export const actions: Actions = {
 				.limit(1);
 
 			if (existing.length > 0 && existing[0].sessionId === session.id) {
-				validParticipant = true;
+				// Check if this participant already voted — if so, create a fresh one
+				const hasVoted = await db
+					.select({ id: votes.id })
+					.from(votes)
+					.where(
+						and(eq(votes.participantId, existingParticipantId), eq(votes.sessionId, session.id))
+					)
+					.limit(1);
+
+				if (hasVoted.length === 0) {
+					needsNewParticipant = false;
+				}
 			}
 		}
 
-		if (!validParticipant) {
+		if (needsNewParticipant) {
 			const participant = await createParticipant(db, session.id);
 
 			cookies.set('participant_id', participant.id, {
@@ -58,8 +69,6 @@ export const actions: Actions = {
 				maxAge: 60 * 60 * 24
 			});
 
-			// Clear UX cookies so returning user data doesn't bleed into a new participant
-			// These are non-httpOnly cookies set client-side, so delete with matching options
 			cookies.set('user_name', '', { path: '/', maxAge: 0, httpOnly: false });
 			cookies.set('user_email', '', { path: '/', maxAge: 0, httpOnly: false });
 		}
