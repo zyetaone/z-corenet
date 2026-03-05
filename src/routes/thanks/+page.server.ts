@@ -1,3 +1,4 @@
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { getDb } from '$lib/server/db';
 import { eq, and } from 'drizzle-orm';
@@ -29,6 +30,11 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 		.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)));
 
 	type PickedFeature = { name: string; hasEvidence: boolean; caption: string | null };
+
+	// If no votes found for this participant+session combo, redirect to join fresh
+	if (rows.length === 0) {
+		redirect(303, '/');
+	}
 
 	const individual: PickedFeature[] = rows
 		.filter((r) => r.phase === 'individual')
