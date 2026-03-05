@@ -325,6 +325,11 @@
 								<AiLoader {progress} message={progressMsg} dark={true} showCredit={false} />
 							</div>
 						{/if}
+						{#if errorMsg && vizState === 'done'}
+							<div class="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-600">
+								{errorMsg}
+							</div>
+						{/if}
 					</div>
 
 					<div class="mt-8 flex justify-center border-t border-slate-100 pt-6">
