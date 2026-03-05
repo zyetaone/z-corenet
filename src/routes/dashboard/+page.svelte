@@ -64,9 +64,10 @@
 	}
 
 	const PAGE_META = [
-		{ title: 'Fuelling the Individual Brain', subtitle: 'Your top 3 personal priorities' },
-		{ title: 'Fuelling the Collective Brain', subtitle: 'Your top 3 team priorities' },
-		{ title: 'Consensus & Alignment', subtitle: 'Comparing focus areas and collective weight' }
+		{ title: 'Fuelling the Individual Brain', subtitle: "The session's results for the individual" },
+		{ title: 'Fuelling the Collective Brain', subtitle: "The session's results for the collective" },
+		{ title: 'Consensus & Alignment', subtitle: 'Comparing focus areas and collective weight' },
+		{ title: 'Workspace Gallery', subtitle: 'Individual and collective workspace visualisations' }
 	] as const;
 
 	const flyX = $derived(s.direction === 'forward' ? 300 : -300);
@@ -90,7 +91,7 @@
 					<BrandFooter class="mb-3" />
 
 					<h1
-						class="mb-2 font-display text-4xl font-bold text-white md:text-5xl lg:text-6xl"
+						class="mb-2 font-display text-6xl font-bold text-white md:text-7xl lg:text-8xl"
 						style="line-height: 1.1"
 					>
 						{s.results.session.title}
@@ -164,10 +165,10 @@
 					{:else}
 						<!-- Hero page title -->
 						<div class="text-center">
-							<h2 class="font-display text-2xl font-black tracking-tight text-white md:text-3xl">
+							<h2 class="font-display text-4xl font-black tracking-tight text-white md:text-5xl">
 								{currentMeta.title}
 							</h2>
-							<p class="text-xs font-medium tracking-wide text-white/50 italic">
+							<p class="mt-2 text-base font-medium tracking-wide text-white/70">
 								{currentMeta.subtitle}
 							</p>
 						</div>

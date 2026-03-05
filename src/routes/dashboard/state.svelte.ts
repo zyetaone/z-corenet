@@ -6,7 +6,7 @@ import type { GroupKey } from '$lib/data/default-features';
 export { RADAR_LABELS };
 
 export class DashboardState {
-	static readonly TOTAL_PAGES = 3;
+	static readonly TOTAL_PAGES = 4;
 
 	#getData: () => TallyResult = null!;
 	polledResults = $state.raw<TallyResult | null>(null);
@@ -15,6 +15,27 @@ export class DashboardState {
 	showResults = $state(false);
 	page = $state(1);
 	direction = $state<'forward' | 'backward'>('forward');
+
+	workspaceImages = $state.raw<{
+		individual: Array<{
+			id: string;
+			participantName: string;
+			imageData: string;
+			featureNames: string[];
+			createdAt: string;
+		}>;
+		collective: Array<{
+			id: string;
+			imageData: string;
+			prompt: string;
+			featureNames: string[];
+			createdAt: string;
+		}>;
+	}>({ individual: [], collective: [] });
+
+	collectiveImage = $state<string | null>(null);
+	collectivePrompt = $state<string>('');
+	collectiveGenerationsRemaining = $state(3);
 
 	constructor(getData: () => TallyResult) {
 		this.#getData = getData;
@@ -150,6 +171,24 @@ export class DashboardState {
 			// silently ignore polling errors
 		} finally {
 			this.polling = false;
+		}
+	}
+
+	async pollWorkspaceImages() {
+		try {
+			const res = await fetch('/api/workspace-images');
+			if (res.ok) {
+				this.workspaceImages = await res.json();
+				// Update collective state from latest
+				const latest = this.workspaceImages.collective[0];
+				if (latest) {
+					this.collectiveImage = latest.imageData;
+					this.collectivePrompt = latest.prompt;
+					this.collectiveGenerationsRemaining = 3 - this.workspaceImages.collective.length;
+				}
+			}
+		} catch {
+			// silently ignore
 		}
 	}
 
