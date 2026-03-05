@@ -237,6 +237,13 @@ export async function getLatestParticipantImage(
 	return row;
 }
 
+export async function getAllWorkspaceImages(db: DbClient): Promise<WorkspaceImage[]> {
+	return db
+		.select()
+		.from(workspaceImages)
+		.orderBy(sql`${workspaceImages.createdAt} desc`);
+}
+
 export async function updateParticipantIdentity(
 	db: DbClient,
 	participantId: string,
