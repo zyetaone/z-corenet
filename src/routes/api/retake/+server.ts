@@ -6,8 +6,8 @@ export const POST: RequestHandler = async ({ cookies }) => {
 	cookies.delete('participant_id', { path: '/' });
 
 	// Clear UX cookies so the new participant starts fresh
-	cookies.delete('user_name', { path: '/' });
-	cookies.delete('user_email', { path: '/' });
+	cookies.set('user_name', '', { path: '/', maxAge: 0, httpOnly: false });
+	cookies.set('user_email', '', { path: '/', maxAge: 0, httpOnly: false });
 
 	// We intentionally keep session_id so they rejoin the same overarching active lobby context
 	return json({ ok: true });

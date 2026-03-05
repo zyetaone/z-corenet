@@ -59,8 +59,9 @@ export const actions: Actions = {
 			});
 
 			// Clear UX cookies so returning user data doesn't bleed into a new participant
-			cookies.delete('user_name', { path: '/' });
-			cookies.delete('user_email', { path: '/' });
+			// These are non-httpOnly cookies set client-side, so delete with matching options
+			cookies.set('user_name', '', { path: '/', maxAge: 0, httpOnly: false });
+			cookies.set('user_email', '', { path: '/', maxAge: 0, httpOnly: false });
 		}
 
 		redirect(303, '/vote');
