@@ -17,18 +17,23 @@
 
 	let paused = $state(false);
 	let needsScroll = $derived(images.length > 6);
+
+	// Duplicate images for seamless looping when auto-scrolling
+	let displayImages = $derived(
+		needsScroll ? [...images, ...images] : images
+	);
 </script>
 
 <div
 	class="masonry-container"
-	class:scrolling={needsScroll && !paused}
+	class:auto-scroll={needsScroll && !paused}
 	role="region"
 	aria-label="Workspace image gallery"
 	onmouseenter={() => (paused = true)}
 	onmouseleave={() => (paused = false)}
 >
 	<div class="masonry-track">
-		{#each images as image (image.id)}
+		{#each displayImages as image, i (needsScroll ? `${image.id}-${i}` : image.id)}
 			<button
 				type="button"
 				class="masonry-card"
@@ -46,8 +51,24 @@
 		position: relative;
 		width: 100%;
 		height: 100%;
-		overflow: hidden;
+		overflow-y: auto;
+		overflow-x: hidden;
 		border-radius: 1rem;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+	}
+
+	.masonry-container::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	.masonry-container::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.masonry-container::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.15);
+		border-radius: 2px;
 	}
 
 	.masonry-track {
@@ -62,8 +83,17 @@
 		}
 	}
 
-	.scrolling .masonry-track {
-		animation: ticker-scroll 30s linear infinite;
+	/* Auto-scroll only when not hovered and enough images */
+	.auto-scroll {
+		overflow-y: hidden;
+	}
+
+	.auto-scroll .masonry-track {
+		animation: ticker-scroll 40s linear infinite;
+	}
+
+	.auto-scroll:hover .masonry-track {
+		animation-play-state: paused;
 	}
 
 	@keyframes ticker-scroll {
@@ -83,6 +113,7 @@
 		background: none;
 		padding: 0;
 		transition: transform 0.2s, box-shadow 0.2s;
+		break-inside: avoid;
 	}
 
 	.masonry-card:hover {
@@ -110,8 +141,11 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.scrolling .masonry-track {
+		.auto-scroll .masonry-track {
 			animation: none;
+		}
+		.auto-scroll {
+			overflow-y: auto;
 		}
 	}
 </style>
