@@ -177,20 +177,15 @@ export async function editWorkspaceImage(
 
 	if (trackingId) emitProgress(trackingId, 10, 'Starting image edit...');
 
-	// Wrap user edit instruction to preserve existing annotation overlays
-	const wrappedPrompt = [
-		editPrompt,
-		'IMPORTANT: Preserve all existing text labels, annotation overlays, coloured circles,',
-		'caption panels, and leader lines exactly as they appear in the original image.',
-		'Only modify the areas and elements described above. Do not remove or alter any labels',
-		'unless explicitly asked to.'
-	].join(' ');
+	// Lead with the edit instruction, add soft preservation note
+	const wrappedPrompt = `Edit this workspace image: ${editPrompt}. Keep existing labels and annotations where possible.`;
 
-	const result = await fal.subscribe('fal-ai/nano-banana/edit', {
+	const result = await fal.subscribe('fal-ai/nano-banana-2/edit', {
 		input: {
 			prompt: wrappedPrompt,
 			image_urls: [uploadedUrl],
 			num_images: 1,
+			resolution: '1K',
 			output_format: 'webp'
 		},
 		onQueueUpdate(update) {
