@@ -243,148 +243,99 @@
 		</div>
 
 		{#if data.hasFalKey}
-			<div class="mt-4 overflow-hidden rounded-[2.5rem] border border-slate-800 bg-slate-950 text-left shadow-2xl">
-				<div class="flex flex-col lg:flex-row">
-					<!-- Left Side: Studio Controls -->
-					<div class="flex w-full flex-col justify-center border-b border-slate-800 p-8 lg:w-1/2 lg:border-r lg:border-b-0 lg:p-12">
-						<div class="mb-8 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-teal/10 text-teal ring-1 ring-teal/20">
-							<Sparkles size={28} />
+			<div
+				class="mt-4 rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-[0_20px_50px_rgba(0,0,0,0.15)] md:p-8"
+			>
+				{#if vizState === 'error'}
+					<div class="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-8 text-center">
+						<div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-500">
+							<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+						</div>
+						<h3 class="font-display text-xl font-bold text-slate-900">Something went wrong</h3>
+						<p class="text-sm text-slate-500">{errorMsg}</p>
+						<button
+							type="button"
+							class="mt-2 rounded-2xl bg-slate-900 px-8 py-3 text-sm font-bold text-white transition-colors hover:bg-slate-800"
+							onclick={() => generateImage()}
+						>
+							Try Again
+						</button>
+					</div>
+				{:else if vizState === 'form'}
+					<div class="mx-auto flex max-w-xl flex-col items-center gap-6 px-2 py-4 text-center sm:px-4 sm:py-6">
+						<div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-teal/20 to-teal/5 text-teal shadow-inner">
+							<Sparkles size={32} />
 						</div>
 						
-						<h3 class="font-display text-3xl font-black tracking-tight text-white md:text-4xl">
-							Visualise Your Workspace
-						</h3>
-						<p class="mt-3 text-[15px] leading-relaxed text-slate-400">
-							{#if vizState === 'form' || vizState === 'error'}
-								Enter your details to generate your unique structural vision based on your individual and communal selections.
-							{:else}
-								Your workspace is materializing based on your selected features.
-							{/if}
+						<div>
+							<h3 class="font-display text-2xl font-black tracking-tight text-slate-900 md:text-3xl">
+								Visualise Your Workspace
+							</h3>
+							<p class="mt-2 text-[15px] leading-relaxed text-slate-500">
+								Provide your details to see your choices instantly come to life as a unique, AI-generated workspace design.
+							</p>
+						</div>
+
+						<div class="mt-2 flex w-full flex-col gap-3 sm:flex-row">
+							<input
+								type="text"
+								placeholder="First Name"
+								bind:value={userName}
+								class="w-full flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm font-bold text-slate-800 placeholder:text-slate-400 placeholder:font-medium transition-all focus:border-teal focus:bg-white focus:ring-4 focus:ring-teal/10 focus:outline-none"
+							/>
+							<input
+								type="email"
+								placeholder="Email Address"
+								bind:value={userEmail}
+								class="w-full flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm font-bold text-slate-800 placeholder:text-slate-400 placeholder:font-medium transition-all focus:border-teal focus:bg-white focus:ring-4 focus:ring-teal/10 focus:outline-none"
+							/>
+						</div>
+
+						<button
+							type="button"
+							class="group relative mt-2 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-slate-900 px-8 py-4.5 text-sm font-black tracking-wide text-white shadow-xl transition-all hover:bg-slate-800 hover:shadow-2xl disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none sm:w-auto"
+							disabled={!userName.trim() || !userEmail.trim()}
+							onclick={() => generateImage()}
+						>
+							<span>GENERATE DESIGN</span>
+							<Sparkles size={16} class="transition-transform group-hover:scale-110" />
+						</button>
+						
+						<p class="text-[11px] font-medium text-slate-400">
+							By generating, you agree to our Terms. Returning emails will load their previous generation.
 						</p>
-
-						{#if vizState === 'form' || vizState === 'error'}
-							<div class="mt-8 flex flex-col gap-4">
-								{#if vizState === 'error'}
-									<div class="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
-										<p class="font-bold">Generation failed</p>
-										<p class="mt-1 opacity-80">{errorMsg}</p>
-									</div>
-								{/if}
-								
-								<div class="group relative">
-									<input
-										type="text"
-										placeholder="First Name"
-										bind:value={userName}
-										class="w-full rounded-2xl border border-slate-800 bg-slate-900/50 px-5 py-4 text-sm font-bold text-white placeholder:text-slate-600 placeholder:font-medium transition-all focus:border-teal focus:bg-slate-900 focus:ring-4 focus:ring-teal/20 focus:outline-none"
-									/>
-								</div>
-								<div class="group relative">
-									<input
-										type="email"
-										placeholder="Email Address"
-										bind:value={userEmail}
-										class="w-full rounded-2xl border border-slate-800 bg-slate-900/50 px-5 py-4 text-sm font-bold text-white placeholder:text-slate-600 placeholder:font-medium transition-all focus:border-teal focus:bg-slate-900 focus:ring-4 focus:ring-teal/20 focus:outline-none"
-									/>
-								</div>
-
-								<button
-									type="button"
-									class="group relative mt-2 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-teal px-8 py-4.5 text-sm font-black tracking-wide text-slate-950 shadow-[0_0_40px_rgba(20,184,166,0.2)] transition-all hover:scale-[1.02] hover:bg-teal-400 hover:shadow-[0_0_60px_rgba(20,184,166,0.3)] active:scale-95 disabled:pointer-events-none disabled:opacity-50"
-									disabled={!userName.trim() || !userEmail.trim()}
-									onclick={() => generateImage()}
-								>
-									<span>GENERATE DESIGN</span>
-									<Sparkles size={16} class="transition-transform group-hover:scale-110" />
-								</button>
-								
-								<p class="text-center text-[13px] font-medium text-slate-600">
-									Returning emails will auto-load their previous generation.
-								</p>
-							</div>
-						{:else}
-							<!-- Status block while generating or done -->
-							<div class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-								<div class="flex items-center gap-4">
-									<div class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-teal">
-										<Brain size={24} class={vizState === 'generating' ? 'animate-pulse' : ''} />
-									</div>
-									<div>
-										<p class="font-bold text-white">
-											{vizState === 'generating' ? 'AI is working...' : 'Generation Complete'}
-										</p>
-										<p class="text-[13px] text-slate-500 mt-0.5">
-											{currentImage ? `${generationsRemaining} edits remaining` : 'Connecting to neural net'}
-										</p>
-									</div>
-								</div>
-								{#if vizState === 'done'}
-									<div class="mt-6 flex gap-3">
-										<button
-											onclick={retakeQuiz}
-											class="flex-1 rounded-xl bg-slate-800 py-3 text-xs font-bold tracking-wider text-slate-300 uppercase transition-colors hover:bg-slate-700 hover:text-white"
-										>
-											New Concept
-										</button>
-										<button
-											onclick={() => {
-												userName = '';
-												userEmail = '';
-												vizState = 'form';
-												currentImage = '';
-											}}
-											class="flex-1 rounded-xl bg-slate-800 py-3 text-xs font-bold tracking-wider text-slate-300 uppercase transition-colors hover:bg-slate-700 hover:text-white"
-										>
-											Clear User
-										</button>
-									</div>
-								{/if}
+					</div>
+				{:else if vizState === 'generating' && !currentImage}
+					<AiLoader {progress} message={progressMsg} />
+				{:else}
+					<div class="relative">
+						<div class={vizState === 'generating' ? 'pointer-events-none opacity-50 blur-sm transition-all duration-500' : 'transition-all duration-500'}>
+							<WorkspaceImage
+								imageData={currentImage}
+								prompt={currentPrompt}
+								{generationsRemaining}
+								onregenerate={() => generateImage()}
+								onedit={(editPrompt) => generateImage({ additionalPrompt: editPrompt, editInPlace: true })}
+								onundo={undoImage}
+								{canUndo}
+							/>
+						</div>
+						{#if vizState === 'generating'}
+							<div class="absolute inset-x-0 -top-6 bottom-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-black/50 backdrop-blur-sm">
+								<AiLoader {progress} message={progressMsg} dark={true} showCredit={false} />
 							</div>
 						{/if}
 					</div>
 
-					<!-- Right Side: Dedicated Canvas -->
-					<div class="flex w-full items-center justify-center bg-black lg:w-1/2 p-6 md:p-12 lg:p-12">
-						<!-- Constraint for the 1:1 image area -->
-						<div class="relative w-full aspect-square overflow-hidden rounded-3xl bg-slate-900 ring-1 ring-white/10">
-							{#if !currentImage && vizState === 'form'}
-								<!-- Empty Skeleton State -->
-								<div class="flex h-full w-full flex-col items-center justify-center border-2 border-dashed border-slate-800/80 bg-slate-900/30 p-6 text-center">
-									<div class="mb-4 text-slate-800">
-										<div class="mx-auto h-24 w-24 rounded-2xl bg-slate-800/50"></div>
-									</div>
-									<p class="font-display text-lg font-bold text-slate-600">Awaiting Input</p>
-								</div>
-							{:else if vizState === 'generating' && !currentImage}
-								<!-- Initial Generation State -->
-								<div class="flex h-full w-full items-center justify-center bg-black/40">
-									<AiLoader {progress} message={progressMsg} dark={true} showCredit={false} />
-								</div>
-							{:else if currentImage}
-								<!-- Rendered Image State -->
-								<div class="relative h-full w-full bg-black">
-									<div class={vizState === 'generating' ? 'pointer-events-none h-full w-full opacity-40 blur-md transition-all duration-700' : 'h-full w-full transition-all duration-700'}>
-										<WorkspaceImage
-											imageData={currentImage}
-											prompt={currentPrompt}
-											{generationsRemaining}
-											onregenerate={() => generateImage()}
-											onedit={(editPrompt) => generateImage({ additionalPrompt: editPrompt, editInPlace: true })}
-											onundo={undoImage}
-											{canUndo}
-											dark={true}
-										/>
-									</div>
-									{#if vizState === 'generating'}
-										<div class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/40 backdrop-blur-md">
-											<AiLoader {progress} message={progressMsg} dark={true} showCredit={false} />
-										</div>
-									{/if}
-								</div>
-							{/if}
-						</div>
+					<div class="mt-8 flex justify-center border-t border-slate-100 pt-6">
+						<button
+							onclick={retakeQuiz}
+							class="rounded-full bg-slate-100 px-6 py-2.5 text-xs font-bold tracking-wider text-slate-500 uppercase transition-colors hover:bg-slate-200 hover:text-slate-700"
+						>
+							Retake Quiz
+						</button>
 					</div>
-				</div>
+				{/if}
 			</div>
 		{/if}
 	</div>

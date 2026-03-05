@@ -341,7 +341,7 @@
 													</div>
 													<div class="flex-1 rounded-2xl border border-white/8 bg-white/5 p-4 flex flex-col justify-center">
 														{#if collectiveGenerating && !s.collectiveImage}
-															<AiLoader progress={collectiveProgress} message={collectiveProgressMsg} dark={true} />
+															<AiLoader progress={collectiveProgress} message={collectiveProgressMsg} dark={true} showCredit={false} />
 														{:else if s.collectiveImage}
 															<div class="relative h-full w-full">
 																<div class={collectiveGenerating ? 'pointer-events-none opacity-50 blur-sm transition-all duration-500 h-full w-full' : 'transition-all duration-500 h-full w-full'}>
@@ -369,7 +369,7 @@
 																</div>
 																<div>
 																	<h3 class="mb-2 font-display text-xl font-bold tracking-tight text-white">
-																		Visualise the Session's Priorities
+																		Visualize the Session's Priorities
 																	</h3>
 																	<p class="text-sm font-medium leading-relaxed text-white/50">
 																		Transform the session's top-voted features into an evidence-driven workspace visualisation — individual choices meet data-backed design.
