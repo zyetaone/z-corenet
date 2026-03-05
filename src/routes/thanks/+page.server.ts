@@ -4,13 +4,19 @@ import { getDb } from '$lib/server/db';
 import { eq, and } from 'drizzle-orm';
 import { votes, sessionFeatures } from '$lib/server/db/schema';
 import { requireParticipant } from '$lib/server/session';
-import { getLatestParticipantImage, getWorkspaceImageCount } from '$lib/server/db/queries';
+import { getSessionById, getLatestParticipantImage, getWorkspaceImageCount } from '$lib/server/db/queries';
 import { MAX_GENERATIONS } from '$lib/server/ai/image-generator';
 
 export const load: PageServerLoad = async ({ platform, cookies }) => {
 	const { participantId, sessionId } = requireParticipant(cookies);
 
 	const db = getDb(platform);
+
+	// Verify session is still open (redirects after reset)
+	const session = await getSessionById(db, sessionId);
+	if (!session || session.status !== 'open') {
+		redirect(303, '/');
+	}
 
 	const rows = await db
 		.select({

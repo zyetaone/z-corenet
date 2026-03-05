@@ -13,8 +13,9 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 	const db = getDb(platform);
 	const session = await getSessionById(db, sessionId);
 
-	if (!session) {
-		error(404, 'Session not found');
+	if (!session || session.status !== 'open') {
+		// Session missing or closed (after reset) — redirect to rejoin
+		redirect(303, '/');
 	}
 
 	const features = await getSessionFeatures(db, session.id);
