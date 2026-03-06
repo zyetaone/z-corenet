@@ -2,8 +2,8 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { eq, and } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
-import { getSessionFeatures, saveVotes, saveComment } from '$lib/server/db/queries';
-import { votes } from '$lib/server/db/schema';
+import { getSessionFeatures } from '$lib/server/db/queries';
+import { votes, comments } from '$lib/server/db/schema';
 import { MAX_PICKS } from '$lib/data/default-features';
 import { resolveSessionAndParticipant } from '$lib/server/session';
 
@@ -75,11 +75,15 @@ export const actions: Actions = {
 			return fail(400, { error: 'Invalid feature selection' });
 		}
 
-		await saveVotes(db, participantId, sessionId, 'individual', individualIds);
-		await saveVotes(db, participantId, sessionId, 'communal', communalIds);
+		// Single insert for all votes (both phases) — one round-trip to D1
+		const allVoteRows = [
+			...individualIds.map((featureId) => ({ participantId, sessionId, phase: 'individual' as const, featureId })),
+			...communalIds.map((featureId) => ({ participantId, sessionId, phase: 'communal' as const, featureId }))
+		];
+		await db.insert(votes).values(allVoteRows).onConflictDoNothing();
 
 		if (comment) {
-			await saveComment(db, participantId, sessionId, comment);
+			await db.insert(comments).values({ participantId, sessionId, text: comment });
 		}
 
 		redirect(303, '/thanks');

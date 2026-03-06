@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CategoryIcon from './CategoryIcon.svelte';
 	import EvidenceTag from './EvidenceTag.svelte';
-	import type { RankedFeature } from '$lib/server/tally';
+	import type { RankedFeature } from '$lib/types';
 	import { useAnimateOnce } from '$lib/utils/use-animate-once.svelte';
 
 	let {

@@ -6,6 +6,7 @@ import { votes, sessionFeatures } from '$lib/server/db/schema';
 import { requireParticipant } from '$lib/server/session';
 import { getSessionById, getLatestParticipantImage, getWorkspaceImageCount } from '$lib/server/db/queries';
 import { MAX_GENERATIONS } from '$lib/server/ai/image-generator';
+import type { PickedFeature } from '$lib/types/voting';
 
 export const load: PageServerLoad = async ({ platform, cookies }) => {
 	const { participantId, sessionId } = requireParticipant(cookies);
@@ -33,8 +34,6 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 			)
 		)
 		.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)));
-
-	type PickedFeature = { name: string; hasEvidence: boolean; caption: string | null };
 
 	// If no votes found for this participant+session combo, send to quiz
 	if (rows.length === 0) {

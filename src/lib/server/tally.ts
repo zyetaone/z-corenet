@@ -8,32 +8,9 @@ import {
 	getComments
 } from './db/queries';
 import { CATEGORY_TO_GROUP } from '$lib/data/default-features';
+import type { RankedFeature, PhaseResult, TallyResult } from '$lib/types/tally';
 
-export interface RankedFeature {
-	name: string;
-	category: string;
-	group: string;
-	hasEvidence: boolean;
-	caption: string | null;
-	voteCount: number;
-	percentage: number;
-}
-
-export interface PhaseResult {
-	score: number; // evidence ratio 0-100
-	totalPicks: number; // total votes cast across all participants
-	evidencePicks: number; // votes that went to evidence-based features
-	features: RankedFeature[]; // ALL features sorted by vote count desc
-}
-
-export interface TallyResult {
-	session: { code: string; title: string; status: string };
-	participantCount: number;
-	voteCount: number;
-	individual: PhaseResult;
-	communal: PhaseResult;
-	comments: Array<{ id: string; text: string }>;
-}
+export type { RankedFeature, PhaseResult, TallyResult };
 
 function buildPhaseResult(
 	phase: string,

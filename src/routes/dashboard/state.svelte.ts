@@ -1,5 +1,5 @@
-import type { TallyResult } from '$lib/server/tally';
-import type { RadarDataset, CategoryStat } from '$lib/types/dashboard';
+import type { TallyResult, RadarDataset, CategoryStat } from '$lib/types';
+import type { WorkspaceImagesResponse } from '$lib/types/workspace';
 import { FEATURE_GROUPS, CATEGORY_TO_GROUP, RADAR_LABELS } from '$lib/data/default-features';
 import type { GroupKey } from '$lib/data/default-features';
 
@@ -16,23 +16,7 @@ export class DashboardState {
 	page = $state(1);
 	direction = $state<'forward' | 'backward'>('forward');
 
-	workspaceImages = $state.raw<{
-		individual: Array<{
-			id: string;
-			participantName: string;
-			imageData: string;
-			featureNames: string[];
-			prompt: string;
-			createdAt: string;
-		}>;
-		collective: Array<{
-			id: string;
-			imageData: string;
-			prompt: string;
-			featureNames: string[];
-			createdAt: string;
-		}>;
-	}>({ individual: [], collective: [] });
+	workspaceImages = $state.raw<WorkspaceImagesResponse>({ individual: [], collective: [] });
 
 	collectiveImage = $state<string | null>(null);
 	collectivePrompt = $state<string>('');
