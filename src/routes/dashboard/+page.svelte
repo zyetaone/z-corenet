@@ -121,50 +121,70 @@
 		collectiveProgress = 0;
 		collectiveProgressMsg = editInPlace ? 'Editing collective workspace...' : additionalPrompt ? 'Regenerating collective workspace...' : 'Preparing generation...';
 
-		const trackingId = crypto.randomUUID();
-		let eventSource: EventSource | null = null;
-
 		try {
-			eventSource = new EventSource(`/api/generate-image/progress?id=${trackingId}`);
-			eventSource.onmessage = (event) => {
-				try {
-					const data = JSON.parse(event.data);
-					if (data.progress !== undefined) collectiveProgress = data.progress;
-					if (data.message) collectiveProgressMsg = data.message;
-				} catch (e) {
-					// parsing error ignored
-				}
-			};
-
 			const res = await fetch('/api/generate-image', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					type: 'collective',
 					additionalPrompt,
-					trackingId,
 					previousImageData: editInPlace && s.collectiveImage ? s.collectiveImage : undefined
 				})
 			});
 
 			if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-			const result = await res.json();
-			collectiveProgress = 100;
+			const contentType = res.headers.get('content-type') ?? '';
 
-			// Push current to history for undo
-			if (s.collectiveImage) {
-				collectiveImageHistory = [...collectiveImageHistory, { imageData: s.collectiveImage, prompt: s.collectivePrompt }];
+			if (contentType.includes('application/json')) {
+				const result = await res.json();
+				collectiveProgress = 100;
+				if (s.collectiveImage) {
+					collectiveImageHistory = [...collectiveImageHistory, { imageData: s.collectiveImage, prompt: s.collectivePrompt }];
+				}
+				s.collectiveImage = result.imageData;
+				s.collectivePrompt = result.prompt;
+				s.collectiveGenerationsRemaining = result.generationsRemaining;
+			} else {
+				// SSE stream — read progress then result
+				const reader = res.body!.getReader();
+				const decoder = new TextDecoder();
+				let buffer = '';
+
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) break;
+					buffer += decoder.decode(value, { stream: true });
+
+					const events = buffer.split('\n\n');
+					buffer = events.pop() || '';
+
+					for (const event of events) {
+						const dataLine = event.split('\n').find((l: string) => l.startsWith('data: '));
+						if (!dataLine) continue;
+						const payload = JSON.parse(dataLine.slice(6));
+
+						if (payload.type === 'progress') {
+							collectiveProgress = payload.progress;
+							if (payload.message) collectiveProgressMsg = payload.message;
+						} else if (payload.type === 'result') {
+							collectiveProgress = 100;
+							if (s.collectiveImage) {
+								collectiveImageHistory = [...collectiveImageHistory, { imageData: s.collectiveImage, prompt: s.collectivePrompt }];
+							}
+							s.collectiveImage = payload.imageData;
+							s.collectivePrompt = payload.prompt;
+							s.collectiveGenerationsRemaining = payload.generationsRemaining;
+						} else if (payload.type === 'error') {
+							throw new Error(payload.message || 'Generation failed');
+						}
+					}
+				}
 			}
-			s.collectiveImage = result.imageData;
-			s.collectivePrompt = result.prompt;
-			s.collectiveGenerationsRemaining = result.generationsRemaining;
 		} catch (e) {
 			collectiveProgress = 100;
-			console.error('Collective generation failed:', e);
 		} finally {
 			collectiveGenerating = false;
-			eventSource?.close();
 		}
 	}
 </script>

@@ -30,8 +30,9 @@ export const POST: RequestHandler = async ({ platform, request, cookies }) => {
 		path: '/',
 		httpOnly: true,
 		sameSite: 'lax',
+		secure: true,
 		maxAge: 60 * 60 * 24
 	});
 
-	return json({ ok: true, sessionId: session.id });
+	return json({ ok: true });
 };

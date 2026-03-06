@@ -1,4 +1,4 @@
-import { json, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getDb } from '$lib/server/db';
 import { eq, and, sql } from 'drizzle-orm';
@@ -6,6 +6,7 @@ import { votes, sessionFeatures, workspaceImages } from '$lib/server/db/schema';
 import {
 	getWorkspaceImageCount,
 	getCollectiveImageCount,
+	getSessionFeatures as fetchSessionFeatures,
 	insertWorkspaceImage,
 	updateParticipantIdentity
 } from '$lib/server/db/queries';
@@ -32,22 +33,16 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 	configureFal(apiKey);
 
 	const body = await request.json();
-	const { type, name, email, additionalPrompt, trackingId, previousImageData } = body as {
+	const { type, name, email, additionalPrompt, previousImageData } = body as {
 		type: 'individual' | 'collective';
 		name?: string;
 		email?: string;
 		additionalPrompt?: string;
-		trackingId?: string;
 		previousImageData?: string;
 	};
 
 	if (type !== 'individual' && type !== 'collective') {
 		error(400, 'Invalid type');
-	}
-
-	// Validate trackingId is a UUID if provided
-	if (trackingId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trackingId)) {
-		error(400, 'Invalid tracking ID');
 	}
 
 	// Cap additional prompt length
@@ -96,12 +91,16 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 
 			if (existing.length > 0) {
 				const img = existing[0];
-				return json({
-					imageData: img.imageData,
-					prompt: img.prompt,
-					generationsRemaining: Math.max(0, MAX_GENERATIONS - img.generationNum),
-					generationNum: img.generationNum
-				});
+				// Return non-streamed JSON for cached results
+				return new Response(
+					JSON.stringify({
+						imageData: img.imageData,
+						prompt: img.prompt,
+						generationsRemaining: Math.max(0, MAX_GENERATIONS - img.generationNum),
+						generationNum: img.generationNum
+					}),
+					{ headers: { 'Content-Type': 'application/json' } }
+				);
 			}
 		}
 
@@ -158,6 +157,9 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 		error(400, 'No features found for image generation');
 	}
 
+	// Validate submitted feature IDs belong to this session (for individual votes)
+	// Features are already fetched via the votes join, so they're implicitly validated.
+
 	// Build prompt (new or regeneration)
 	let prompt: string;
 	if (currentCount > 0 && additionalPrompt !== undefined) {
@@ -167,35 +169,68 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 		prompt = buildWorkspacePrompt(features, additionalPrompt);
 	}
 
-	// Use edit mode when we have a previous image and user provided modifications
-	let result: { imageData: string; prompt: string };
-	if (previousImageData && additionalPrompt?.trim()) {
-		result = await editWorkspaceImage(previousImageData, additionalPrompt.trim(), trackingId);
-		// Store the full composite prompt for DB/display, not the short edit instruction
-		result = { ...result, prompt };
-	} else {
-		result = await generateWorkspaceImage(prompt, trackingId);
-	}
-	const generationNum = currentCount + 1;
+	// Return SSE stream with progress events + final result
+	const encoder = new TextEncoder();
+	const stream = new ReadableStream({
+		async start(controller) {
+			const write = (data: Record<string, unknown>) => {
+				try {
+					controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+				} catch {
+					// Stream closed by client
+				}
+			};
 
-	// Store in DB
-	await insertWorkspaceImage(db, {
-		sessionId,
-		participantId: type === 'individual' ? participantId : undefined,
-		participantName: name?.trim(),
-		participantEmail: email?.trim(),
-		imageData: result.imageData,
-		prompt: result.prompt,
-		generationNum,
-		type,
-		featureNames: features.map((f) => f.name)
+			try {
+				const onProgress = (progress: number, message: string) => {
+					write({ type: 'progress', progress, message });
+				};
+
+				let result: { imageData: string; prompt: string };
+				if (previousImageData && additionalPrompt?.trim()) {
+					result = await editWorkspaceImage(previousImageData, additionalPrompt.trim(), onProgress);
+					result = { ...result, prompt };
+				} else {
+					result = await generateWorkspaceImage(prompt, onProgress);
+				}
+				const generationNum = currentCount + 1;
+
+				// Store in DB
+				await insertWorkspaceImage(db, {
+					sessionId,
+					participantId: type === 'individual' ? participantId : undefined,
+					participantName: name?.trim(),
+					participantEmail: email?.trim(),
+					imageData: result.imageData,
+					prompt: result.prompt,
+					generationNum,
+					type,
+					featureNames: features.map((f) => f.name)
+				});
+
+				const maxGens = type === 'collective' ? MAX_COLLECTIVE_GENERATIONS : MAX_GENERATIONS;
+				write({
+					type: 'result',
+					imageData: result.imageData,
+					prompt: result.prompt,
+					generationsRemaining: maxGens - generationNum,
+					generationNum
+				});
+			} catch (e) {
+				write({
+					type: 'error',
+					message: e instanceof Error ? e.message : 'Generation failed'
+				});
+			} finally {
+				controller.close();
+			}
+		}
 	});
 
-	const maxGens = type === 'collective' ? MAX_COLLECTIVE_GENERATIONS : MAX_GENERATIONS;
-	return json({
-		imageData: result.imageData,
-		prompt: result.prompt,
-		generationsRemaining: maxGens - generationNum,
-		generationNum
+	return new Response(stream, {
+		headers: {
+			'Content-Type': 'text/event-stream',
+			'Cache-Control': 'no-cache'
+		}
 	});
 };

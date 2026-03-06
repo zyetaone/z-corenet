@@ -59,7 +59,7 @@
 
 	async function generateImage(opts?: { additionalPrompt?: string; editInPlace?: boolean }) {
 		const { additionalPrompt, editInPlace } = opts ?? {};
-		
+
 		if (userName) setCookie('user_name', userName.trim());
 		if (userEmail) setCookie('user_email', userEmail.trim());
 
@@ -68,21 +68,7 @@
 		progress = 0;
 		progressMsg = editInPlace ? 'Editing workspace...' : additionalPrompt ? 'Regenerating workspace...' : 'Preparing generation...';
 
-		const trackingId = crypto.randomUUID();
-		let eventSource: EventSource | null = null;
-
 		try {
-			eventSource = new EventSource(`/api/generate-image/progress?id=${trackingId}`);
-			eventSource.onmessage = (event) => {
-				try {
-					const data = JSON.parse(event.data);
-					if (data.progress !== undefined) progress = data.progress;
-					if (data.message) progressMsg = data.message;
-				} catch {
-					// parse error ignored
-				}
-			};
-
 			const res = await fetch('/api/generate-image', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -91,7 +77,6 @@
 					name: userName || undefined,
 					email: userEmail || undefined,
 					additionalPrompt,
-					trackingId,
 					previousImageData: editInPlace && currentImage ? currentImage : undefined
 				})
 			});
@@ -101,25 +86,63 @@
 				throw new Error(err.message ?? `HTTP ${res.status}`);
 			}
 
-			const result = await res.json();
-			progress = 100;
-			progressMsg = 'Finishing up...';
+			const contentType = res.headers.get('content-type') ?? '';
 
-			if (currentImage) {
-				imageHistory = [...imageHistory, { imageData: currentImage, prompt: currentPrompt }];
+			if (contentType.includes('application/json')) {
+				// Non-streamed response (cached result)
+				const result = await res.json();
+				progress = 100;
+				if (currentImage) {
+					imageHistory = [...imageHistory, { imageData: currentImage, prompt: currentPrompt }];
+				}
+				currentImage = result.imageData;
+				currentPrompt = result.prompt;
+				generationsRemaining = result.generationsRemaining;
+				vizState = 'done';
+			} else {
+				// SSE stream — read progress events then final result
+				const reader = res.body!.getReader();
+				const decoder = new TextDecoder();
+				let buffer = '';
+
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) break;
+					buffer += decoder.decode(value, { stream: true });
+
+					const events = buffer.split('\n\n');
+					buffer = events.pop() || '';
+
+					for (const event of events) {
+						const dataLine = event.split('\n').find((l) => l.startsWith('data: '));
+						if (!dataLine) continue;
+						const payload = JSON.parse(dataLine.slice(6));
+
+						if (payload.type === 'progress') {
+							progress = payload.progress;
+							if (payload.message) progressMsg = payload.message;
+						} else if (payload.type === 'result') {
+							progress = 100;
+							progressMsg = 'Finishing up...';
+							if (currentImage) {
+								imageHistory = [...imageHistory, { imageData: currentImage, prompt: currentPrompt }];
+							}
+							currentImage = payload.imageData;
+							currentPrompt = payload.prompt;
+							generationsRemaining = payload.generationsRemaining;
+							vizState = 'done';
+						} else if (payload.type === 'error') {
+							throw new Error(payload.message || 'Generation failed');
+						}
+					}
+				}
 			}
-			currentImage = result.imageData;
-			currentPrompt = result.prompt;
-			generationsRemaining = result.generationsRemaining;
-			vizState = 'done';
 		} catch (e) {
 			progress = 100;
 			if (e instanceof Error && e.name !== 'AbortError') {
 				errorMsg = e.message || 'Image generation failed. Please try again.';
 				vizState = currentImage ? 'done' : 'error';
 			}
-		} finally {
-			eventSource?.close();
 		}
 	}
 

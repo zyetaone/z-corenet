@@ -1,87 +1,15 @@
-import { error, fail, redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { eq, and } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
-import {
-	getSessionById,
-	getSessionFeatures,
-	getLatestOpenSession,
-	createSession,
-	copyDefaultFeatures,
-	createParticipant,
-	saveVotes,
-	saveComment
-} from '$lib/server/db/queries';
-import { votes, participants } from '$lib/server/db/schema';
-import { MAX_PICKS, DEFAULT_FEATURES } from '$lib/data/default-features';
-import { generateCode } from '$lib/server/utils';
+import { getSessionFeatures, saveVotes, saveComment } from '$lib/server/db/queries';
+import { votes } from '$lib/server/db/schema';
+import { MAX_PICKS } from '$lib/data/default-features';
+import { resolveSessionAndParticipant } from '$lib/server/session';
 
 export const load: PageServerLoad = async ({ platform, cookies }) => {
 	const db = getDb(platform);
-
-	let participantId = cookies.get('participant_id');
-	let sessionId = cookies.get('session_id');
-
-	// Resolve a valid open session — self-heal if cookies are stale or missing
-	let session = sessionId ? await getSessionById(db, sessionId) : null;
-
-	if (!session || session.status !== 'open') {
-		// Stale or missing session — find or create an open one and register a new participant
-		session = await getLatestOpenSession(db);
-		if (!session) {
-			const code = generateCode();
-			session = await createSession(db, code, 'Designing Workplaces That Think');
-			await copyDefaultFeatures(db, session.id, DEFAULT_FEATURES);
-		}
-
-		const participant = await createParticipant(db, session.id);
-		participantId = participant.id;
-		sessionId = session.id;
-
-		cookies.set('participant_id', participantId, {
-			path: '/',
-			httpOnly: true,
-			sameSite: 'lax',
-			maxAge: 60 * 60 * 24
-		});
-		cookies.set('session_id', sessionId, {
-			path: '/',
-			httpOnly: true,
-			sameSite: 'lax',
-			maxAge: 60 * 60 * 24
-		});
-		cookies.set('user_name', '', { path: '/', maxAge: 0, httpOnly: false });
-		cookies.set('user_email', '', { path: '/', maxAge: 0, httpOnly: false });
-	} else if (participantId) {
-		// Session is valid+open — verify participant belongs to this session
-		const [p] = await db
-			.select({ id: participants.id })
-			.from(participants)
-			.where(and(eq(participants.id, participantId), eq(participants.sessionId, session.id)))
-			.limit(1);
-
-		if (!p) {
-			const participant = await createParticipant(db, session.id);
-			participantId = participant.id;
-			sessionId = session.id;
-			cookies.set('participant_id', participantId, {
-				path: '/',
-				httpOnly: true,
-				sameSite: 'lax',
-				maxAge: 60 * 60 * 24
-			});
-			cookies.set('session_id', sessionId, {
-				path: '/',
-				httpOnly: true,
-				sameSite: 'lax',
-				maxAge: 60 * 60 * 24
-			});
-		}
-	}
-
-	if (!participantId || !sessionId) {
-		redirect(303, '/');
-	}
+	const { session, participantId, sessionId } = await resolveSessionAndParticipant(db, cookies);
 
 	const features = await getSessionFeatures(db, session.id);
 
@@ -128,7 +56,7 @@ export const actions: Actions = {
 
 		const db = getDb(platform);
 
-		// 防呆 check: already voted?
+		// Idempotency check: already voted?
 		const existingVotes = await db
 			.select({ id: votes.id })
 			.from(votes)
@@ -137,6 +65,14 @@ export const actions: Actions = {
 
 		if (existingVotes.length > 0) {
 			redirect(303, '/thanks');
+		}
+
+		// Validate feature IDs belong to this session
+		const sessionFeatures = await getSessionFeatures(db, sessionId);
+		const validIds = new Set(sessionFeatures.map((f) => f.featureId));
+		const allSubmitted = [...individualIds, ...communalIds];
+		if (!allSubmitted.every((id) => validIds.has(id))) {
+			return fail(400, { error: 'Invalid feature selection' });
 		}
 
 		await saveVotes(db, participantId, sessionId, 'individual', individualIds);

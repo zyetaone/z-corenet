@@ -1,10 +1,11 @@
 import { fal } from '@fal-ai/client';
-import { emitProgress } from './progress-emitter';
 
 const MAX_GENERATIONS = 3;
 const MAX_COLLECTIVE_GENERATIONS = 10;
 
 export { MAX_GENERATIONS, MAX_COLLECTIVE_GENERATIONS };
+
+export type ProgressCallback = (progress: number, message: string) => void;
 
 /**
  * Configure fal.ai client with API key from platform env.
@@ -95,12 +96,16 @@ function dataUriToBlob(dataUri: string): Blob {
 
 /**
  * Convert a fal.ai image URL response to a base64 data URI.
+ * Reads actual Content-Type from the response to avoid MIME mismatch.
  */
 async function imageUrlToDataUri(imageUrl: string): Promise<string> {
 	const imageResponse = await fetch(imageUrl);
 	if (!imageResponse.ok) {
 		throw new Error(`Failed to fetch image: ${imageResponse.status}`);
 	}
+
+	const contentType = imageResponse.headers.get('content-type') ?? 'image/webp';
+	const mime = contentType.split(';')[0].trim();
 
 	const arrayBuffer = await imageResponse.arrayBuffer();
 	const bytes = new Uint8Array(arrayBuffer);
@@ -111,18 +116,35 @@ async function imageUrlToDataUri(imageUrl: string): Promise<string> {
 	for (let i = 0; i < bytes.length; i += chunkSize) {
 		binary += String.fromCharCode(...bytes.slice(i, i + chunkSize));
 	}
-	return `data:image/webp;base64,${btoa(binary)}`;
+	return `data:${mime};base64,${btoa(binary)}`;
+}
+
+/**
+ * Shared queue update handler for fal.ai subscriptions.
+ */
+function buildQueueHandler(onProgress: ProgressCallback | undefined, defaultMessage: string) {
+	let currentProgress = 0;
+	return (update: { status: string; logs?: Array<{ message: string }> }) => {
+		if (!onProgress) return;
+		if (update.status === 'IN_PROGRESS') {
+			currentProgress = Math.min(95, currentProgress + 15);
+			const msg = update.logs?.[update.logs.length - 1]?.message ?? defaultMessage;
+			onProgress(currentProgress, msg);
+		} else if (update.status === 'IN_QUEUE') {
+			onProgress(5, 'Waiting in queue...');
+		}
+	};
 }
 
 /**
  * Call fal.ai nano-banana-2 and return a base64 data URI.
+ * Accepts an optional progress callback (replaces cross-request emitter).
  */
-export async function generateWorkspaceImage(prompt: string, trackingId?: string): Promise<{
-	imageData: string;
-	prompt: string;
-}> {
-	let currentProgress = 0;
-	if (trackingId) emitProgress(trackingId, currentProgress, 'Starting generation...');
+export async function generateWorkspaceImage(
+	prompt: string,
+	onProgress?: ProgressCallback
+): Promise<{ imageData: string; prompt: string }> {
+	if (onProgress) onProgress(0, 'Starting generation...');
 
 	const result = await fal.subscribe('fal-ai/nano-banana-2', {
 		input: {
@@ -132,17 +154,7 @@ export async function generateWorkspaceImage(prompt: string, trackingId?: string
 			resolution: '1K',
 			output_format: 'webp'
 		},
-		onQueueUpdate(update) {
-			if (!trackingId) return;
-			if (update.status === 'IN_PROGRESS') {
-				// Fake a progressive increase between 10-90% based on multiple log events
-				currentProgress = Math.min(95, currentProgress + 15);
-				const msg = update.logs?.[update.logs.length - 1]?.message ?? 'Processing image...';
-				emitProgress(trackingId, currentProgress, msg);
-			} else if (update.status === 'IN_QUEUE') {
-				emitProgress(trackingId, 5, 'Waiting in queue...');
-			}
-		}
+		onQueueUpdate: buildQueueHandler(onProgress, 'Processing image...')
 	});
 
 	const imageUrl = result.data?.images?.[0]?.url;
@@ -150,32 +162,28 @@ export async function generateWorkspaceImage(prompt: string, trackingId?: string
 		throw new Error('No image URL in fal.ai response');
 	}
 
-	if (trackingId) emitProgress(trackingId, 97, 'Downloading image...');
+	if (onProgress) onProgress(97, 'Downloading image...');
 	const imageData = await imageUrlToDataUri(imageUrl);
 	return { imageData, prompt };
 }
 
 /**
- * Edit an existing image via fal.ai nano-banana/edit endpoint.
- * Uploads the base64 image to fal storage, then sends it for editing.
+ * Edit an existing image via fal.ai nano-banana-2/edit endpoint.
+ * Accepts an optional progress callback (replaces cross-request emitter).
  */
 export async function editWorkspaceImage(
 	currentImageDataUri: string,
 	editPrompt: string,
-	trackingId?: string
-): Promise<{
-	imageData: string;
-	prompt: string;
-}> {
-	let currentProgress = 0;
-	if (trackingId) emitProgress(trackingId, currentProgress, 'Uploading image for editing...');
+	onProgress?: ProgressCallback
+): Promise<{ imageData: string; prompt: string }> {
+	if (onProgress) onProgress(0, 'Uploading image for editing...');
 
 	// Upload base64 image to fal storage so we can pass a URL
 	const blob = dataUriToBlob(currentImageDataUri);
 	const file = new File([blob], 'workspace.webp', { type: blob.type });
 	const uploadedUrl = await fal.storage.upload(file);
 
-	if (trackingId) emitProgress(trackingId, 10, 'Starting image edit...');
+	if (onProgress) onProgress(10, 'Starting image edit...');
 
 	// Lead with the edit instruction, add soft preservation note
 	const wrappedPrompt = `Edit this workspace image: ${editPrompt}. Keep existing labels and annotations where possible.`;
@@ -188,16 +196,7 @@ export async function editWorkspaceImage(
 			resolution: '1K',
 			output_format: 'webp'
 		},
-		onQueueUpdate(update) {
-			if (!trackingId) return;
-			if (update.status === 'IN_PROGRESS') {
-				currentProgress = Math.min(95, currentProgress + 15);
-				const msg = update.logs?.[update.logs.length - 1]?.message ?? 'Editing image...';
-				emitProgress(trackingId, currentProgress, msg);
-			} else if (update.status === 'IN_QUEUE') {
-				emitProgress(trackingId, 5, 'Waiting in queue...');
-			}
-		}
+		onQueueUpdate: buildQueueHandler(onProgress, 'Editing image...')
 	});
 
 	const imageUrl = result.data?.images?.[0]?.url;
@@ -205,7 +204,7 @@ export async function editWorkspaceImage(
 		throw new Error('No image URL in fal.ai edit response');
 	}
 
-	if (trackingId) emitProgress(trackingId, 97, 'Downloading edited image...');
+	if (onProgress) onProgress(97, 'Downloading edited image...');
 	const imageData = await imageUrlToDataUri(imageUrl);
 	return { imageData, prompt: editPrompt };
 }
