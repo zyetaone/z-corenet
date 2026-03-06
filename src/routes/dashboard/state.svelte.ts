@@ -180,7 +180,7 @@ export class DashboardState {
 
 	async pollWorkspaceImages() {
 		try {
-			const res = await fetch('/api/workspace-images');
+			const res = await fetch('/api/workspace-images?all=1');
 			if (res.ok) {
 				this.workspaceImages = await res.json();
 				// Update collective state from latest
