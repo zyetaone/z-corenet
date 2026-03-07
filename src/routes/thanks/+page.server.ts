@@ -6,6 +6,7 @@ import { votes, sessionFeatures } from '$lib/server/db/schema';
 import { requireParticipant } from '$lib/server/session';
 import { getSessionById, getLatestParticipantImage, getWorkspaceImageCount } from '$lib/server/db/queries';
 import { MAX_GENERATIONS } from '$lib/server/ai/image-generator';
+import { isR2Key } from '$lib/server/r2';
 import type { PickedFeature } from '$lib/types/voting';
 
 export const load: PageServerLoad = async ({ platform, cookies }) => {
@@ -52,12 +53,18 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 		? await getWorkspaceImageCount(db, participantId, sessionId)
 		: 0;
 
+	// Resolve R2 keys to proxy URLs for the client
+	let imageData = existingImage?.imageData;
+	if (imageData && isR2Key(imageData)) {
+		imageData = `/api/images/${imageData}`;
+	}
+
 	return {
 		individual,
 		communal,
 		existingImage: existingImage
 			? {
-					imageData: existingImage.imageData,
+					imageData: imageData!,
 					prompt: existingImage.prompt,
 					generationsRemaining: MAX_GENERATIONS - imageCount
 				}

@@ -20,8 +20,9 @@ import {
 	MAX_COLLECTIVE_GENERATIONS
 } from '$lib/server/ai/image-generator';
 import { buildTallyResultById } from '$lib/server/tally';
+import { uploadImageToR2, isR2Key } from '$lib/server/r2';
 
-export const POST: RequestHandler = async ({ request, platform, cookies }) => {
+export const POST: RequestHandler = async ({ request, platform, cookies, url }) => {
 	const sessionId = cookies.get('session_id');
 	const participantId = cookies.get('participant_id');
 	if (!sessionId) error(401, 'No active session');
@@ -91,10 +92,14 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 
 			if (existing.length > 0) {
 				const img = existing[0];
+				// Resolve R2 key to proxy URL if needed
+				const resolvedImageData = isR2Key(img.imageData)
+					? `${url.origin}/api/images/${img.imageData}`
+					: img.imageData;
 				// Return non-streamed JSON for cached results
 				return new Response(
 					JSON.stringify({
-						imageData: img.imageData,
+						imageData: resolvedImageData,
 						prompt: img.prompt,
 						generationsRemaining: Math.max(0, MAX_GENERATIONS - img.generationNum),
 						generationNum: img.generationNum
@@ -194,14 +199,23 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 					result = await generateWorkspaceImage(prompt, onProgress);
 				}
 				const generationNum = currentCount + 1;
+				const imageId = crypto.randomUUID();
 
-				// Store in DB
+				// Upload to R2 if available, otherwise store inline
+				const bucket = platform?.env?.IMAGES;
+				let storedImageData = result.imageData;
+				if (bucket) {
+					const r2Key = await uploadImageToR2(bucket, sessionId, imageId, result.imageData);
+					storedImageData = r2Key;
+				}
+
+				// Store in DB (R2 key or base64 fallback)
 				await insertWorkspaceImage(db, {
 					sessionId,
 					participantId: type === 'individual' ? participantId : undefined,
 					participantName: name?.trim(),
 					participantEmail: email?.trim(),
-					imageData: result.imageData,
+					imageData: storedImageData,
 					prompt: result.prompt,
 					generationNum,
 					type,
