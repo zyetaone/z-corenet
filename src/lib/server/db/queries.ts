@@ -1,6 +1,13 @@
-import { count, eq, sql } from 'drizzle-orm';
+import { and, count, eq, sql } from 'drizzle-orm';
 import type { DbClient } from './index';
-import { comments, participants, sessionFeatures, sessions, votes, workspaceImages } from './schema';
+import {
+	comments,
+	participants,
+	sessionFeatures,
+	sessions,
+	votes,
+	workspaceImages
+} from './schema';
 import type { Comment, Participant, Session, SessionFeature, WorkspaceImage } from './schema';
 import type { DefaultFeature } from '$lib/data/default-features';
 
@@ -166,10 +173,7 @@ export async function getWorkspaceImageCount(
 	return result.count;
 }
 
-export async function getCollectiveImageCount(
-	db: DbClient,
-	sessionId: string
-): Promise<number> {
+export async function getCollectiveImageCount(db: DbClient, sessionId: string): Promise<number> {
 	const [result] = await db
 		.select({ count: count() })
 		.from(workspaceImages)
@@ -237,11 +241,27 @@ export async function getLatestParticipantImage(
 	return row;
 }
 
-export async function getAllWorkspaceImages(db: DbClient): Promise<WorkspaceImage[]> {
-	return db
-		.select()
-		.from(workspaceImages)
-		.orderBy(sql`${workspaceImages.createdAt} desc`);
+export async function getAllWorkspaceImages(
+	db: DbClient,
+	since?: string
+): Promise<WorkspaceImage[]> {
+	const query = db.select().from(workspaceImages);
+
+	if (since) {
+		return query
+			.where(sql`${workspaceImages.createdAt} > ${since}`)
+			.orderBy(sql`${workspaceImages.createdAt} desc`);
+	}
+
+	return query.orderBy(sql`${workspaceImages.createdAt} desc`);
+}
+
+export async function deleteWorkspaceImage(
+	db: DbClient,
+	id: string
+): Promise<WorkspaceImage | undefined> {
+	const [row] = await db.delete(workspaceImages).where(eq(workspaceImages.id, id)).returning();
+	return row;
 }
 
 export async function updateParticipantIdentity(
@@ -250,8 +270,85 @@ export async function updateParticipantIdentity(
 	name: string,
 	email: string
 ): Promise<void> {
-	await db
-		.update(participants)
-		.set({ name, email })
-		.where(eq(participants.id, participantId));
+	await db.update(participants).set({ name, email }).where(eq(participants.id, participantId));
+}
+
+// ── Participant vote checks ──
+
+export async function hasParticipantVoted(
+	db: DbClient,
+	participantId: string,
+	sessionId: string
+): Promise<boolean> {
+	const rows = await db
+		.select({ id: votes.id })
+		.from(votes)
+		.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)))
+		.limit(1);
+	return rows.length > 0;
+}
+
+export async function getParticipantVotedFeatures(
+	db: DbClient,
+	participantId: string,
+	sessionId: string
+): Promise<Array<{ name: string; phase: string; hasEvidence: boolean; caption: string | null }>> {
+	return db
+		.select({
+			name: sessionFeatures.name,
+			phase: votes.phase,
+			hasEvidence: sessionFeatures.hasEvidence,
+			caption: sessionFeatures.caption
+		})
+		.from(votes)
+		.innerJoin(
+			sessionFeatures,
+			and(
+				eq(votes.featureId, sessionFeatures.featureId),
+				eq(votes.sessionId, sessionFeatures.sessionId)
+			)
+		)
+		.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)));
+}
+
+export async function getExistingImageByEmail(
+	db: DbClient,
+	sessionId: string,
+	email: string
+): Promise<WorkspaceImage | undefined> {
+	const rows = await db
+		.select()
+		.from(workspaceImages)
+		.where(
+			and(
+				eq(workspaceImages.sessionId, sessionId),
+				eq(workspaceImages.type, 'individual'),
+				eq(workspaceImages.participantEmail, email)
+			)
+		)
+		.orderBy(sql`${workspaceImages.createdAt} DESC`)
+		.limit(1);
+	return rows[0];
+}
+
+export async function getParticipantVotedFeatureNames(
+	db: DbClient,
+	participantId: string,
+	sessionId: string
+): Promise<Array<{ name: string; hasEvidence: boolean }>> {
+	const rows = await db
+		.select({
+			name: sessionFeatures.name,
+			hasEvidence: sessionFeatures.hasEvidence
+		})
+		.from(votes)
+		.innerJoin(
+			sessionFeatures,
+			and(
+				eq(votes.featureId, sessionFeatures.featureId),
+				eq(votes.sessionId, sessionFeatures.sessionId)
+			)
+		)
+		.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)));
+	return rows;
 }

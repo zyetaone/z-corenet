@@ -10,13 +10,12 @@ export class DashboardState {
 
 	#getData: () => TallyResult = null!;
 	polledResults = $state.raw<TallyResult | null>(null);
-	justUpdated = $state(false);
-	polling = $state(false);
 	showResults = $state(false);
 	page = $state(1);
 	direction = $state<'forward' | 'backward'>('forward');
 
 	workspaceImages = $state.raw<WorkspaceImagesResponse>({ individual: [], collective: [] });
+	#lastImageTimestamp: string | null = null;
 
 	collectiveImage = $state<string | null>(null);
 	collectivePrompt = $state<string>('');
@@ -72,7 +71,10 @@ export class DashboardState {
 		const totalParticipants = this.results.participantCount;
 		return merged.map((f) => ({
 			...f,
-			percentage: totalParticipants > 0 ? Math.min(100, Math.round((f.voteCount / totalParticipants) * 100)) : 0
+			percentage:
+				totalParticipants > 0
+					? Math.min(100, Math.round((f.voteCount / totalParticipants) * 100))
+					: 0
 		}));
 	});
 
@@ -148,25 +150,56 @@ export class DashboardState {
 
 	async poll() {
 		try {
-			this.polling = true;
 			const res = await fetch('/api/votes');
 			if (res.ok) {
-				this.polledResults = await res.json();
-				this.justUpdated = true;
-				setTimeout(() => (this.justUpdated = false), 600);
+				const data: TallyResult = await res.json();
+				// Skip re-assignment when vote/participant counts haven't changed
+				const prev = this.polledResults;
+				if (
+					prev &&
+					prev.voteCount === data.voteCount &&
+					prev.participantCount === data.participantCount
+				) {
+					return;
+				}
+				this.polledResults = data;
 			}
 		} catch {
 			// silently ignore polling errors
-		} finally {
-			this.polling = false;
 		}
 	}
 
 	async pollWorkspaceImages() {
 		try {
-			const res = await fetch('/api/workspace-images?all=1');
+			const sinceParam = this.#lastImageTimestamp
+				? `&since=${encodeURIComponent(this.#lastImageTimestamp)}`
+				: '';
+			const res = await fetch(`/api/workspace-images?all=1${sinceParam}`);
 			if (res.ok) {
-				this.workspaceImages = await res.json();
+				const data: WorkspaceImagesResponse = await res.json();
+
+				if (this.#lastImageTimestamp) {
+					// Incremental: append new images to existing arrays
+					if (data.individual.length === 0 && data.collective.length === 0) return;
+					this.workspaceImages = {
+						individual: [...data.individual, ...this.workspaceImages.individual],
+						collective: [...data.collective, ...this.workspaceImages.collective]
+					};
+				} else {
+					// First fetch: replace entirely
+					this.workspaceImages = data;
+				}
+
+				// Track latest timestamp for next incremental poll
+				const allTimestamps = [
+					...data.individual.map((i) => i.createdAt),
+					...data.collective.map((i) => i.createdAt)
+				];
+				if (allTimestamps.length > 0) {
+					allTimestamps.sort();
+					this.#lastImageTimestamp = allTimestamps[allTimestamps.length - 1];
+				}
+
 				// Update collective state from latest
 				const latest = this.workspaceImages.collective[0];
 				if (latest) {
@@ -178,6 +211,13 @@ export class DashboardState {
 		} catch {
 			// silently ignore
 		}
+	}
+
+	removeImage(id: string) {
+		this.workspaceImages = {
+			individual: this.workspaceImages.individual.filter((img) => img.id !== id),
+			collective: this.workspaceImages.collective.filter((img) => img.id !== id)
+		};
 	}
 
 	// ── Extended dashboard state ──
@@ -210,7 +250,12 @@ export class DashboardState {
 		const totalVotesAll = [...grouped.values()].reduce((s, g) => s + g.totalVotes, 0);
 
 		return FEATURE_GROUPS.map((fg) => {
-			const g = grouped.get(fg.key) ?? { totalVotes: 0, evidenceVotes: 0, evidenceCount: 0, featureCount: 0 };
+			const g = grouped.get(fg.key) ?? {
+				totalVotes: 0,
+				evidenceVotes: 0,
+				evidenceCount: 0,
+				featureCount: 0
+			};
 			return {
 				key: fg.key,
 				label: fg.label,

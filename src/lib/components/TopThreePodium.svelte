@@ -2,7 +2,7 @@
 	import CategoryIcon from './CategoryIcon.svelte';
 	import EvidenceTag from './EvidenceTag.svelte';
 	import type { RankedFeature } from '$lib/types';
-	import { useAnimateOnce } from '$lib/utils/use-animate-once.svelte';
+	import { useAnimateOnce } from '$lib/use-animate-once.svelte';
 
 	let {
 		features
@@ -48,7 +48,9 @@
 			<div class="relative flex items-center gap-3 px-3 py-3 sm:gap-4 sm:px-5 sm:py-4">
 				<!-- Medal -->
 				<span
-					class="flex h-7 w-7 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full text-xs sm:text-sm font-extrabold text-white {medalColors[i]}"
+					class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-white sm:h-9 sm:w-9 sm:text-sm {medalColors[
+						i
+					]}"
 				>
 					{i + 1}
 				</span>
@@ -74,7 +76,7 @@
 				<!-- Percentage -->
 				<div class="shrink-0 text-right">
 					<span
-						class="text-lg sm:text-2xl font-extrabold tabular-nums {isFirst
+						class="text-lg font-extrabold tabular-nums sm:text-2xl {isFirst
 							? 'text-accent'
 							: 'text-slate-700'}"
 					>

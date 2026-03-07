@@ -1,9 +1,9 @@
 import { redirect } from '@sveltejs/kit';
 import type { Actions } from './$types';
 import { getDb } from '$lib/server/db';
-import { createParticipant } from '$lib/server/db/queries';
-import { participants, votes } from '$lib/server/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { createParticipant, hasParticipantVoted } from '$lib/server/db/queries';
+import { participants } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 import { getOrCreateOpenSession } from '$lib/server/session';
 
 export const actions: Actions = {
@@ -23,15 +23,9 @@ export const actions: Actions = {
 
 			if (existing.length > 0 && existing[0].sessionId === session.id) {
 				// Check if this participant already voted — if so, create a fresh one
-				const hasVoted = await db
-					.select({ id: votes.id })
-					.from(votes)
-					.where(
-						and(eq(votes.participantId, existingParticipantId), eq(votes.sessionId, session.id))
-					)
-					.limit(1);
+				const voted = await hasParticipantVoted(db, existingParticipantId, session.id);
 
-				if (hasVoted.length === 0) {
+				if (!voted) {
 					needsNewParticipant = false;
 				}
 			}

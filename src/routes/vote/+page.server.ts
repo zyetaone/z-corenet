@@ -1,9 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { eq, and } from 'drizzle-orm';
 import { getDb } from '$lib/server/db';
-import { getSessionFeatures } from '$lib/server/db/queries';
-import { votes, comments } from '$lib/server/db/schema';
+import { getSessionFeatures, hasParticipantVoted, saveVotes } from '$lib/server/db/queries';
+import { comments, votes } from '$lib/server/db/schema';
 import { MAX_PICKS } from '$lib/data/default-features';
 import { resolveSessionAndParticipant } from '$lib/server/session';
 
@@ -13,13 +12,8 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 
 	const features = await getSessionFeatures(db, session.id);
 
-	const existingVotes = await db
-		.select({ id: votes.id })
-		.from(votes)
-		.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)))
-		.limit(1);
-
-	if (existingVotes.length > 0) {
+	const voted = await hasParticipantVoted(db, participantId, sessionId);
+	if (voted) {
 		redirect(303, '/thanks');
 	}
 
@@ -57,13 +51,8 @@ export const actions: Actions = {
 		const db = getDb(platform);
 
 		// Idempotency check: already voted?
-		const existingVotes = await db
-			.select({ id: votes.id })
-			.from(votes)
-			.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)))
-			.limit(1);
-
-		if (existingVotes.length > 0) {
+		const voted = await hasParticipantVoted(db, participantId, sessionId);
+		if (voted) {
 			redirect(303, '/thanks');
 		}
 
@@ -77,8 +66,18 @@ export const actions: Actions = {
 
 		// Single insert for all votes (both phases) — one round-trip to D1
 		const allVoteRows = [
-			...individualIds.map((featureId) => ({ participantId, sessionId, phase: 'individual' as const, featureId })),
-			...communalIds.map((featureId) => ({ participantId, sessionId, phase: 'communal' as const, featureId }))
+			...individualIds.map((featureId) => ({
+				participantId,
+				sessionId,
+				phase: 'individual' as const,
+				featureId
+			})),
+			...communalIds.map((featureId) => ({
+				participantId,
+				sessionId,
+				phase: 'communal' as const,
+				featureId
+			}))
 		];
 		await db.insert(votes).values(allVoteRows).onConflictDoNothing();
 

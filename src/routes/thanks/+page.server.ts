@@ -1,10 +1,13 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { getDb } from '$lib/server/db';
-import { eq, and } from 'drizzle-orm';
-import { votes, sessionFeatures } from '$lib/server/db/schema';
 import { requireParticipant } from '$lib/server/session';
-import { getSessionById, getLatestParticipantImage, getWorkspaceImageCount } from '$lib/server/db/queries';
+import {
+	getSessionById,
+	getLatestParticipantImage,
+	getWorkspaceImageCount,
+	getParticipantVotedFeatures
+} from '$lib/server/db/queries';
 import { MAX_GENERATIONS } from '$lib/server/ai/image-generator';
 import { isR2Key } from '$lib/server/r2';
 import type { PickedFeature } from '$lib/types/voting';
@@ -19,22 +22,7 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 		redirect(303, '/vote');
 	}
 
-	const rows = await db
-		.select({
-			name: sessionFeatures.name,
-			phase: votes.phase,
-			hasEvidence: sessionFeatures.hasEvidence,
-			caption: sessionFeatures.caption
-		})
-		.from(votes)
-		.innerJoin(
-			sessionFeatures,
-			and(
-				eq(votes.featureId, sessionFeatures.featureId),
-				eq(votes.sessionId, sessionFeatures.sessionId)
-			)
-		)
-		.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)));
+	const rows = await getParticipantVotedFeatures(db, participantId, sessionId);
 
 	// If no votes found for this participant+session combo, send to quiz
 	if (rows.length === 0) {
@@ -49,9 +37,7 @@ export const load: PageServerLoad = async ({ platform, cookies }) => {
 		.map((r) => ({ name: r.name, hasEvidence: r.hasEvidence, caption: r.caption }));
 
 	const existingImage = await getLatestParticipantImage(db, participantId, sessionId);
-	const imageCount = existingImage
-		? await getWorkspaceImageCount(db, participantId, sessionId)
-		: 0;
+	const imageCount = existingImage ? await getWorkspaceImageCount(db, participantId, sessionId) : 0;
 
 	// Resolve R2 keys to proxy URLs for the client
 	let imageData = existingImage?.imageData;

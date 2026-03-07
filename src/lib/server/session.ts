@@ -13,7 +13,10 @@ import { eq, and } from 'drizzle-orm';
 import { buildTallyResultById } from './tally';
 import type { TallyResult } from './tally';
 import { DEFAULT_FEATURES } from '$lib/data/default-features';
-import { generateCode } from '$lib/server/utils';
+
+export function generateCode(): string {
+	return crypto.randomUUID().slice(0, 6).toUpperCase();
+}
 
 const COOKIE_OPTS = {
 	path: '/',

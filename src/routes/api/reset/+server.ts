@@ -4,7 +4,7 @@ import { getDb } from '$lib/server/db';
 import { sessions } from '$lib/server/db/schema';
 import { createSession, copyDefaultFeatures } from '$lib/server/db/queries';
 import { DEFAULT_FEATURES } from '$lib/data/default-features';
-import { generateCode } from '$lib/server/utils';
+import { generateCode } from '$lib/server/session';
 import { eq } from 'drizzle-orm';
 
 export const POST: RequestHandler = async ({ platform, request, cookies }) => {

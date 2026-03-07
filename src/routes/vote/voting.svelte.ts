@@ -1,9 +1,9 @@
 import { SvelteSet } from 'svelte/reactivity';
-import type { SessionFeature } from '$lib/server/db/schema';
+import type { VotingFeature } from '$lib/types/voting';
 import { MAX_PICKS } from '$lib/data/default-features';
 
 export class VotingEngine {
-	features = $state<SessionFeature[]>([]);
+	features = $state<VotingFeature[]>([]);
 	phase = $state<'individual' | 'communal'>('individual');
 	selectedIndividual = new SvelteSet<number>();
 	selectedCommunal = new SvelteSet<number>();
@@ -28,7 +28,7 @@ export class VotingEngine {
 			: `${this.count} of ${MAX_PICKS} selected`
 	);
 
-	constructor(features: SessionFeature[]) {
+	constructor(features: VotingFeature[]) {
 		this.features = features;
 	}
 

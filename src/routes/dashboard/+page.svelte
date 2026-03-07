@@ -19,6 +19,7 @@
 	import AiLoader from '$lib/components/AiLoader.svelte';
 	import PillLabel from '$lib/components/PillLabel.svelte';
 	import { ChevronLeft, Sparkles, Trash2 } from '@lucide/svelte';
+	import { streamImageGeneration } from '$lib/sse-image-stream';
 
 	let { data }: { data: PageData } = $props();
 	const s = new DashboardState(() => data);
@@ -53,12 +54,29 @@
 		return () => clearInterval(interval);
 	});
 
-	// Poll workspace images when results are shown
+	// Poll workspace images only on page 4
 	$effect(() => {
-		if (!s.showResults) return;
+		if (!s.showResults || s.page !== 4) return;
+		s.pollWorkspaceImages();
 		const interval = setInterval(() => s.pollWorkspaceImages(), 5000);
 		return () => clearInterval(interval);
 	});
+
+	async function deleteImage(id: string) {
+		try {
+			const res = await fetch('/api/workspace-images', {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id })
+			});
+			if (res.ok) {
+				s.removeImage(id);
+				selectedImage = null;
+			}
+		} catch {
+			// silently ignore
+		}
+	}
 
 	// Keyboard navigation for pages
 	function handleKeydown(e: KeyboardEvent) {
@@ -76,8 +94,14 @@
 	}
 
 	const PAGE_META = [
-		{ title: 'Fuelling the Individual Brain', subtitle: "The session's results for the individual" },
-		{ title: 'Fuelling the Collective Brain', subtitle: "The session's results for the collective" },
+		{
+			title: 'Fuelling the Individual Brain',
+			subtitle: "The session's results for the individual"
+		},
+		{
+			title: 'Fuelling the Collective Brain',
+			subtitle: "The session's results for the collective"
+		},
 		{ title: 'Consensus & Alignment', subtitle: 'Comparing focus areas and collective weight' },
 		{ title: 'Workspace Gallery', subtitle: 'Individual and collective workspace visualisations' }
 	] as const;
@@ -86,7 +110,8 @@
 	const currentMeta = $derived(PAGE_META[s.page - 1]);
 
 	// Page 4 state
-	let selectedImage = $state<{
+	let selectedImage = $state.raw<{
+		id?: string;
 		participantName: string;
 		imageData: string;
 		featureNames: string[];
@@ -97,7 +122,7 @@
 	let collectiveProgress = $state(0);
 	let collectiveProgressMsg = $state('Creating collective workspace...');
 
-	let collectiveImageHistory = $state<Array<{ imageData: string; prompt: string }>>([]);
+	let collectiveImageHistory = $state.raw<Array<{ imageData: string; prompt: string }>>([]);
 	let canUndoCollective = $derived(collectiveImageHistory.length > 0);
 
 	function clearCollectiveImage() {
@@ -119,69 +144,42 @@
 		const { additionalPrompt, editInPlace } = opts ?? {};
 		collectiveGenerating = true;
 		collectiveProgress = 0;
-		collectiveProgressMsg = editInPlace ? 'Editing collective workspace...' : additionalPrompt ? 'Regenerating collective workspace...' : 'Preparing generation...';
+		collectiveProgressMsg = editInPlace
+			? 'Editing collective workspace...'
+			: additionalPrompt
+				? 'Regenerating collective workspace...'
+				: 'Preparing generation...';
 
 		try {
-			const res = await fetch('/api/generate-image', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
+			await streamImageGeneration(
+				{
 					type: 'collective',
 					additionalPrompt,
 					previousImageData: editInPlace && s.collectiveImage ? s.collectiveImage : undefined
-				})
-			});
-
-			if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-			const contentType = res.headers.get('content-type') ?? '';
-
-			if (contentType.includes('application/json')) {
-				const result = await res.json();
-				collectiveProgress = 100;
-				if (s.collectiveImage) {
-					collectiveImageHistory = [...collectiveImageHistory, { imageData: s.collectiveImage, prompt: s.collectivePrompt }];
-				}
-				s.collectiveImage = result.imageData;
-				s.collectivePrompt = result.prompt;
-				s.collectiveGenerationsRemaining = result.generationsRemaining;
-			} else {
-				// SSE stream — read progress then result
-				const reader = res.body!.getReader();
-				const decoder = new TextDecoder();
-				let buffer = '';
-
-				while (true) {
-					const { done, value } = await reader.read();
-					if (done) break;
-					buffer += decoder.decode(value, { stream: true });
-
-					const events = buffer.split('\n\n');
-					buffer = events.pop() || '';
-
-					for (const event of events) {
-						const dataLine = event.split('\n').find((l: string) => l.startsWith('data: '));
-						if (!dataLine) continue;
-						const payload = JSON.parse(dataLine.slice(6));
-
-						if (payload.type === 'progress') {
-							collectiveProgress = payload.progress;
-							if (payload.message) collectiveProgressMsg = payload.message;
-						} else if (payload.type === 'result') {
-							collectiveProgress = 100;
-							if (s.collectiveImage) {
-								collectiveImageHistory = [...collectiveImageHistory, { imageData: s.collectiveImage, prompt: s.collectivePrompt }];
-							}
-							s.collectiveImage = payload.imageData;
-							s.collectivePrompt = payload.prompt;
-							s.collectiveGenerationsRemaining = payload.generationsRemaining;
-						} else if (payload.type === 'error') {
-							throw new Error(payload.message || 'Generation failed');
+				},
+				{
+					onProgress(p, msg) {
+						collectiveProgress = p;
+						if (msg) collectiveProgressMsg = msg;
+					},
+					onResult(result) {
+						collectiveProgress = 100;
+						if (s.collectiveImage) {
+							collectiveImageHistory = [
+								...collectiveImageHistory,
+								{ imageData: s.collectiveImage, prompt: s.collectivePrompt }
+							];
 						}
+						s.collectiveImage = result.imageData;
+						s.collectivePrompt = result.prompt;
+						s.collectiveGenerationsRemaining = result.generationsRemaining;
+					},
+					onError() {
+						// streamImageGeneration throws after calling onError
 					}
 				}
-			}
-		} catch (e) {
+			);
+		} catch {
 			collectiveProgress = 100;
 		} finally {
 			collectiveGenerating = false;
@@ -226,12 +224,8 @@
 					{/if}
 
 					<div class="mb-6 flex items-baseline gap-3">
-						<span class="text-2xl font-bold text-white/70 tabular-nums"
-							>{s.results.voteCount}</span
-						>
-						<span class="text-xs font-medium tracking-widest text-white/40 uppercase"
-							>voted</span
-						>
+						<span class="text-2xl font-bold text-white/70 tabular-nums">{s.results.voteCount}</span>
+						<span class="text-xs font-medium tracking-widest text-white/40 uppercase">voted</span>
 					</div>
 
 					<button
@@ -256,7 +250,10 @@
 						<button
 							type="button"
 							class="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-sm font-bold text-white/60 transition-colors hover:bg-white/10 hover:text-white"
-							onclick={() => { s.showResults = false; s.page = 1; }}
+							onclick={() => {
+								s.showResults = false;
+								s.page = 1;
+							}}
 						>
 							<ChevronLeft size={16} /> Lobby
 						</button>
@@ -280,7 +277,10 @@
 					{:else}
 						<!-- Hero page title -->
 						<div class="text-center">
-							<h2 class="font-display text-5xl font-black tracking-tight text-white md:text-[4.5rem]" style="line-height: 1.1">
+							<h2
+								class="font-display text-5xl font-black tracking-tight text-white md:text-[4.5rem]"
+								style="line-height: 1.1"
+							>
 								{currentMeta.title}
 							</h2>
 							<p class="mt-2 text-lg font-medium tracking-wide text-white/70">
@@ -296,121 +296,161 @@
 						{/if}
 
 						<!-- Page content with slide transitions -->
-						<div class="stage-slide-container flex-1 {s.page <= 2 ? 'mt-8 flex items-center justify-center' : 'mt-2'}">
-								{#key s.page}
-									<div
-										in:fly={{
-											x: flyX,
-											duration: 400,
-											delay: 80,
-											easing: cubicOut
-										}}
-										out:fly={{
-											x: -flyX,
-											duration: 300,
-											easing: cubicOut
-										}}
-									>
-										{#if s.page === 1}
-											<!-- PAGE 1 — Individual Top 3 -->
-											<TopThreePodium features={s.results.individual.features} />
-										{:else if s.page === 2}
-											<!-- PAGE 2 — Collective Top 3 -->
-											<TopThreePodium features={s.results.communal.features} />
-										{:else if s.page === 3}
-											<!-- PAGE 3 — Consensus & Alignment -->
-											<ConsensusView
-												radarDatasets={s.radarDatasets}
-												categoryStats={s.categoryStats}
-											/>
-										{:else if s.page === 4}
-											<!-- PAGE 4 — Workspace Gallery -->
-											<div class="flex h-full min-h-[75vh] flex-col gap-6 lg:flex-row">
-												<!-- Left: Individual gallery (60%) -->
-												<div class="flex-1 lg:w-3/5">
-													<div class="mb-4">
-														<PillLabel>Individual Workspaces</PillLabel>
+						<div
+							class="stage-slide-container flex-1 {s.page <= 2
+								? 'mt-8 flex items-center justify-center'
+								: 'mt-2'}"
+						>
+							{#key s.page}
+								<div
+									in:fly={{
+										x: flyX,
+										duration: 400,
+										delay: 80,
+										easing: cubicOut
+									}}
+									out:fly={{
+										x: -flyX,
+										duration: 300,
+										easing: cubicOut
+									}}
+								>
+									{#if s.page === 1}
+										<!-- PAGE 1 — Individual Top 3 -->
+										<TopThreePodium features={s.results.individual.features} />
+									{:else if s.page === 2}
+										<!-- PAGE 2 — Collective Top 3 -->
+										<TopThreePodium features={s.results.communal.features} />
+									{:else if s.page === 3}
+										<!-- PAGE 3 — Consensus & Alignment -->
+										<ConsensusView
+											radarDatasets={s.radarDatasets}
+											categoryStats={s.categoryStats}
+										/>
+									{:else if s.page === 4}
+										<!-- PAGE 4 — Workspace Gallery -->
+										<div class="flex h-full min-h-[75vh] flex-col gap-6 lg:flex-row">
+											<!-- Left: Individual gallery (60%) -->
+											<div class="flex-1 lg:w-3/5">
+												<div class="mb-4">
+													<PillLabel>Individual Workspaces</PillLabel>
+												</div>
+												{#if s.workspaceImages.individual.length === 0}
+													<div
+														class="flex h-[60vh] items-center justify-center rounded-2xl border border-white/8 bg-white/5"
+													>
+														<p class="text-sm text-white/30">
+															No workspace images yet — participants can generate from the results
+															page
+														</p>
 													</div>
-													{#if s.workspaceImages.individual.length === 0}
-														<div class="flex h-[60vh] items-center justify-center rounded-2xl border border-white/8 bg-white/5">
-															<p class="text-sm text-white/30">No workspace images yet — participants can generate from the results page</p>
+												{:else}
+													<div class="h-[75vh]">
+														<MasonryTicker
+															images={s.workspaceImages.individual}
+															onselect={(img) => (selectedImage = img)}
+														/>
+													</div>
+												{/if}
+											</div>
+
+											<!-- Right: Collective workspace (40%) -->
+											<div class="flex flex-col lg:w-2/5">
+												<div class="mb-4 flex items-center justify-between">
+													<PillLabel>Collective Workspace</PillLabel>
+													{#if s.collectiveImage}
+														<button
+															type="button"
+															class="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-white/30 transition-colors hover:bg-white/10 hover:text-white/60"
+															onclick={clearCollectiveImage}
+														>
+															<Trash2 size={12} /> Clear
+														</button>
+													{/if}
+												</div>
+												<div
+													class="flex flex-1 flex-col justify-center rounded-2xl border border-white/8 bg-white/5 p-4"
+												>
+													{#if collectiveGenerating && !s.collectiveImage}
+														<AiLoader
+															progress={collectiveProgress}
+															message={collectiveProgressMsg}
+															dark={true}
+															showCredit={false}
+														/>
+													{:else if s.collectiveImage}
+														<div class="relative h-full w-full">
+															<div
+																class={collectiveGenerating
+																	? 'pointer-events-none h-full w-full opacity-50 blur-sm transition-all duration-500'
+																	: 'h-full w-full transition-all duration-500'}
+															>
+																<WorkspaceImage
+																	imageData={s.collectiveImage}
+																	prompt={s.collectivePrompt || ''}
+																	generationsRemaining={s.collectiveGenerationsRemaining}
+																	onregenerate={() => generateCollective()}
+																	onedit={(editPrompt) =>
+																		generateCollective({
+																			additionalPrompt: editPrompt,
+																			editInPlace: true
+																		})}
+																	onundo={undoCollectiveImage}
+																	canUndo={canUndoCollective}
+																	dark={true}
+																/>
+															</div>
+															{#if collectiveGenerating}
+																<div
+																	class="absolute inset-x-0 -top-6 bottom-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-black/50 backdrop-blur-sm"
+																>
+																	<AiLoader
+																		progress={collectiveProgress}
+																		message={collectiveProgressMsg}
+																		dark={true}
+																		showCredit={false}
+																	/>
+																</div>
+															{/if}
 														</div>
 													{:else}
-														<div class="h-[75vh]">
-															<MasonryTicker
-																images={s.workspaceImages.individual}
-																onselect={(img) => (selectedImage = img)}
-															/>
+														<div class="flex flex-col items-center gap-5 px-6 py-14 text-center">
+															<div
+																class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 text-white/80 shadow-inner ring-1 ring-white/10"
+															>
+																<Sparkles size={32} />
+															</div>
+															<div>
+																<h3
+																	class="mb-2 font-display text-xl font-bold tracking-tight text-white"
+																>
+																	Visualize the Session's Priorities
+																</h3>
+																<p class="text-sm leading-relaxed font-medium text-white/50">
+																	Transform the session's top-voted features into an evidence-driven
+																	workspace visualisation — individual choices meet data-backed
+																	design.
+																</p>
+															</div>
+															<button
+																type="button"
+																class="group relative mt-2 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-white px-8 py-4 text-[13px] font-black tracking-wide text-teal shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-all hover:scale-[1.02] hover:bg-slate-50 hover:shadow-[0_0_60px_rgba(255,255,255,0.2)] active:scale-95 lg:w-auto"
+																onclick={() => generateCollective()}
+															>
+																<span>GENERATE WORKSPACE</span>
+																<Sparkles
+																	size={16}
+																	class="transition-transform group-hover:scale-110"
+																/>
+															</button>
 														</div>
 													{/if}
 												</div>
-
-												<!-- Right: Collective workspace (40%) -->
-												<div class="flex flex-col lg:w-2/5">
-													<div class="mb-4 flex items-center justify-between">
-														<PillLabel>Collective Workspace</PillLabel>
-														{#if s.collectiveImage}
-															<button
-																type="button"
-																class="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-semibold text-white/30 transition-colors hover:bg-white/10 hover:text-white/60"
-																onclick={clearCollectiveImage}
-															>
-																<Trash2 size={12} /> Clear
-															</button>
-														{/if}
-													</div>
-													<div class="flex-1 rounded-2xl border border-white/8 bg-white/5 p-4 flex flex-col justify-center">
-														{#if collectiveGenerating && !s.collectiveImage}
-															<AiLoader progress={collectiveProgress} message={collectiveProgressMsg} dark={true} showCredit={false} />
-														{:else if s.collectiveImage}
-															<div class="relative h-full w-full">
-																<div class={collectiveGenerating ? 'pointer-events-none opacity-50 blur-sm transition-all duration-500 h-full w-full' : 'transition-all duration-500 h-full w-full'}>
-																	<WorkspaceImage
-																		imageData={s.collectiveImage}
-																		prompt={s.collectivePrompt || ''}
-																		generationsRemaining={s.collectiveGenerationsRemaining}
-																		onregenerate={() => generateCollective()}
-																		onedit={(editPrompt) => generateCollective({ additionalPrompt: editPrompt, editInPlace: true })}
-																		onundo={undoCollectiveImage}
-																		canUndo={canUndoCollective}
-																		dark={true}
-																	/>
-																</div>
-																{#if collectiveGenerating}
-																	<div class="absolute inset-x-0 -top-6 bottom-0 z-10 flex flex-col items-center justify-center rounded-2xl bg-black/50 backdrop-blur-sm">
-																		<AiLoader progress={collectiveProgress} message={collectiveProgressMsg} dark={true} showCredit={false} />
-																	</div>
-																{/if}
-															</div>
-														{:else}
-															<div class="flex flex-col items-center gap-5 px-6 py-14 text-center">
-																<div class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 text-white/80 shadow-inner ring-1 ring-white/10">
-																	<Sparkles size={32} />
-																</div>
-																<div>
-																	<h3 class="mb-2 font-display text-xl font-bold tracking-tight text-white">
-																		Visualize the Session's Priorities
-																	</h3>
-																	<p class="text-sm font-medium leading-relaxed text-white/50">
-																		Transform the session's top-voted features into an evidence-driven workspace visualisation — individual choices meet data-backed design.
-																	</p>
-																</div>
-																<button
-																	type="button"
-																	class="group relative mt-2 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-white px-8 py-4 text-[13px] font-black tracking-wide text-teal shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-all hover:scale-[1.02] hover:bg-slate-50 hover:shadow-[0_0_60px_rgba(255,255,255,0.2)] active:scale-95 lg:w-auto"
-																	onclick={() => generateCollective()}
-																>
-																	<span>GENERATE WORKSPACE</span>
-																	<Sparkles size={16} class="transition-transform group-hover:scale-110" />
-																</button>
-															</div>
-														{/if}
-													</div>
-												</div>
 											</div>
-										{/if}
-									</div>
-								{/key}
+										</div>
+									{/if}
+								</div>
+							{/key}
 						</div>
 
 						<!-- Page Navigation -->
@@ -422,7 +462,9 @@
 						/>
 
 						<!-- Keyboard hint -->
-						<p class="text-center text-[10px] text-white/20">Use arrow keys or spacebar to navigate</p>
+						<p class="text-center text-[10px] text-white/20">
+							Use arrow keys or spacebar to navigate
+						</p>
 					{/if}
 
 					<!-- Research footer -->
@@ -464,6 +506,10 @@
 	</div>
 
 	{#if selectedImage}
-		<ImageModal image={selectedImage} onclose={() => (selectedImage = null)} />
+		<ImageModal
+			image={selectedImage}
+			onclose={() => (selectedImage = null)}
+			ondelete={deleteImage}
+		/>
 	{/if}
 </AppBackground>

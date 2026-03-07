@@ -2,11 +2,11 @@
 	import { untrack } from 'svelte';
 	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
-	import { VotingEngine } from '$lib/stores/voting.svelte';
+	import { VotingEngine } from './voting.svelte';
 	import { MAX_PICKS } from '$lib/data/default-features';
 	import VoteTopbar from '$lib/components/VoteTopbar.svelte';
 	import FeatureGrid from '$lib/components/FeatureGrid.svelte';
-	import Button from '$lib/components/ui/Button.svelte';
+	import Button from '$lib/components/Button.svelte';
 	import AppBackground from '$lib/components/AppBackground.svelte';
 
 	let { data }: { data: PageData } = $props();
@@ -32,7 +32,7 @@
 </svelte:head>
 
 <AppBackground theme={engine.phase === 'communal' ? 'dark-blue' : 'teal'}>
-	<div class="flex flex-col min-h-dvh">
+	<div class="flex min-h-dvh flex-col">
 		<VoteTopbar phase={engine.phase} totalPicks={engine.count} maxPicks={MAX_PICKS} />
 
 		<main class="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6">

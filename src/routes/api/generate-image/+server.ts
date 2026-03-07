@@ -1,14 +1,13 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getDb } from '$lib/server/db';
-import { eq, and, sql } from 'drizzle-orm';
-import { votes, sessionFeatures, workspaceImages } from '$lib/server/db/schema';
 import {
 	getWorkspaceImageCount,
 	getCollectiveImageCount,
-	getSessionFeatures as fetchSessionFeatures,
 	insertWorkspaceImage,
-	updateParticipantIdentity
+	updateParticipantIdentity,
+	getExistingImageByEmail,
+	getParticipantVotedFeatureNames
 } from '$lib/server/db/queries';
 import {
 	configureFal,
@@ -77,21 +76,9 @@ export const POST: RequestHandler = async ({ request, platform, cookies, url }) 
 
 		// If they just submitted the form initially (no additionalPrompt) and already have an image connected to this email, skip generation
 		if (targetEmail && !additionalPrompt) {
-			const existing = await db
-				.select()
-				.from(workspaceImages)
-				.where(
-					and(
-						eq(workspaceImages.sessionId, sessionId),
-						eq(workspaceImages.type, 'individual'),
-						eq(workspaceImages.participantEmail, targetEmail)
-					)
-				)
-				.orderBy(sql`${workspaceImages.createdAt} DESC`)
-				.limit(1);
+			const img = await getExistingImageByEmail(db, sessionId, targetEmail);
 
-			if (existing.length > 0) {
-				const img = existing[0];
+			if (img) {
 				// Resolve R2 key to proxy URL if needed
 				const resolvedImageData = isR2Key(img.imageData)
 					? `${url.origin}/api/images/${img.imageData}`
@@ -116,22 +103,7 @@ export const POST: RequestHandler = async ({ request, platform, cookies, url }) 
 		}
 
 		// Fetch this participant's voted features
-		const rows = await db
-			.select({
-				name: sessionFeatures.name,
-				hasEvidence: sessionFeatures.hasEvidence
-			})
-			.from(votes)
-			.innerJoin(
-				sessionFeatures,
-				and(
-					eq(votes.featureId, sessionFeatures.featureId),
-					eq(votes.sessionId, sessionFeatures.sessionId)
-				)
-			)
-			.where(and(eq(votes.participantId, participantId), eq(votes.sessionId, sessionId)));
-
-		features = rows.map((r) => ({ name: r.name, hasEvidence: r.hasEvidence }));
+		features = await getParticipantVotedFeatureNames(db, participantId, sessionId);
 	} else {
 		// Collective: use top 8 features from tally
 		currentCount = await getCollectiveImageCount(db, sessionId);
