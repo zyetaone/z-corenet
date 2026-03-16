@@ -108,12 +108,25 @@
 	}
 
 	@keyframes dot-bounce {
-		0%, 100% { transform: translateY(0) scaleY(1) scaleX(1); }
-		10% { transform: translateY(0) scaleY(0.3) scaleX(1.3); }
-		20% { transform: translateY(-8px) scaleY(1.1) scaleX(0.9); }
-		30% { transform: translateY(0) scaleY(0.95) scaleX(1.05); }
-		40% { transform: translateY(-4px) scaleY(1.05) scaleX(0.95); }
-		50% { transform: translateY(0) scaleY(1) scaleX(1); }
+		0%,
+		100% {
+			transform: translateY(0) scaleY(1) scaleX(1);
+		}
+		10% {
+			transform: translateY(0) scaleY(0.3) scaleX(1.3);
+		}
+		20% {
+			transform: translateY(-8px) scaleY(1.1) scaleX(0.9);
+		}
+		30% {
+			transform: translateY(0) scaleY(0.95) scaleX(1.05);
+		}
+		40% {
+			transform: translateY(-4px) scaleY(1.05) scaleX(0.95);
+		}
+		50% {
+			transform: translateY(0) scaleY(1) scaleX(1);
+		}
 	}
 
 	.progress-pct {

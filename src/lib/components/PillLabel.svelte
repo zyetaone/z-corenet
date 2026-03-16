@@ -17,7 +17,9 @@
 </script>
 
 <div
-	class="inline-flex items-center rounded-full px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase {variantClasses[variant]} {className}"
+	class="inline-flex items-center rounded-full px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase {variantClasses[
+		variant
+	]} {className}"
 >
 	{@render children()}
 </div>

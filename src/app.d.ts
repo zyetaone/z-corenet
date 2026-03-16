@@ -24,7 +24,11 @@ declare global {
 	}
 
 	interface R2Bucket {
-		put(key: string, value: ArrayBufferView | ArrayBuffer | string | ReadableStream | Blob, options?: R2PutOptions): Promise<R2Object>;
+		put(
+			key: string,
+			value: ArrayBufferView | ArrayBuffer | string | ReadableStream | Blob,
+			options?: R2PutOptions
+		): Promise<R2Object>;
 		get(key: string): Promise<R2ObjectBody | null>;
 		head(key: string): Promise<R2Object | null>;
 		delete(key: string | string[]): Promise<void>;

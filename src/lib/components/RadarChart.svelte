@@ -115,7 +115,9 @@
 		{#each datasets as ds}
 			<div class="flex items-center gap-1.5">
 				<div class="h-2 w-2 rounded-full" style="background: {ds.color}"></div>
-				<span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">{ds.label}</span>
+				<span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase"
+					>{ds.label}</span
+				>
 			</div>
 		{/each}
 	</div>

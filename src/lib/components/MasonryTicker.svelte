@@ -19,9 +19,7 @@
 	let needsScroll = $derived(images.length > 6);
 
 	// Duplicate images for seamless looping when auto-scrolling
-	let displayImages = $derived(
-		needsScroll ? [...images, ...images] : images
-	);
+	let displayImages = $derived(needsScroll ? [...images, ...images] : images);
 </script>
 
 <div
@@ -34,11 +32,7 @@
 >
 	<div class="masonry-track">
 		{#each displayImages as image, i (needsScroll ? `${image.id}-${i}` : image.id)}
-			<button
-				type="button"
-				class="masonry-card"
-				onclick={() => onselect(image)}
-			>
+			<button type="button" class="masonry-card" onclick={() => onselect(image)}>
 				<img src={image.imageData} alt="{image.participantName}'s workspace" loading="lazy" />
 				<span class="card-name">{image.participantName}</span>
 			</button>
@@ -97,8 +91,12 @@
 	}
 
 	@keyframes ticker-scroll {
-		0% { transform: translateY(0); }
-		100% { transform: translateY(-50%); }
+		0% {
+			transform: translateY(0);
+		}
+		100% {
+			transform: translateY(-50%);
+		}
 	}
 
 	.masonry-card {
@@ -112,7 +110,9 @@
 		border: 1px solid rgba(255, 255, 255, 0.08);
 		background: none;
 		padding: 0;
-		transition: transform 0.2s, box-shadow 0.2s;
+		transition:
+			transform 0.2s,
+			box-shadow 0.2s;
 		break-inside: avoid;
 	}
 

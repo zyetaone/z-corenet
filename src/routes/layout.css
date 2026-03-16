@@ -109,7 +109,11 @@ body {
 }
 
 .theme-dark-blue {
-	background: linear-gradient(160deg, var(--color-blue-grad-start) 0%, var(--color-blue-grad-end) 100%);
+	background: linear-gradient(
+		160deg,
+		var(--color-blue-grad-start) 0%,
+		var(--color-blue-grad-end) 100%
+	);
 	color: #fff;
 }
 

@@ -62,6 +62,7 @@ Sessions are tracked via two httpOnly cookies set at `/`:
 - `participant_id` — identifies the individual voter
 
 Shared session helpers in `src/lib/server/session.ts`:
+
 - `resolveSessionAndParticipant(db, cookies)` — self-heals stale cookies (creates new session/participant if needed)
 - `getOrCreateOpenSession(db)` — finds latest open session or creates one
 - `requireParticipant(cookies)` — reads cookies, redirects to `/` if missing
@@ -135,4 +136,5 @@ This project has the Svelte MCP server configured (`.mcp.json`). When writing Sv
 Prettier config (`.prettierrc`): tabs, single quotes, no trailing commas, 100 char width. Svelte parser for `.svelte` files. Tailwind class sorting uses `./src/routes/layout.css` as stylesheet reference.
 
 # currentDate
+
 Today's date is 2026-03-07.

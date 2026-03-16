@@ -75,7 +75,10 @@
 			type="button"
 			class="action-btn edit-btn"
 			disabled={generationsRemaining <= 0 || !repromptText.trim()}
-			onclick={() => { onedit(repromptText); repromptText = ''; }}
+			onclick={() => {
+				onedit(repromptText);
+				repromptText = '';
+			}}
 		>
 			<Pencil size={14} /> Edit
 		</button>
@@ -83,7 +86,10 @@
 			type="button"
 			class="action-btn"
 			disabled={generationsRemaining <= 0}
-			onclick={() => { onregenerate(); repromptText = ''; }}
+			onclick={() => {
+				onregenerate();
+				repromptText = '';
+			}}
 		>
 			<RefreshCw size={14} />
 			{#if generationsRemaining > 0}

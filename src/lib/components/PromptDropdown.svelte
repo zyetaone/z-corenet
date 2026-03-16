@@ -20,11 +20,7 @@
 </script>
 
 <div class="prompt-dropdown" class:dark-mode={dark}>
-	<button
-		type="button"
-		class="toggle-btn"
-		onclick={() => (open = !open)}
-	>
+	<button type="button" class="toggle-btn" onclick={() => (open = !open)}>
 		<ChevronDown size={14} class="chevron {open ? 'rotated' : ''}" />
 		View full prompt
 	</button>

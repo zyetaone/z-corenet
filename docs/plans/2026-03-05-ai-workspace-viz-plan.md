@@ -15,6 +15,7 @@
 ### Task 1: Install @fal-ai/client + configure environment
 
 **Files:**
+
 - Modify: `package.json`
 - Modify: `src/app.d.ts:26-28`
 - Modify: `wrangler.jsonc`
@@ -50,6 +51,7 @@ git commit -m "chore: add @fal-ai/client, configure FAL_API_KEY env"
 ### Task 2: D1 migration + Drizzle schema
 
 **Files:**
+
 - Create: `migrations/0002_workspace_images.sql`
 - Modify: `src/lib/server/db/schema.ts`
 
@@ -137,11 +139,13 @@ git commit -m "feat: add workspace_images table + participants.email column"
 ### Task 3: Image generator server module (fal.ai + prompt builder)
 
 **Files:**
+
 - Create: `src/lib/server/ai/image-generator.ts`
 
 **Step 1: Create the image generator module**
 
 This module exports three functions:
+
 - `buildWorkspacePrompt()` — constructs the hybrid prompt
 - `generateWorkspaceImage()` — calls fal.ai and returns base64
 - `configureFal()` — sets up fal.ai client with API key
@@ -168,9 +172,7 @@ export function buildWorkspacePrompt(
 	features: Array<{ name: string; hasEvidence: boolean }>,
 	additionalPrompt?: string
 ): string {
-	const evidenceBacked = features
-		.filter((f) => f.hasEvidence)
-		.map((f) => f.name.toLowerCase());
+	const evidenceBacked = features.filter((f) => f.hasEvidence).map((f) => f.name.toLowerCase());
 	const allFeatures = features.map((f) => f.name.toLowerCase()).join(', ');
 
 	const parts = [
@@ -205,10 +207,7 @@ export function buildWorkspacePrompt(
 /**
  * Build regeneration prompt by appending user modifications.
  */
-export function buildRegenerationPrompt(
-	previousPrompt: string,
-	userInput?: string
-): string {
+export function buildRegenerationPrompt(previousPrompt: string, userInput?: string): string {
 	if (userInput?.trim()) {
 		return `${previousPrompt} | Alternative version: ${userInput.trim()}`;
 	}
@@ -275,6 +274,7 @@ git commit -m "feat: add fal.ai image generator with hybrid prompt builder"
 ### Task 4: DB query functions for workspace images
 
 **Files:**
+
 - Modify: `src/lib/server/db/queries.ts`
 
 **Step 1: Add workspace image query functions**
@@ -301,10 +301,7 @@ export async function getWorkspaceImageCount(
 	return result.count;
 }
 
-export async function getCollectiveImageCount(
-	db: DbClient,
-	sessionId: string
-): Promise<number> {
+export async function getCollectiveImageCount(db: DbClient, sessionId: string): Promise<number> {
 	const [result] = await db
 		.select({ count: count() })
 		.from(workspaceImages)
@@ -378,10 +375,7 @@ export async function updateParticipantIdentity(
 	name: string,
 	email: string
 ): Promise<void> {
-	await db
-		.update(participants)
-		.set({ name, email })
-		.where(eq(participants.id, participantId));
+	await db.update(participants).set({ name, email }).where(eq(participants.id, participantId));
 }
 ```
 
@@ -401,6 +395,7 @@ git commit -m "feat: add workspace image DB queries"
 ### Task 5: POST /api/generate-image endpoint
 
 **Files:**
+
 - Create: `src/routes/api/generate-image/+server.ts`
 
 **Step 1: Create the endpoint**
@@ -463,12 +458,7 @@ export const POST: RequestHandler = async ({ request, platform, cookies }) => {
 
 		// Update participant identity if provided
 		if (name?.trim() || email?.trim()) {
-			await updateParticipantIdentity(
-				db,
-				participantId,
-				name?.trim() ?? '',
-				email?.trim() ?? ''
-			);
+			await updateParticipantIdentity(db, participantId, name?.trim() ?? '', email?.trim() ?? '');
 		}
 
 		// Fetch this participant's voted features
@@ -570,6 +560,7 @@ git commit -m "feat: add POST /api/generate-image endpoint for fal.ai generation
 ### Task 6: GET /api/workspace-images endpoint
 
 **Files:**
+
 - Create: `src/routes/api/workspace-images/+server.ts`
 
 **Step 1: Create the gallery polling endpoint**
@@ -637,6 +628,7 @@ git commit -m "feat: add GET /api/workspace-images for dashboard gallery polling
 ### Task 7: AiLoader component (ZyetaI branding)
 
 **Files:**
+
 - Create: `src/lib/components/AiLoader.svelte`
 
 **Step 1: Create the loader component**
@@ -712,12 +704,25 @@ Port from workspace-studio's ImagePreview.svelte, adapted for CoreNet's teal the
 	}
 
 	@keyframes dot-bounce {
-		0%, 100% { transform: translateY(0) scaleY(1) scaleX(1); }
-		10% { transform: translateY(0) scaleY(0.3) scaleX(1.3); }
-		20% { transform: translateY(-8px) scaleY(1.1) scaleX(0.9); }
-		30% { transform: translateY(0) scaleY(0.95) scaleX(1.05); }
-		40% { transform: translateY(-4px) scaleY(1.05) scaleX(0.95); }
-		50% { transform: translateY(0) scaleY(1) scaleX(1); }
+		0%,
+		100% {
+			transform: translateY(0) scaleY(1) scaleX(1);
+		}
+		10% {
+			transform: translateY(0) scaleY(0.3) scaleX(1.3);
+		}
+		20% {
+			transform: translateY(-8px) scaleY(1.1) scaleX(0.9);
+		}
+		30% {
+			transform: translateY(0) scaleY(0.95) scaleX(1.05);
+		}
+		40% {
+			transform: translateY(-4px) scaleY(1.05) scaleX(0.95);
+		}
+		50% {
+			transform: translateY(0) scaleY(1) scaleX(1);
+		}
 	}
 
 	.progress-pct {
@@ -782,6 +787,7 @@ git commit -m "feat: add AiLoader component with ZyetaI branding"
 ### Task 8: PromptDropdown component
 
 **Files:**
+
 - Create: `src/lib/components/PromptDropdown.svelte`
 
 **Step 1: Create the prompt dropdown**
@@ -809,11 +815,7 @@ git commit -m "feat: add AiLoader component with ZyetaI branding"
 </script>
 
 <div class="prompt-dropdown" class:dark-mode={dark}>
-	<button
-		type="button"
-		class="toggle-btn"
-		onclick={() => (open = !open)}
-	>
+	<button type="button" class="toggle-btn" onclick={() => (open = !open)}>
 		<ChevronDown size={14} class="chevron {open ? 'rotated' : ''}" />
 		View full prompt
 	</button>
@@ -941,6 +943,7 @@ git commit -m "feat: add PromptDropdown component with copy-to-clipboard"
 ### Task 9: WorkspaceImage display component
 
 **Files:**
+
 - Create: `src/lib/components/WorkspaceImage.svelte`
 
 **Step 1: Create the image display component**
@@ -1014,7 +1017,10 @@ This component handles image display, regeneration with reprompt, download, full
 			type="button"
 			class="action-btn"
 			disabled={generationsRemaining <= 0}
-			onclick={() => { onregenerate(repromptText || undefined); repromptText = ''; }}
+			onclick={() => {
+				onregenerate(repromptText || undefined);
+				repromptText = '';
+			}}
 		>
 			<RefreshCw size={14} />
 			{#if generationsRemaining > 0}
@@ -1182,6 +1188,7 @@ git commit -m "feat: add WorkspaceImage component with regenerate/download/fulls
 ### Task 10: Thanks page — add visualization section
 
 **Files:**
+
 - Modify: `src/routes/thanks/+page.server.ts`
 - Modify: `src/routes/thanks/+page.svelte`
 
@@ -1196,9 +1203,7 @@ import { MAX_GENERATIONS } from '$lib/server/ai/image-generator';
 
 // After the existing query, before the return, add:
 const existingImage = await getLatestParticipantImage(db, participantId, sessionId);
-const imageCount = existingImage
-	? await getWorkspaceImageCount(db, participantId, sessionId)
-	: 0;
+const imageCount = existingImage ? await getWorkspaceImageCount(db, participantId, sessionId) : 0;
 
 // Update return:
 return {
@@ -1220,6 +1225,7 @@ return {
 Add visualization section after the existing grid in `+page.svelte`. The component manages its own state machine: form → generating → image display.
 
 Add these imports:
+
 ```typescript
 import AiLoader from '$lib/components/AiLoader.svelte';
 import WorkspaceImage from '$lib/components/WorkspaceImage.svelte';
@@ -1227,6 +1233,7 @@ import { Sparkles } from '@lucide/svelte';
 ```
 
 Add state variables:
+
 ```typescript
 let vizState = $state<'form' | 'generating' | 'done'>(data.existingImage ? 'done' : 'form');
 let userName = $state('');
@@ -1296,22 +1303,35 @@ Add visualization section in the template (after the closing `</div>` of the gri
 
 ```svelte
 {#if data.hasFalKey}
-	<div class="mt-4 rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-[0_20px_50px_rgba(0,0,0,0.15)] md:p-8">
+	<div
+		class="mt-4 rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-[0_20px_50px_rgba(0,0,0,0.15)] md:p-8"
+	>
 		{#if vizState === 'form'}
 			<div class="flex flex-col items-center gap-4 text-center">
 				<div class="flex items-center gap-2 text-accent">
 					<Sparkles size={20} />
 					<h3 class="font-display text-xl font-bold text-slate-900">Visualise Your Workspace</h3>
 				</div>
-				<p class="text-sm text-slate-500">See your choices come to life as an AI-generated workspace design</p>
+				<p class="text-sm text-slate-500">
+					See your choices come to life as an AI-generated workspace design
+				</p>
 				<div class="flex w-full max-w-md gap-3">
-					<input type="text" placeholder="Your Name" bind:value={userName}
-						class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-teal focus:outline-none" />
-					<input type="email" placeholder="Email" bind:value={userEmail}
-						class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-teal focus:outline-none" />
+					<input
+						type="text"
+						placeholder="Your Name"
+						bind:value={userName}
+						class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-teal focus:outline-none"
+					/>
+					<input
+						type="email"
+						placeholder="Email"
+						bind:value={userEmail}
+						class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:border-teal focus:outline-none"
+					/>
 				</div>
-				<button type="button"
-					class="rounded-xl bg-gradient-to-r from-teal to-accent px-8 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed"
+				<button
+					type="button"
+					class="rounded-xl bg-gradient-to-r from-teal to-accent px-8 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-40"
 					disabled={!userName.trim() || !userEmail.trim()}
 					onclick={() => generateImage()}
 				>
@@ -1348,6 +1368,7 @@ git commit -m "feat: add workspace visualization section to thanks page"
 ### Task 11: ImageModal component (for dashboard gallery)
 
 **Files:**
+
 - Create: `src/lib/components/ImageModal.svelte`
 
 **Step 1: Create the modal**
@@ -1434,7 +1455,9 @@ git commit -m "feat: add workspace visualization section to thanks page"
 
 		{#if image.featureNames.length > 0}
 			<div>
-				<p class="mb-1 text-xs font-semibold tracking-wider text-white/40 uppercase">Feature choices</p>
+				<p class="mb-1 text-xs font-semibold tracking-wider text-white/40 uppercase">
+					Feature choices
+				</p>
 				<p class="text-sm leading-relaxed text-white/70">
 					{image.featureNames.join(', ')}
 				</p>
@@ -1443,13 +1466,15 @@ git commit -m "feat: add workspace visualization section to thanks page"
 
 		<!-- Actions -->
 		<div class="flex gap-2">
-			<button type="button"
+			<button
+				type="button"
 				class="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/60 transition-colors hover:bg-white/10 hover:text-white"
 				onclick={download}
 			>
 				<Download size={13} /> Download
 			</button>
-			<button type="button"
+			<button
+				type="button"
 				class="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/60 transition-colors hover:bg-white/10 hover:text-white"
 				onclick={() => (fullscreen = true)}
 			>
@@ -1494,6 +1519,7 @@ git commit -m "feat: add ImageModal for dashboard gallery detail view"
 ### Task 12: MasonryTicker component
 
 **Files:**
+
 - Create: `src/lib/components/MasonryTicker.svelte`
 
 **Step 1: Create the masonry ticker**
@@ -1530,11 +1556,7 @@ CSS `columns` masonry with continuous upward scroll animation. Pauses on hover. 
 >
 	<div class="masonry-track">
 		{#each images as image (image.id)}
-			<button
-				type="button"
-				class="masonry-card"
-				onclick={() => onselect(image)}
-			>
+			<button type="button" class="masonry-card" onclick={() => onselect(image)}>
 				<img src={image.imageData} alt="{image.participantName}'s workspace" loading="lazy" />
 				<span class="card-name">{image.participantName}</span>
 			</button>
@@ -1568,8 +1590,12 @@ CSS `columns` masonry with continuous upward scroll animation. Pauses on hover. 
 	}
 
 	@keyframes ticker-scroll {
-		0% { transform: translateY(0); }
-		100% { transform: translateY(-50%); }
+		0% {
+			transform: translateY(0);
+		}
+		100% {
+			transform: translateY(-50%);
+		}
 	}
 
 	.masonry-card {
@@ -1583,7 +1609,9 @@ CSS `columns` masonry with continuous upward scroll animation. Pauses on hover. 
 		border: 1px solid rgba(255, 255, 255, 0.08);
 		background: none;
 		padding: 0;
-		transition: transform 0.2s, box-shadow 0.2s;
+		transition:
+			transform 0.2s,
+			box-shadow 0.2s;
 	}
 
 	.masonry-card:hover {
@@ -1630,6 +1658,7 @@ git commit -m "feat: add MasonryTicker component with continuous scroll"
 ### Task 13: Dashboard state — add page 4 + workspace image polling
 
 **Files:**
+
 - Modify: `src/routes/dashboard/state.svelte.ts`
 
 **Step 1: Update DashboardState**
@@ -1715,6 +1744,7 @@ git commit -m "feat: add page 4 state + workspace image polling to DashboardStat
 ### Task 14: Dashboard page 4 — gallery + collective UI
 
 **Files:**
+
 - Modify: `src/routes/dashboard/+page.svelte`
 
 **Step 1: Add workspace image polling effect**
@@ -1901,6 +1931,7 @@ bun run dev
 ```
 
 Walk through:
+
 1. Join session, vote both phases
 2. On `/thanks`, enter name + email, click "Generate My Workspace"
 3. Verify AiLoader appears with ZyetaI branding + progress
@@ -1961,6 +1992,7 @@ Task 12 (MasonryTicker)─┤
 ```
 
 **Parallel opportunities:**
+
 - Tasks 1 + 2 can run in parallel
 - Tasks 7 + 8 + 11 + 12 can all run in parallel (independent components)
 - Tasks 3 + 4 can run in parallel (after 1 + 2)

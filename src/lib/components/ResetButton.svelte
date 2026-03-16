@@ -129,7 +129,9 @@
 					maxlength="4"
 					placeholder="----"
 					bind:value={pin}
-					onkeydown={(e) => { if (e.key === 'Enter') submitPin(); }}
+					onkeydown={(e) => {
+						if (e.key === 'Enter') submitPin();
+					}}
 					class="mx-auto mb-2 block w-32 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] text-navy transition-all focus:border-teal focus:ring-4 focus:ring-teal/10 focus:outline-none"
 				/>
 				{#if pinError}

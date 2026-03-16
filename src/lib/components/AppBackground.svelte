@@ -12,7 +12,9 @@
 	const themeClass = $derived(theme === 'dark-blue' ? 'theme-dark-blue' : 'bg-teal-gradient');
 </script>
 
-<div class="{themeClass} relative flex min-h-dvh flex-col transition-colors duration-700 overflow-hidden">
+<div
+	class="{themeClass} relative flex min-h-dvh flex-col overflow-hidden transition-colors duration-700"
+>
 	<!-- Subtle grid overlay for texture -->
 	<div
 		class="animated-grid-bg"
@@ -42,7 +44,7 @@
 		></div>
 	{/if}
 
-	<div class="relative z-10 flex-1 w-full max-w-full">
+	<div class="relative z-10 w-full max-w-full flex-1">
 		{@render children()}
 	</div>
 </div>

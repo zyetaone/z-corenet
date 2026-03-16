@@ -65,10 +65,7 @@ export function buildWorkspacePrompt(
 /**
  * Build regeneration prompt by appending user modifications.
  */
-export function buildRegenerationPrompt(
-	previousPrompt: string,
-	userInput?: string
-): string {
+export function buildRegenerationPrompt(previousPrompt: string, userInput?: string): string {
 	if (userInput?.trim()) {
 		return `${previousPrompt} | Alternative version: ${userInput.trim()}`;
 	}
